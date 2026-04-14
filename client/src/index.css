@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme {
+  --color-neo-bg: #E0E5EC;
+  --color-neo-fg: #3D4852;
+  --color-neo-muted: #6B7280;
+  --color-neo-accent: #6C63FF;
+  --color-neo-accent-light: #8B84FF;
+  --color-neo-success: #38B2AC;
+
+  --font-display: "Plus Jakarta Sans", sans-serif;
+  --font-sans: "DM Sans", sans-serif;
+
+  --shadow-extruded: 9px 9px 16px rgba(163, 177, 198, 0.6), -9px -9px 16px rgba(255, 255, 255, 0.5);
+  --shadow-extruded-hover: 12px 12px 20px rgba(163, 177, 198, 0.7), -12px -12px 20px rgba(255, 255, 255, 0.6);
+  --shadow-extruded-small: 5px 5px 10px rgba(163, 177, 198, 0.6), -5px -5px 10px rgba(255, 255, 255, 0.5);
+  
+  --shadow-inset: inset 6px 6px 10px rgba(163, 177, 198, 0.6), inset -6px -6px 10px rgba(255, 255, 255, 0.5);
+  --shadow-inset-deep: inset 10px 10px 20px rgba(163, 177, 198, 0.7), inset -10px -10px 20px rgba(255, 255, 255, 0.6);
+  --shadow-inset-small: inset 3px 3px 6px rgba(163, 177, 198, 0.6), inset -3px -3px 6px rgba(255, 255, 255, 0.5);
+}
+
+@layer base {
+  body {
+    @apply bg-neo-bg text-neo-fg font-sans antialiased;
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom scrollbar matching Neumorphism */
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: #E0E5EC;
+  box-shadow: inset 2px 2px 5px rgba(163, 177, 198, 0.5), inset -2px -2px 5px rgba(255, 255, 255, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: #E0E5EC;
+  border-radius: 10px;
+  box-shadow: 2px 2px 5px rgba(163, 177, 198, 0.5), -2px -2px 5px rgba(255, 255, 255, 0.5);
+}
