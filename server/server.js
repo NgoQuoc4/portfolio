@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import mongoose from 'mongoose';
 import connectDB from './config/db.js';
 
 // Khởi tạo biến môi trường
@@ -12,6 +13,18 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// Middleware đảm bảo kết nối DB cho vần đề serverless
+app.use(async (req, res, next) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      await connectDB();
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 // Import routes
 import projectRoutes from './routes/projectRoutes.js';
