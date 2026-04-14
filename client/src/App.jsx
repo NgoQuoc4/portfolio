@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 import Home from './pages/Home';
 import Login from './pages/Admin/Login';
@@ -35,6 +36,7 @@ function App() {
               />
             </Routes>
           </div>
+          <SpeedInsights />
         </Router>
       </AuthProvider>
     </LanguageProvider>
