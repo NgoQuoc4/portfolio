@@ -33,15 +33,25 @@ app.use('/api/profile', profileRoutes);
 const PORT = process.env.PORT || 5000;
 
 // Khởi động server (sẽ gọi connectDB trước khi listen)
-const startServer = async () => {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error('Failed to connect to DB and start server', error);
-  }
-};
+// Lưu ý: Vercel sẽ tự handle việc gọi app, không cần listen trong môi trường serverless
+if (process.env.NODE_ENV !== 'production' || process.env.VERCEL !== '1') {
+  const startServer = async () => {
+    try {
+      await connectDB();
+      app.listen(PORT, () => {
+        console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+      });
+    } catch (error) {
+      console.error('Failed to connect to DB and start server', error);
+    }
+  };
+  startServer();
+}
 
-startServer();
+// Luôn gọi connectDB cho môi trường serverless (Vercel)
+// Vercel sẽ cache kết nối DB giữa các lần gọi hàm
+if (process.env.VERCEL === '1') {
+  connectDB();
+}
+
+export default app;
