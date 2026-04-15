@@ -33,17 +33,22 @@ const AppContent = () => {
   // Show preloader until EVERYTHING is ready
   const isEverythingReady = !authLoading && !portfolioLoading && minTimeExpired;
 
-  useEffect(() => {
-    if (isEverythingReady) {
-      setShowPreloader(false);
-    }
-  }, [isEverythingReady]);
+  const handlePreloaderFinish = () => {
+    setShowPreloader(false);
+  };
 
   return (
     <>
       <AnimatePresence mode="wait">
-        {showPreloader && <Preloader key="preloader" isReady={isEverythingReady} />}
+        {showPreloader && (
+          <Preloader 
+            key="preloader" 
+            isReady={isEverythingReady} 
+            onFinish={handlePreloaderFinish} 
+          />
+        )}
       </AnimatePresence>
+
 
       
       {!showPreloader && (
