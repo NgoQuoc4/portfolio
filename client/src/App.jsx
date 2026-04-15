@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { PortfolioProvider, PortfolioContext } from './context/PortfolioContext';
 
 import Home from './pages/Home';
 import Login from './pages/Admin/Login';
@@ -17,55 +18,69 @@ const PrivateRoute = ({ children }) => {
   return user ? children : <Navigate to="/admin/login" />;
 };
 
-function App() {
+const AppContent = () => {
+  const { loading: authLoading } = React.useContext(AuthContext);
+  const { loading: portfolioLoading } = React.useContext(PortfolioContext);
   const [showPreloader, setShowPreloader] = useState(true);
+  const [minTimeExpired, setMinTimeExpired] = useState(false);
 
   useEffect(() => {
-    const handleLoad = () => {
-      const timer = setTimeout(() => setShowPreloader(false), 2000);
-      return () => clearTimeout(timer);
-    };
-
-    if (document.readyState === 'complete') {
-      handleLoad();
-    } else {
-      window.addEventListener('load', handleLoad);
-      return () => window.removeEventListener('load', handleLoad);
-    }
+    // Minimum 2 second loader for branding/aesthetic
+    const timer = setTimeout(() => setMinTimeExpired(true), 2000);
+    return () => clearTimeout(timer);
   }, []);
 
+  // Show preloader until EVERYTHING is ready
+  const isEverythingReady = !authLoading && !portfolioLoading && minTimeExpired;
+
+  useEffect(() => {
+    if (isEverythingReady) {
+      setShowPreloader(false);
+    }
+  }, [isEverythingReady]);
+
+  return (
+    <>
+      <AnimatePresence mode="wait">
+        {showPreloader && <Preloader key="preloader" isReady={isEverythingReady} />}
+      </AnimatePresence>
+
+      
+      {!showPreloader && (
+        <Router>
+          <div className="min-h-screen">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/admin/login" element={<Login />} />
+              <Route path="/admin/register" element={<Register />} />
+              <Route 
+                path="/admin/dashboard" 
+                element={
+                  <PrivateRoute>
+                    <Dashboard />
+                  </PrivateRoute>
+                } 
+              />
+            </Routes>
+          </div>
+        </Router>
+      )}
+    </>
+  );
+};
+
+function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <AnimatePresence mode="wait">
-          {showPreloader && <Preloader key="preloader" />}
-        </AnimatePresence>
-        
-        {!showPreloader && (
-          <Router>
-            <div className="min-h-screen">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/admin/login" element={<Login />} />
-                <Route path="/admin/register" element={<Register />} />
-                <Route 
-                  path="/admin/dashboard" 
-                  element={
-                    <PrivateRoute>
-                      <Dashboard />
-                    </PrivateRoute>
-                  } 
-                />
-              </Routes>
-            </div>
-          </Router>
-        )}
+        <PortfolioProvider>
+          <AppContent />
+        </PortfolioProvider>
       </AuthProvider>
     </LanguageProvider>
   );
 }
 
-
-
 export default App;
+
 

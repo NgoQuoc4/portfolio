@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Layers } from 'lucide-react';
 
-const Preloader = () => {
+const Preloader = ({ isReady }) => {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Simulate loading progress
     const interval = setInterval(() => {
       setProgress((prev) => {
+        if (prev >= 95 && !isReady) return 95; // Wait at 95 until ready
         if (prev >= 100) {
           clearInterval(interval);
           return 100;
         }
-        return prev + Math.floor(Math.random() * 10) + 1;
+        const speed = isReady ? 5 : 1;
+        return Math.min(100, prev + Math.floor(Math.random() * speed) + 1);
       });
-    }, 150);
+    }, 100);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isReady]);
+
 
   // Animation constants for the "breathing" pulse
   const pulseVariants = {

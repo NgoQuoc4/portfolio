@@ -4,29 +4,16 @@ import { GitBranch, ExternalLink, Mail, User, Code, Send, MapPin, Phone } from '
 import Navbar from '../components/Navbar';
 import api from '../services/api';
 import { LanguageContext } from '../context/LanguageContext';
+import { PortfolioContext } from '../context/PortfolioContext';
 
 const Home = () => {
   const { t } = React.useContext(LanguageContext);
-  const [projects, setProjects] = useState([]);
-  const [profile, setProfile] = useState(null);
+  const { projects, profile } = React.useContext(PortfolioContext);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [formStatus, setFormStatus] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [projRes, profRes] = await Promise.all([
-          api.get('/projects'),
-          api.get('/profile')
-        ]);
-        setProjects(projRes.data);
-        if (profRes.data) setProfile(profRes.data);
-      } catch (error) {
-        console.error("Failed to load data", error);
-      }
-    };
-    fetchData();
-  }, []);
+  // No need for local fetchData, data is provided by PortfolioContext
+
 
   // Safe fallbacks for display
   const p_name = profile?.name || "Nguyễn Văn A";
