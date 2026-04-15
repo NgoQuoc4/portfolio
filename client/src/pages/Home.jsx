@@ -92,7 +92,7 @@ const Home = () => {
             className="text-5xl md:text-7xl lg:text-8xl font-extrabold font-display tracking-tight mb-8 text-neo-fg leading-[1.1]"
           >
             {t('hero_hi')} <span className="relative whitespace-nowrap text-neo-accent">
-              <span className="relative z-10">{p_name.split(' ')[p_name.split(' ').length - 1] || 'a'}</span>
+              <span className="relative z-10">{p_name && typeof p_name === 'string' ? (p_name.split(' ')[p_name.split(' ').length - 1] || 'a') : 'a'}</span>
             </span>
             <br className="hidden md:block" />
             <span className="text-neo-fg">
@@ -178,7 +178,7 @@ const Home = () => {
 
               <h3 className="text-2xl font-bold font-display mb-8 text-neo-fg">{t('about_skills')}</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {p_skills.map((skill, index) => (
+                {p_skills && Array.isArray(p_skills) && p_skills.map((skill, index) => (
                   <div key={index} className="flex items-center justify-center p-5 rounded-2xl shadow-extruded text-neo-fg font-bold hover:-translate-y-[1px] hover:shadow-extruded-hover transition-all duration-300 cursor-default">
                     {skill}
                   </div>
@@ -215,7 +215,7 @@ const Home = () => {
                   <h3 className="text-2xl font-bold font-display text-neo-fg mb-3">{project.title}</h3>
                   <p className="text-neo-muted mb-6 line-clamp-3 leading-relaxed">{project.description}</p>
                   <div className="flex flex-wrap gap-3 mb-8">
-                    {project.tech_stack.map((tech, i) => (
+                    {project.tech_stack && Array.isArray(project.tech_stack) && project.tech_stack.map((tech, i) => (
                       <span key={i} className="px-4 py-2 text-xs font-bold text-neo-accent shadow-extruded-small rounded-full">
                         {tech}
                       </span>
