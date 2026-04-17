@@ -55,7 +55,7 @@ const Login = () => {
 
         <div className="mt-8 text-center text-sm text-neo-muted font-bold space-y-4">
           <div><Link to="/" className="hover:text-neo-accent transition-colors">← Back to Home</Link></div>
-          <div><Link to="/admin/register" className="hover:text-neo-accent transition-colors">Create an admin account</Link></div>
+          {/* <div><Link to="/admin/register" className="hover:text-neo-accent transition-colors">Create an admin account</Link></div> */}
         </div>
       </div>
     </div>

@@ -10,7 +10,7 @@ import CustomAlert from './components/CustomAlert';
 
 import Home from './pages/Home';
 import Login from './pages/Admin/Login';
-import Register from './pages/Admin/Register';
+// import Register from './pages/Admin/Register';
 import Dashboard from './pages/Admin/Dashboard';
 import Preloader from './components/Preloader';
 
@@ -61,7 +61,7 @@ const AppContent = () => {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/admin/login" element={<Login />} />
-              <Route path="/admin/register" element={<Register />} />
+              {/* <Route path="/admin/register" element={<Register />} /> */}
               <Route 
                 path="/admin/dashboard" 
                 element={
