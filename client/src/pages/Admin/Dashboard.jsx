@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import api from '../../services/api';
 import Navbar from '../../components/Navbar';
-import { Trash2, Plus, MessageSquare, LayoutGrid, UserCircle } from 'lucide-react';
+import { Trash2, Plus, MessageSquare, LayoutGrid, UserCircle, Edit2 } from 'lucide-react';
+import { useAlert } from '../../context/AlertContext';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('projects'); // 'projects', 'messages', or 'profile'
   const [projects, setProjects] = useState([]);
   const [messages, setMessages] = useState([]);
-  
+  const { showAlert, showConfirm } = useAlert();
+
   // Form State
   const [profile, setProfile] = useState({
     name: '', title: '', avatar_url: '', location: '', email: '', phone: '', about_text_1: '', about_text_2: '', skills: []
@@ -17,6 +19,8 @@ const Dashboard = () => {
   const [newProject, setNewProject] = useState({
     title: '', description: '', image_url: '', tech_stack: '', github_link: '', live_demo: ''
   });
+  const [isEditing, setIsEditing] = useState(false);
+  const [editId, setEditId] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -41,40 +45,76 @@ const Dashboard = () => {
     }
   };
 
-  const handleAddProject = async (e) => {
+  const handleSubmitProject = async (e) => {
     e.preventDefault();
     try {
-      // transform tech_stack from comma string to array
       const projectData = {
         ...newProject,
         tech_stack: newProject.tech_stack.split(',').map(item => item.trim())
       };
-      await api.post('/projects', projectData);
+
+      if (isEditing) {
+        await api.put(`/projects/${editId}`, projectData);
+        showAlert('Project updated successfully!', 'success');
+      } else {
+        await api.post('/projects', projectData);
+        showAlert('Project created successfully!', 'success');
+      }
+
       setNewProject({ title: '', description: '', image_url: '', tech_stack: '', github_link: '', live_demo: '' });
+      setIsEditing(false);
+      setEditId(null);
       fetchData();
     } catch (error) {
-      console.error('Failed to add project', error);
+      console.error('Failed to save project', error);
+      showAlert('Failed to save project', 'error');
     }
   };
 
+  const handleCancelEdit = () => {
+    setNewProject({ title: '', description: '', image_url: '', tech_stack: '', github_link: '', live_demo: '' });
+    setIsEditing(false);
+    setEditId(null);
+  };
+
+  const handleEditProject = (project) => {
+    setNewProject({
+      title: project.title,
+      description: project.description,
+      image_url: project.image_url || '',
+      tech_stack: project.tech_stack.join(', '),
+      github_link: project.github_link || '',
+      live_demo: project.live_demo || ''
+    });
+    setIsEditing(true);
+    setEditId(project._id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleDeleteProject = async (id) => {
-    if(window.confirm('Are you sure you want to delete this project?')) {
+    const confirmed = await showConfirm('Are you sure you want to delete this project? This action cannot be undone.');
+    if (confirmed) {
       try {
         await api.delete(`/projects/${id}`);
         fetchData();
+        showAlert('Project removed', 'success');
       } catch (error) {
         console.error('Failed to delete', error);
+        showAlert('Failed to delete project', 'error');
       }
     }
   };
 
   const handleDeleteMessage = async (id) => {
-    if(window.confirm('Delete this message?')) {
+    const confirmed = await showConfirm('Delete this message?');
+    if (confirmed) {
       try {
         await api.delete(`/messages/${id}`);
         fetchData();
+        showAlert('Message deleted', 'success');
       } catch (error) {
         console.error('Failed to delete message', error);
+        showAlert('Failed to delete message', 'error');
       }
     }
   };
@@ -84,35 +124,35 @@ const Dashboard = () => {
     try {
       const profileData = { ...profile };
       await api.put('/profile', profileData);
-      alert('Profile updated successfully!');
+      showAlert('Profile updated successfully!', 'success');
       fetchData();
     } catch (error) {
       console.error('Failed to update profile', error);
-      alert('Failed to update profile');
+      showAlert('Failed to update profile', 'error');
     }
   };
 
   return (
     <div className="min-h-screen pt-24 font-sans">
       <Navbar />
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
           <h1 className="text-4xl font-extrabold font-display text-neo-fg">Admin Dashboard</h1>
           <div className="flex bg-neo-bg rounded-2xl shadow-extruded p-2 overflow-x-auto gap-2">
-            <button 
+            <button
               onClick={() => setActiveTab('projects')}
               className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab === 'projects' ? 'shadow-inset text-neo-accent' : 'text-neo-muted hover:text-neo-fg hover:shadow-extruded-small'}`}
             >
               <LayoutGrid size={18} /> Projects
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('profile')}
               className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab === 'profile' ? 'shadow-inset text-neo-accent' : 'text-neo-muted hover:text-neo-fg hover:shadow-extruded-small'}`}
             >
               <UserCircle size={18} /> Profile
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('messages')}
               className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all whitespace-nowrap ${activeTab === 'messages' ? 'shadow-inset text-neo-accent' : 'text-neo-muted hover:text-neo-fg hover:shadow-extruded-small'}`}
             >
@@ -125,18 +165,28 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             {/* Form */}
             <div className="lg:col-span-1 bg-neo-bg p-8 rounded-[32px] shadow-extruded h-fit">
-              <h2 className="text-2xl font-bold font-display mb-8 text-neo-fg flex items-center gap-3"><Plus size={24} className="text-neo-accent"/> Add New Project</h2>
-              <form onSubmit={handleAddProject} className="space-y-6">
-                <input required type="text" placeholder="Project Title" value={newProject.title} onChange={e => setNewProject({...newProject, title: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all"/>
-                <textarea required placeholder="Description" rows="3" value={newProject.description} onChange={e => setNewProject({...newProject, description: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all resize-none"></textarea>
-                <input placeholder="Image URL (optional)" type="text" value={newProject.image_url} onChange={e => setNewProject({...newProject, image_url: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all"/>
-                <input required placeholder="Tech Stack (comma separated)" type="text" value={newProject.tech_stack} onChange={e => setNewProject({...newProject, tech_stack: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all"/>
-                <input placeholder="GitHub Link" type="text" value={newProject.github_link} onChange={e => setNewProject({...newProject, github_link: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all"/>
-                <input placeholder="Live Demo Link" type="text" value={newProject.live_demo} onChange={e => setNewProject({...newProject, live_demo: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all"/>
-                <button type="submit" className="w-full py-4 bg-neo-accent text-white font-bold rounded-2xl shadow-extruded hover:-translate-y-[1px] hover:shadow-extruded-hover active:translate-y-[0.5px] active:shadow-inset transition-all">Create Project</button>
+              <h2 className="text-2xl font-bold font-display mb-8 text-neo-fg flex items-center gap-3">
+                {isEditing ? <Edit2 size={24} className="text-neo-accent" /> : <Plus size={24} className="text-neo-accent" />}
+                {isEditing ? 'Edit Project' : 'Add New Project'}
+              </h2>
+              <form onSubmit={handleSubmitProject} className="space-y-6">
+                <input required type="text" placeholder="Project Title" value={newProject.title} onChange={e => setNewProject({ ...newProject, title: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
+                <textarea required placeholder="Description" rows="3" value={newProject.description} onChange={e => setNewProject({ ...newProject, description: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all resize-none"></textarea>
+                <input placeholder="Image URL (optional)" type="text" value={newProject.image_url} onChange={e => setNewProject({ ...newProject, image_url: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
+                <input required placeholder="Tech Stack (comma separated)" type="text" value={newProject.tech_stack} onChange={e => setNewProject({ ...newProject, tech_stack: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
+                <input placeholder="GitHub Link" type="text" value={newProject.github_link} onChange={e => setNewProject({ ...newProject, github_link: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
+                <input placeholder="Live Demo Link" type="text" value={newProject.live_demo} onChange={e => setNewProject({ ...newProject, live_demo: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
+                <div className="flex gap-4">
+                  {isEditing && (
+                    <button type="button" onClick={handleCancelEdit} className="flex-1 py-4 bg-neo-bg text-neo-fg font-bold rounded-2xl shadow-extruded hover:-translate-y-[1px] hover:shadow-extruded-hover active:translate-y-[0.5px] active:shadow-inset transition-all">Cancel</button>
+                  )}
+                  <button type="submit" className={`py-4 ${isEditing ? 'flex-[2]' : 'w-full'} bg-neo-accent text-white font-bold rounded-2xl shadow-extruded hover:-translate-y-[1px] hover:shadow-extruded-hover active:translate-y-[0.5px] active:shadow-inset transition-all`}>
+                    {isEditing ? 'Update Project' : 'Create Project'}
+                  </button>
+                </div>
               </form>
             </div>
-            
+
             {/* Project List */}
             <div className="lg:col-span-2 space-y-6">
               {projects.length === 0 ? <p className="text-neo-muted font-medium">No projects found.</p> : projects.map(p => (
@@ -146,7 +196,10 @@ const Dashboard = () => {
                     <p className="text-sm text-neo-muted font-medium mt-2 line-clamp-2 md:max-w-md">{p.description}</p>
                     <div className="mt-4 text-xs font-bold text-neo-accent px-4 py-2 bg-neo-bg shadow-inset rounded-full inline-block">{p.tech_stack.join(', ')}</div>
                   </div>
-                  <button onClick={() => handleDeleteProject(p._id)} className="p-4 text-red-500 rounded-2xl shadow-extruded hover:shadow-inset hover:text-red-600 transition-all active:translate-y-[1px]"><Trash2 size={24}/></button>
+                  <div className='flex gap-4'>
+                    <button onClick={() => handleEditProject(p)} className="p-4 text-blue-500 rounded-2xl shadow-extruded hover:shadow-inset hover:text-blue-600 transition-all active:translate-y-[1px]"><Edit2 size={24} /></button>
+                    <button onClick={() => handleDeleteProject(p._id)} className="p-4 text-red-500 rounded-2xl shadow-extruded hover:shadow-inset hover:text-red-600 transition-all active:translate-y-[1px]"><Trash2 size={24} /></button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -162,7 +215,7 @@ const Dashboard = () => {
                     <h4 className="font-bold font-display text-neo-fg text-xl">{m.name}</h4>
                     <a href={`mailto:${m.email}`} className="text-sm font-medium text-neo-accent hover:underline">{m.email}</a>
                   </div>
-                  <button onClick={() => handleDeleteMessage(m._id)} className="p-4 text-red-500 rounded-2xl shadow-extruded hover:shadow-inset hover:text-red-600 transition-all active:translate-y-[1px]"><Trash2 size={24}/></button>
+                  <button onClick={() => handleDeleteMessage(m._id)} className="p-4 text-red-500 rounded-2xl shadow-extruded hover:shadow-inset hover:text-red-600 transition-all active:translate-y-[1px]"><Trash2 size={24} /></button>
                 </div>
                 <div className="mt-6 p-6 bg-neo-bg shadow-inset-deep rounded-2xl text-neo-fg font-medium leading-relaxed">
                   {m.message}
@@ -177,41 +230,41 @@ const Dashboard = () => {
 
         {activeTab === 'profile' && (
           <div className="bg-neo-bg p-10 rounded-[32px] shadow-extruded max-w-4xl mx-auto">
-            <h2 className="text-3xl font-bold font-display mb-10 text-neo-fg flex items-center gap-3"><UserCircle size={28} className="text-neo-accent"/> Edit Profile Information</h2>
+            <h2 className="text-3xl font-bold font-display mb-10 text-neo-fg flex items-center gap-3"><UserCircle size={28} className="text-neo-accent" /> Edit Profile Information</h2>
             <form onSubmit={handleUpdateProfile} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
                   <label className="block text-sm font-bold text-neo-fg mb-3">Full Name</label>
-                  <input required type="text" value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all"/>
+                  <input required type="text" value={profile.name} onChange={e => setProfile({ ...profile, name: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-neo-fg mb-3">Job Title</label>
-                  <input required type="text" value={profile.title} onChange={e => setProfile({...profile, title: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all"/>
+                  <input required type="text" value={profile.title} onChange={e => setProfile({ ...profile, title: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-neo-fg mb-3">Avatar URL</label>
-                  <input required type="text" value={profile.avatar_url} onChange={e => setProfile({...profile, avatar_url: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all"/>
+                  <input required type="text" value={profile.avatar_url} onChange={e => setProfile({ ...profile, avatar_url: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-neo-fg mb-3">Location</label>
-                  <input required type="text" value={profile.location} onChange={e => setProfile({...profile, location: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all"/>
+                  <input required type="text" value={profile.location} onChange={e => setProfile({ ...profile, location: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-neo-fg mb-3">Contact Email</label>
-                  <input required type="email" value={profile.email} onChange={e => setProfile({...profile, email: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all"/>
+                  <input required type="email" value={profile.email} onChange={e => setProfile({ ...profile, email: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-neo-fg mb-3">Phone Number</label>
-                  <input required type="text" value={profile.phone} onChange={e => setProfile({...profile, phone: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all"/>
+                  <input required type="text" value={profile.phone} onChange={e => setProfile({ ...profile, phone: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-bold text-neo-fg mb-3">About Text (Paragraph 1)</label>
-                <textarea required rows="4" value={profile.about_text_1} onChange={e => setProfile({...profile, about_text_1: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all resize-none"></textarea>
+                <textarea required rows="4" value={profile.about_text_1} onChange={e => setProfile({ ...profile, about_text_1: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all resize-none"></textarea>
               </div>
               <div>
                 <label className="block text-sm font-bold text-neo-fg mb-3">About Text (Paragraph 2 - Optional)</label>
-                <textarea rows="4" value={profile.about_text_2} onChange={e => setProfile({...profile, about_text_2: e.target.value})} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all resize-none"></textarea>
+                <textarea rows="4" value={profile.about_text_2} onChange={e => setProfile({ ...profile, about_text_2: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all resize-none"></textarea>
               </div>
               <div>
                 <label className="block text-sm font-bold text-neo-fg mb-4">Skills</label>
@@ -219,9 +272,9 @@ const Dashboard = () => {
                   {profile.skills && profile.skills.map((skill, index) => (
                     <span key={index} className="inline-flex items-center px-5 py-2 shadow-extruded-small rounded-full text-sm font-bold text-neo-fg bg-neo-bg">
                       {skill}
-                      <button 
-                        type="button" 
-                        onClick={() => setProfile({...profile, skills: profile.skills.filter((_, i) => i !== index)})} 
+                      <button
+                        type="button"
+                        onClick={() => setProfile({ ...profile, skills: profile.skills.filter((_, i) => i !== index) })}
                         className="ml-3 text-red-500 hover:text-red-600 focus:outline-none text-lg leading-none"
                       >
                         &times;
@@ -230,15 +283,15 @@ const Dashboard = () => {
                   ))}
                 </div>
                 <div className="flex gap-4">
-                  <input 
-                    type="text" 
-                    value={skillInput} 
-                    onChange={e => setSkillInput(e.target.value)} 
+                  <input
+                    type="text"
+                    value={skillInput}
+                    onChange={e => setSkillInput(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
                         if (skillInput.trim() && !profile.skills.includes(skillInput.trim())) {
-                          setProfile({...profile, skills: [...(profile.skills || []), skillInput.trim()]});
+                          setProfile({ ...profile, skills: [...(profile.skills || []), skillInput.trim()] });
                           setSkillInput('');
                         }
                       }
@@ -246,11 +299,11 @@ const Dashboard = () => {
                     placeholder="Type a skill and press Enter..."
                     className="flex-1 px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all"
                   />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => {
                       if (skillInput.trim() && !profile.skills.includes(skillInput.trim())) {
-                        setProfile({...profile, skills: [...(profile.skills || []), skillInput.trim()]});
+                        setProfile({ ...profile, skills: [...(profile.skills || []), skillInput.trim()] });
                         setSkillInput('');
                       }
                     }}
@@ -260,7 +313,7 @@ const Dashboard = () => {
                   </button>
                 </div>
               </div>
-              
+
               <button type="submit" className="w-full py-5 bg-neo-accent text-white font-bold rounded-2xl shadow-extruded hover:-translate-y-[1px] hover:shadow-extruded-hover active:translate-y-[0.5px] active:shadow-inset transition-all">Save Profile</button>
             </form>
           </div>

@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { PortfolioProvider, PortfolioContext } from './context/PortfolioContext';
+import { AlertProvider } from './context/AlertContext';
+import CustomAlert from './components/CustomAlert';
+
 
 import Home from './pages/Home';
 import Login from './pages/Admin/Login';
@@ -39,6 +42,7 @@ const AppContent = () => {
 
   return (
     <>
+      <CustomAlert />
       <AnimatePresence mode="wait">
         {showPreloader && (
           <Preloader 
@@ -77,11 +81,13 @@ const AppContent = () => {
 function App() {
   return (
     <LanguageProvider>
-      <AuthProvider>
-        <PortfolioProvider>
-          <AppContent />
-        </PortfolioProvider>
-      </AuthProvider>
+      <AlertProvider>
+        <AuthProvider>
+          <PortfolioProvider>
+            <AppContent />
+          </PortfolioProvider>
+        </AuthProvider>
+      </AlertProvider>
     </LanguageProvider>
   );
 }

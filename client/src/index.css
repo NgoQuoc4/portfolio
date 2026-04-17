@@ -23,7 +23,6 @@
 @layer base {
   body {
     @apply bg-neo-bg text-neo-fg font-sans antialiased;
-    scroll-behavior: smooth;
   }
 }
 

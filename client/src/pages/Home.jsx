@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { GitBranch, ExternalLink, Mail, User, Code, Send, MapPin, Phone } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 import Navbar from '../components/Navbar';
 import api from '../services/api';
 import { LanguageContext } from '../context/LanguageContext';
@@ -11,9 +12,6 @@ const Home = () => {
   const { projects, profile } = React.useContext(PortfolioContext);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [formStatus, setFormStatus] = useState(null);
-
-  // No need for local fetchData, data is provided by PortfolioContext
-
 
   // Safe fallbacks for display
   const p_name = profile?.name || "Nguyễn Văn A";
@@ -29,11 +27,29 @@ const Home = () => {
   const handleContactSubmit = async (e) => {
     e.preventDefault();
     try {
+      // 1. Save to database (as before)
       await api.post('/messages', formData);
+
+      // 2. Send email via EmailJS
+      // Replace these placeholders with your actual EmailJS keys
+      const SERVICE_ID = 'service_t8i2irb';
+      const TEMPLATE_ID = 'template_oxg03rp';
+      const PUBLIC_KEY = 'wnkgezVAD2gezpEr2';
+
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        message: formData.message,
+        to_name: 'Admin', // Or your name
+      };
+
+      await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+
       setFormStatus('success');
       setFormData({ name: '', email: '', message: '' });
       setTimeout(() => setFormStatus(null), 3000);
     } catch (error) {
+      console.error('Submission error:', error);
       setFormStatus('error');
     }
   };
@@ -41,25 +57,25 @@ const Home = () => {
   return (
     <div className="min-h-screen pt-20 font-sans">
       <Navbar />
-      
+
       {/* Hero Section */}
       <section className="relative px-4 py-32 md:py-52 flex items-center justify-center overflow-hidden">
         {/* Neumorphic Decorative Background Elements */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10 flex items-center justify-center">
-          <motion.div 
-            animate={{ scale: [1, 1.05, 1], rotate: [0, 90, 180, 360] }} 
+          <motion.div
+            animate={{ scale: [1, 1.05, 1], rotate: [0, 90, 180, 360] }}
             transition={{ repeat: Infinity, duration: 20, ease: "linear" }}
             className="absolute rounded-full shadow-extruded w-[600px] h-[600px] border-[20px] border-neo-bg opacity-30"
           />
-          <motion.div 
-            animate={{ scale: [1, 0.95, 1], rotate: [360, 180, 90, 0] }} 
+          <motion.div
+            animate={{ scale: [1, 0.95, 1], rotate: [360, 180, 90, 0] }}
             transition={{ repeat: Infinity, duration: 15, ease: "linear" }}
             className="absolute rounded-full shadow-inset-deep w-[400px] h-[400px] border-[20px] border-neo-bg opacity-30"
           />
         </div>
 
         <div className="max-w-5xl mx-auto text-center relative z-10">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
@@ -72,7 +88,7 @@ const Home = () => {
             {t('hero_available')}
           </motion.div>
 
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: "easeOut" }}
@@ -84,10 +100,10 @@ const Home = () => {
             <br className="hidden md:block" />
             <span className="text-neo-fg">
               {p_title}
-            </span> 
+            </span>
           </motion.h1>
 
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
@@ -95,7 +111,7 @@ const Home = () => {
           >
             {p_about1}
           </motion.p>
-          
+
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -106,7 +122,7 @@ const Home = () => {
               {t('hero_btn_projects')} <Code size={20} />
             </a>
             <a href="#about" className="inline-flex items-center justify-center gap-2 px-10 py-5 text-lg font-bold bg-neo-bg text-neo-fg rounded-2xl shadow-extruded hover:-translate-y-[1px] hover:shadow-extruded-hover active:translate-y-[0.5px] active:shadow-inset transition-all duration-300 group">
-              {t('hero_btn_about')} 
+              {t('hero_btn_about')}
               <User size={20} className="group-hover:text-neo-accent transition-colors" />
             </a>
           </motion.div>
@@ -118,7 +134,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row gap-16 items-center">
             {/* Avatar & Basic Info */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -132,7 +148,7 @@ const Home = () => {
               </div>
               <h3 className="text-3xl font-bold font-display text-neo-fg mb-2">{p_name}</h3>
               <p className="text-neo-accent font-bold mb-8">{p_title}</p>
-              
+
               <div className="w-full p-8 rounded-[32px] shadow-inset-deep space-y-6 text-left">
                 <div className="flex items-center gap-4 text-neo-fg font-medium">
                   <div className="p-3 shadow-extruded-small rounded-xl text-neo-accent"><MapPin size={20} /></div>
@@ -150,7 +166,7 @@ const Home = () => {
             </motion.div>
 
             {/* Description & Skills */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -180,10 +196,10 @@ const Home = () => {
       <section id="projects" className="py-32">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl md:text-5xl font-extrabold font-display mb-16 text-center text-neo-fg">{t('projects_title')}</h2>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.length > 0 ? projects.map((project, index) => (
-              <motion.div 
+              <motion.div
                 key={project._id}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -236,29 +252,29 @@ const Home = () => {
             <h2 className="text-4xl md:text-5xl font-extrabold font-display mb-4 text-neo-fg">{t('contact_title')}</h2>
             <p className="text-lg text-neo-muted font-medium">{t('contact_desc')}</p>
           </div>
-          
-          <motion.form 
+
+          <motion.form
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            onSubmit={handleContactSubmit} 
+            onSubmit={handleContactSubmit}
             className="space-y-8 p-10 rounded-[32px] shadow-extruded"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-4">
-                <label className="text-sm font-bold text-neo-fg flex items-center gap-2"><User size={16}/> {t('contact_name')}</label>
-                <input 
+                <label className="text-sm font-bold text-neo-fg flex items-center gap-2"><User size={16} /> {t('contact_name')}</label>
+                <input
                   type="text" required
-                  value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 transition-all"
                   placeholder="John Doe"
                 />
               </div>
               <div className="space-y-4">
-                <label className="text-sm font-bold text-neo-fg flex items-center gap-2"><Mail size={16}/> {t('contact_email')}</label>
-                <input 
+                <label className="text-sm font-bold text-neo-fg flex items-center gap-2"><Mail size={16} /> {t('contact_email')}</label>
+                <input
                   type="email" required
-                  value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 transition-all"
                   placeholder="john@example.com"
                 />
@@ -266,18 +282,18 @@ const Home = () => {
             </div>
             <div className="space-y-4">
               <label className="text-sm font-bold text-neo-fg">{t('contact_msg')}</label>
-              <textarea 
+              <textarea
                 required rows="5"
-                value={formData.message} onChange={(e) => setFormData({...formData, message: e.target.value})}
+                value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 transition-all resize-none"
                 placeholder={t('contact_msg')}
               ></textarea>
             </div>
-            
+
             <button type="submit" className="w-full flex items-center justify-center gap-3 px-8 py-5 font-bold text-white bg-neo-accent rounded-2xl shadow-extruded hover:-translate-y-[1px] hover:shadow-extruded-hover active:translate-y-[0.5px] active:shadow-inset transition-all duration-300">
               {t('contact_btn')} <Send size={18} />
             </button>
-            
+
             {formStatus === 'success' && <p className="text-green-500 text-center font-medium mt-4">{t('contact_success')}</p>}
             {formStatus === 'error' && <p className="text-red-500 text-center font-medium mt-4">{t('contact_error')}</p>}
           </motion.form>
