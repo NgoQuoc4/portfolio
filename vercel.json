@@ -16,10 +16,19 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server/server.js"
+      "dest": "/server/server.js"
     },
     {
-      "handle": "filesystem"
+      "src": "/assets/(.*)",
+      "dest": "/client/assets/$1"
+    },
+    {
+      "src": "/favicon.svg",
+      "dest": "/client/favicon.svg"
+    },
+    {
+      "src": "/(.*\\.(?:js|css|svg|png|jpg|jpeg|gif|ico|json|woff|woff2|ttf|webp))",
+      "dest": "/client/$1"
     },
     {
       "src": "/(.*)",
