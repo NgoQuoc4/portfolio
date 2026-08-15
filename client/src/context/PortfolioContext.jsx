@@ -9,17 +9,26 @@ export const PortfolioProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchPortfolioData = async () => {
+    setLoading(true);
     try {
-      const [projRes, profRes] = await Promise.all([
-        api.get('/projects'),
-        api.get('/profile')
-      ]);
-      setProjects(projRes.data);
-      if (profRes.data) setProfile(profRes.data);
+      // Fetch projects
+      try {
+        const projRes = await api.get('/projects');
+        setProjects(projRes.data || []);
+      } catch (err) {
+        console.error("Failed to load projects", err);
+      }
+
+      // Fetch profile
+      try {
+        const profRes = await api.get('/profile');
+        if (profRes.data) setProfile(profRes.data);
+      } catch (err) {
+        console.error("Failed to load profile", err);
+      }
     } catch (error) {
       console.error("Failed to load portfolio data", error);
     } finally {
-      // Add a artificial minimum loading time for preloader aesthetics if needed
       setLoading(false);
     }
   };

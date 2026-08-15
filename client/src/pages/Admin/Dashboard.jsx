@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import api from '../../services/api';
 import Navbar from '../../components/Navbar';
-import { Trash2, Plus, MessageSquare, LayoutGrid, UserCircle, Edit2 } from 'lucide-react';
+import { Trash2, Plus, MessageSquare, LayoutGrid, UserCircle, Edit2, ArrowUp, ArrowDown } from 'lucide-react';
 import { useAlert } from '../../context/AlertContext';
+import { PortfolioContext } from '../../context/PortfolioContext';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('projects'); // 'projects', 'messages', or 'profile'
   const [projects, setProjects] = useState([]);
   const [messages, setMessages] = useState([]);
   const { showAlert, showConfirm } = useAlert();
+  const { refreshData } = useContext(PortfolioContext);
 
   // Form State
   const [profile, setProfile] = useState({
@@ -17,16 +18,12 @@ const Dashboard = () => {
   });
   const [skillInput, setSkillInput] = useState('');
   const [newProject, setNewProject] = useState({
-    title: '', description: '', image_url: '', tech_stack: '', github_link: '', live_demo: ''
+    title: '', description: '', image_url: '', tech_stack: '', github_link: '', live_demo: '', sort_order: 0
   });
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
 
-  useEffect(() => {
-    fetchData();
-  }, [activeTab]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       if (activeTab === 'projects') {
         const { data } = await api.get('/projects');
@@ -43,7 +40,33 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Error fetching data', error);
     }
-  };
+  }, [activeTab]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const load = async () => {
+      try {
+        if (activeTab === 'projects') {
+          const { data } = await api.get('/projects');
+          if (isMounted) setProjects(data);
+        } else if (activeTab === 'messages') {
+          const { data } = await api.get('/messages');
+          if (isMounted) setMessages(data);
+        } else if (activeTab === 'profile') {
+          const { data } = await api.get('/profile');
+          if (data && isMounted) {
+            setProfile({ ...data });
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching data', error);
+      }
+    };
+    load();
+    return () => {
+      isMounted = false;
+    };
+  }, [activeTab]);
 
   const handleSubmitProject = async (e) => {
     e.preventDefault();
@@ -61,10 +84,11 @@ const Dashboard = () => {
         showAlert('Project created successfully!', 'success');
       }
 
-      setNewProject({ title: '', description: '', image_url: '', tech_stack: '', github_link: '', live_demo: '' });
+      setNewProject({ title: '', description: '', image_url: '', tech_stack: '', github_link: '', live_demo: '', sort_order: 0 });
       setIsEditing(false);
       setEditId(null);
       fetchData();
+      refreshData();
     } catch (error) {
       console.error('Failed to save project', error);
       showAlert('Failed to save project', 'error');
@@ -72,7 +96,7 @@ const Dashboard = () => {
   };
 
   const handleCancelEdit = () => {
-    setNewProject({ title: '', description: '', image_url: '', tech_stack: '', github_link: '', live_demo: '' });
+    setNewProject({ title: '', description: '', image_url: '', tech_stack: '', github_link: '', live_demo: '', sort_order: 0 });
     setIsEditing(false);
     setEditId(null);
   };
@@ -84,7 +108,8 @@ const Dashboard = () => {
       image_url: project.image_url || '',
       tech_stack: project.tech_stack.join(', '),
       github_link: project.github_link || '',
-      live_demo: project.live_demo || ''
+      live_demo: project.live_demo || '',
+      sort_order: project.sort_order || 0
     });
     setIsEditing(true);
     setEditId(project._id);
@@ -97,6 +122,7 @@ const Dashboard = () => {
       try {
         await api.delete(`/projects/${id}`);
         fetchData();
+        refreshData();
         showAlert('Project removed', 'success');
       } catch (error) {
         console.error('Failed to delete', error);
@@ -119,6 +145,39 @@ const Dashboard = () => {
     }
   };
 
+  const handleMoveProject = async (id, direction) => {
+    const currentIndex = projects.findIndex(p => p._id === id);
+    if (direction === 'up' && currentIndex === 0) return;
+    if (direction === 'down' && currentIndex === projects.length - 1) return;
+
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+    const currentProject = projects[currentIndex];
+    const targetProject = projects[targetIndex];
+
+    try {
+      // Swap sort orders or use indices as fallback
+      let newCurrentOrder = targetProject.sort_order;
+      let newTargetOrder = currentProject.sort_order;
+
+      // If they are the same or undefined, use indices to force a move
+      if (newCurrentOrder === newTargetOrder || newCurrentOrder === undefined) {
+        newCurrentOrder = targetIndex;
+        newTargetOrder = currentIndex;
+      }
+
+      await Promise.all([
+        api.put(`/projects/${currentProject._id}`, { ...currentProject, sort_order: newCurrentOrder }),
+        api.put(`/projects/${targetProject._id}`, { ...targetProject, sort_order: newTargetOrder })
+      ]);
+
+      fetchData();
+      refreshData();
+    } catch (error) {
+      console.error('Failed to reorder projects', error);
+      showAlert('Failed to reorder projects', 'error');
+    }
+  };
+
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
@@ -126,6 +185,7 @@ const Dashboard = () => {
       await api.put('/profile', profileData);
       showAlert('Profile updated successfully!', 'success');
       fetchData();
+      refreshData();
     } catch (error) {
       console.error('Failed to update profile', error);
       showAlert('Failed to update profile', 'error');
@@ -176,6 +236,10 @@ const Dashboard = () => {
                 <input required placeholder="Tech Stack (comma separated)" type="text" value={newProject.tech_stack} onChange={e => setNewProject({ ...newProject, tech_stack: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
                 <input placeholder="GitHub Link" type="text" value={newProject.github_link} onChange={e => setNewProject({ ...newProject, github_link: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
                 <input placeholder="Live Demo Link" type="text" value={newProject.live_demo} onChange={e => setNewProject({ ...newProject, live_demo: e.target.value })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
+                <div className="space-y-4">
+                  <label className="text-sm font-bold text-neo-fg ml-2">Display Order (Lower numbers show first)</label>
+                  <input placeholder="Sort Order (e.g. 1, 2, 3)" type="number" value={newProject.sort_order} onChange={e => setNewProject({ ...newProject, sort_order: parseInt(e.target.value) || 0 })} className="w-full px-6 py-4 rounded-2xl bg-neo-bg shadow-inset-deep text-neo-fg focus:outline-none focus:ring-2 focus:ring-neo-accent focus:ring-offset-2 focus:ring-offset-neo-bg text-sm font-medium transition-all" />
+                </div>
                 <div className="flex gap-4">
                   {isEditing && (
                     <button type="button" onClick={handleCancelEdit} className="flex-1 py-4 bg-neo-bg text-neo-fg font-bold rounded-2xl shadow-extruded hover:-translate-y-[1px] hover:shadow-extruded-hover active:translate-y-[0.5px] active:shadow-inset transition-all">Cancel</button>
@@ -197,6 +261,10 @@ const Dashboard = () => {
                     <div className="mt-4 text-xs font-bold text-neo-accent px-4 py-2 bg-neo-bg shadow-inset rounded-full inline-block">{p.tech_stack.join(', ')}</div>
                   </div>
                   <div className='flex gap-4'>
+                    <div className="flex flex-col gap-2">
+                      <button onClick={() => handleMoveProject(p._id, 'up')} className="p-2 text-neo-muted rounded-xl shadow-extruded hover:shadow-inset hover:text-neo-accent transition-all active:translate-y-[1px]" title="Move Up"><ArrowUp size={16} /></button>
+                      <button onClick={() => handleMoveProject(p._id, 'down')} className="p-2 text-neo-muted rounded-xl shadow-extruded hover:shadow-inset hover:text-neo-accent transition-all active:translate-y-[1px]" title="Move Down"><ArrowDown size={16} /></button>
+                    </div>
                     <button onClick={() => handleEditProject(p)} className="p-4 text-blue-500 rounded-2xl shadow-extruded hover:shadow-inset hover:text-blue-600 transition-all active:translate-y-[1px]"><Edit2 size={24} /></button>
                     <button onClick={() => handleDeleteProject(p._id)} className="p-4 text-red-500 rounded-2xl shadow-extruded hover:shadow-inset hover:text-red-600 transition-all active:translate-y-[1px]"><Trash2 size={24} /></button>
                   </div>

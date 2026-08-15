@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import { PortfolioProvider, PortfolioContext } from './context/PortfolioContext';
 import { AlertProvider } from './context/AlertContext';
 import CustomAlert from './components/CustomAlert';
 
-
 import Home from './pages/Home';
 import Login from './pages/Admin/Login';
-// import Register from './pages/Admin/Register';
 import Dashboard from './pages/Admin/Dashboard';
 import Preloader from './components/Preloader';
 
@@ -53,42 +51,37 @@ const AppContent = () => {
         )}
       </AnimatePresence>
 
-
-      
-      {!showPreloader && (
-        <Router>
-          <div className="min-h-screen">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/admin/login" element={<Login />} />
-              {/* <Route path="/admin/register" element={<Register />} /> */}
-              <Route 
-                path="/admin/dashboard" 
-                element={
-                  <PrivateRoute>
-                    <Dashboard />
-                  </PrivateRoute>
-                } 
-              />
-            </Routes>
-          </div>
-        </Router>
-      )}
+      <div className="min-h-screen">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/admin/login" element={<Login />} />
+          <Route 
+            path="/admin/dashboard" 
+            element={
+              <PrivateRoute>
+                <Dashboard />
+              </PrivateRoute>
+            } 
+          />
+        </Routes>
+      </div>
     </>
   );
 };
 
 function App() {
   return (
-    <LanguageProvider>
-      <AlertProvider>
-        <AuthProvider>
-          <PortfolioProvider>
-            <AppContent />
-          </PortfolioProvider>
-        </AuthProvider>
-      </AlertProvider>
-    </LanguageProvider>
+    <Router>
+      <LanguageProvider>
+        <AlertProvider>
+          <AuthProvider>
+            <PortfolioProvider>
+              <AppContent />
+            </PortfolioProvider>
+          </AuthProvider>
+        </AlertProvider>
+      </LanguageProvider>
+    </Router>
   );
 }
 

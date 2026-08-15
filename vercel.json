@@ -19,16 +19,7 @@
       "dest": "server/server.js"
     },
     {
-      "src": "/assets/(.*)",
-      "dest": "/client/assets/$1"
-    },
-    {
-      "src": "/favicon.svg",
-      "dest": "/client/favicon.svg"
-    },
-    {
-      "src": "/icons.svg",
-      "dest": "/client/icons.svg"
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",

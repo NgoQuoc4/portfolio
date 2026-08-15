@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useContext } from 'react';
 import { motion } from 'framer-motion';
 import { GitBranch, ExternalLink, Mail, User, Code, Send, MapPin, Phone } from 'lucide-react';
 import emailjs from '@emailjs/browser';
@@ -8,8 +8,8 @@ import { LanguageContext } from '../context/LanguageContext';
 import { PortfolioContext } from '../context/PortfolioContext';
 
 const Home = () => {
-  const { t } = React.useContext(LanguageContext);
-  const { projects, profile } = React.useContext(PortfolioContext);
+  const { t } = useContext(LanguageContext);
+  const { projects, profile } = useContext(PortfolioContext);
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [formStatus, setFormStatus] = useState(null);
 
@@ -27,20 +27,19 @@ const Home = () => {
   const handleContactSubmit = async (e) => {
     e.preventDefault();
     try {
-      // 1. Save to database (as before)
+      // 1. Save to database
       await api.post('/messages', formData);
 
-      // 2. Send email via EmailJS
-      // Replace these placeholders with your actual EmailJS keys
-      const SERVICE_ID = 'service_t8i2irb';
-      const TEMPLATE_ID = 'template_oxg03rp';
-      const PUBLIC_KEY = 'wnkgezVAD2gezpEr2';
+      // 2. Send email via EmailJS (supports env variables with default fallback)
+      const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'service_t8i2irb';
+      const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'template_oxg03rp';
+      const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'wnkgezVAD2gezpEr2';
 
       const templateParams = {
         from_name: formData.name,
         from_email: formData.email,
         message: formData.message,
-        to_name: 'Admin', // Or your name
+        to_name: p_name || 'Admin',
       };
 
       await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);

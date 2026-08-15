@@ -1,13 +1,15 @@
-import Project from '../models/Project.js';
+import Project from "../models/Project.js";
 
 // @desc    Get all projects
 // @route   GET /api/projects
 // @access  Public
 export const getProjects = async (req, res) => {
   try {
-    const projects = await Project.find({}).sort({ createdAt: -1 });
+    const projects = await Project.find({}).sort({ sort_order: 1, createdAt: -1 });
+    console.log(`Successfully fetched ${projects.length} projects`);
     res.json(projects);
   } catch (error) {
+    console.error(`Error fetching projects: ${error.message}`);
     res.status(500).json({ message: error.message });
   }
 };
@@ -17,7 +19,15 @@ export const getProjects = async (req, res) => {
 // @access  Private
 export const createProject = async (req, res) => {
   try {
-    const { title, description, image_url, tech_stack, github_link, live_demo } = req.body;
+    const {
+      title,
+      description,
+      image_url,
+      tech_stack,
+      github_link,
+      live_demo,
+      sort_order,
+    } = req.body;
 
     const project = new Project({
       title,
@@ -26,6 +36,7 @@ export const createProject = async (req, res) => {
       tech_stack,
       github_link,
       live_demo,
+      sort_order: sort_order || 0,
     });
 
     const createdProject = await project.save();
@@ -40,22 +51,35 @@ export const createProject = async (req, res) => {
 // @access  Private
 export const updateProject = async (req, res) => {
   try {
-    const { title, description, image_url, tech_stack, github_link, live_demo } = req.body;
+    const {
+      title,
+      description,
+      image_url,
+      tech_stack,
+      github_link,
+      live_demo,
+      sort_order,
+    } = req.body;
 
     const project = await Project.findById(req.params.id);
 
     if (project) {
       project.title = title || project.title;
       project.description = description || project.description;
-      project.image_url = image_url !== undefined ? image_url : project.image_url;
+      project.image_url =
+        image_url !== undefined ? image_url : project.image_url;
       project.tech_stack = tech_stack || project.tech_stack;
-      project.github_link = github_link !== undefined ? github_link : project.github_link;
-      project.live_demo = live_demo !== undefined ? live_demo : project.live_demo;
+      project.github_link =
+        github_link !== undefined ? github_link : project.github_link;
+      project.live_demo =
+        live_demo !== undefined ? live_demo : project.live_demo;
+      project.sort_order =
+        sort_order !== undefined ? sort_order : project.sort_order;
 
       const updatedProject = await project.save();
       res.json(updatedProject);
     } else {
-      res.status(404).json({ message: 'Project not found' });
+      res.status(404).json({ message: "Project not found" });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -71,9 +95,9 @@ export const deleteProject = async (req, res) => {
 
     if (project) {
       await project.deleteOne();
-      res.json({ message: 'Project removed' });
+      res.json({ message: "Project removed" });
     } else {
-      res.status(404).json({ message: 'Project not found' });
+      res.status(404).json({ message: "Project not found" });
     }
   } catch (error) {
     res.status(500).json({ message: error.message });

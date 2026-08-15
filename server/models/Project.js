@@ -26,6 +26,10 @@ const projectSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    sort_order: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
