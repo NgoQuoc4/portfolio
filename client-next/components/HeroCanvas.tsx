@@ -59,33 +59,13 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
 
       {/* 1. DESKTOP DRAGGABLE DIGITAL DESK (>= 768px) */}
       <div className="absolute inset-0 max-w-[1600px] mx-auto hidden md:block pointer-events-none">
-        {/* Tách cà phê (Top-Left) */}
-        <motion.div
-          drag
-          dragMomentum={false}
-          className="absolute left-[3%] top-[5%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="group relative">
-            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap font-mono text-[10px] text-ink-subtle bg-surface-1 border border-border rounded-full px-2.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              kéo tôi đi nè ☕
-            </span>
-            <div className="w-24 h-24 rounded-2xl bg-surface-1 border border-border shadow-float flex flex-col items-center justify-center p-3 hover:scale-105 transition-transform">
-              <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-950 flex items-center justify-center text-amber-600 mb-1">
-                <Coffee className="w-6 h-6" />
-              </div>
-              <span className="text-[10px] font-mono text-ink-muted">Nghỉ giải lao</span>
-            </div>
-          </div>
-        </motion.div>
+       
 
         {/* Polaroid Avatar Photo (Style Sara Khalil) */}
         <motion.div
           drag
           dragMomentum={false}
-          className="absolute left-[13%] lg:left-[14%] top-[3%] lg:top-[4%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
+          className="absolute left-[10%] lg:left-[3%] top-[3%] lg:top-[4%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
           initial={{ opacity: 0, y: -20, rotate: -4 }}
           animate={{ opacity: 1, y: 0, rotate: -4 }}
           whileHover={{ rotate: 0, scale: 1.05 }}
@@ -127,7 +107,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
         <motion.div
           drag
           dragMomentum={false}
-          className="absolute left-[54%] top-[5%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
+          className="absolute left-[85%] top-[40%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
@@ -298,7 +278,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
           initial={{ opacity: 0, scale: 0.9, rotate: -3 }}
           animate={{ opacity: 1, scale: 1, rotate: -3 }}
           transition={{ duration: 0.6 }}
-          className="md:hidden mx-auto mb-6 w-36 sm:w-40 relative group"
+          className="md:hidden mx-auto mb-6 w-70 sm:w-40 relative group"
         >
           {/* Subtle Washi Tape decoration */}
           <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-3.5 bg-amber-200/70 dark:bg-amber-100/20 backdrop-blur-sm -rotate-2 shadow-sm border border-amber-300/40 rounded-[2px] z-10 pointer-events-none" />

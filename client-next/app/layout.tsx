@@ -20,6 +20,15 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://ngoquoc.vercel.app'),
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
+    apple: [
+      { url: '/apple-icon', sizes: '180x180', type: 'image/png' },
+    ],
+  },
   title: 'Ngô Chí Quốc · Lập trình viên Full Stack & Front End',
   description:
     'Portfolio của Ngô Chí Quốc - Lập trình viên Full Stack & Front End chuyên ReactJS, Next.js, NestJS, TypeScript và xây dựng trải nghiệm kỹ thuật số chất lượng cao.',

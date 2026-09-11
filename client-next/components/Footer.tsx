@@ -289,19 +289,6 @@ export const Footer: React.FC<FooterProps> = ({
                 </a>
               )}
             </div>
-
-            {/* For General Inquiries */}
-            <div className="flex flex-col gap-1">
-              <span className="font-mono text-[11px] uppercase tracking-widest text-ink-muted font-semibold">
-                Liên hệ khác
-              </span>
-              <a
-                href={`mailto:${email}`}
-                className="text-sm sm:text-base font-semibold text-ink hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
-              >
-                {email}
-              </a>
-            </div>
           </div>
         </div>
 
