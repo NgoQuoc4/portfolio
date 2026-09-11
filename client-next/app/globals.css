@@ -1,0 +1,189 @@
+@import "tailwindcss";
+
+@theme {
+  --color-canvas: var(--color-canvas);
+  --color-surface-1: var(--color-surface-1);
+  --color-surface-2: var(--color-surface-2);
+  --color-surface-3: var(--color-surface-3);
+  --color-border: var(--color-border);
+  --color-border-hover: var(--color-border-hover);
+  --color-ink: var(--color-ink);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-ink-subtle: var(--color-ink-subtle);
+  --color-accent: var(--color-accent);
+  --color-accent-purple: var(--color-accent-purple);
+}
+
+:root {
+  --color-canvas: #f4f5f8;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #f0f2f6;
+  --color-surface-3: #e5e8ef;
+  --color-border: #e2e6ee;
+  --color-border-hover: #cbd2df;
+  --color-ink: #10141e;
+  --color-ink-muted: #5e687e;
+  --color-ink-subtle: #8e98ac;
+  --color-accent: #f472b6;
+  --color-accent-purple: #c084fc;
+}
+
+body.dark-mode {
+  --color-canvas: #0b0c10;
+  --color-surface-1: #13151c;
+  --color-surface-2: #1b1e28;
+  --color-surface-3: #242836;
+  --color-border: #262a38;
+  --color-border-hover: #3d4358;
+  --color-ink: #f3f5f9;
+  --color-ink-muted: #9ba4b8;
+  --color-ink-subtle: #687288;
+  --color-accent: #f472b6;
+  --color-accent-purple: #a855f7;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  transition: background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow-x: hidden;
+}
+
+/* Lưới nền vi mô */
+.bg-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.035) 1px, transparent 1px);
+}
+
+body.dark-mode .bg-grid {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}
+
+/* Hiệu ứng bóng đổ nổi bật */
+.shadow-float {
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.06), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+}
+
+body.dark-mode .shadow-float {
+  box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.5), 0 4px 12px -2px rgba(0, 0, 0, 0.4);
+}
+
+/* Marquee Animations */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 50s linear infinite;
+}
+
+.animate-marquee-reverse {
+  display: flex;
+  width: max-content;
+  animation: marquee-reverse 50s linear infinite;
+}
+
+.animate-marquee:hover,
+.animate-marquee-reverse:hover {
+  animation-play-state: paused;
+}
+
+/* Terminal Cursor Blink */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.animate-cursor {
+  animation: cursor-blink 1s step-end infinite;
+}
+
+/* Conic Gradient Animated Ring */
+@property --pill-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes pill-spin {
+  to { --pill-angle: 360deg; }
+}
+
+.btn-gradient-ring {
+  position: relative;
+  border-radius: 9999px;
+  padding: 1.5px;
+  background: conic-gradient(from var(--pill-angle), #f3a6c7, #c8b8ff, #f472b6, #c8b8ff, #f3a6c7);
+  animation: pill-spin 3s linear infinite;
+  display: inline-flex;
+}
+
+.btn-gradient-ring-inner {
+  border-radius: 9999px;
+  background-color: var(--color-surface-1);
+  color: var(--color-ink);
+  transition: background-color 0.2s;
+}
+
+/* Flowing gradient text */
+.gradient-text-flow {
+  background: linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6, #ec4899);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-flow 6s ease infinite;
+}
+
+@keyframes gradient-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Hide scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Preloader: fadeInUp (moved from style jsx) */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade-in utility for notifications */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease forwards;
+}
