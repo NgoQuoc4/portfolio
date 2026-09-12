@@ -18,9 +18,9 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
     const getWorkCardCount = () => getWorkScroll()?.children.length || 0;
     const getWorkCardHeight = () => getWorkScroll()?.clientHeight || 1;
 
-    const remainingSections = ['about', 'contact', 'footer'];
+    const remainingSections = ['experience', 'about', 'contact', 'footer'];
 
-    // Total steps: 0 (home), 1..cardCount (work cards), then about, then contact, then footer
+    // Total steps: 0 (home), 1..cardCount (work cards), then experience, then about, then contact, then footer
     const maxSteps = () => 1 + getWorkCardCount() + remainingSections.length - 1;
 
     // Check if viewport is aligned with #work
@@ -97,9 +97,10 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
 
         const allSections = [
           { id: 'home', step: 0 },
-          { id: 'about', step: 1 + cardCount },
-          { id: 'contact', step: 1 + cardCount + 1 },
-          { id: 'footer', step: 1 + cardCount + 2 },
+          { id: 'experience', step: 1 + cardCount },
+          { id: 'about', step: 1 + cardCount + 1 },
+          { id: 'contact', step: 1 + cardCount + 2 },
+          { id: 'footer', step: 1 + cardCount + 3 },
         ];
 
         let closestStep = 0;
