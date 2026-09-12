@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Home, Briefcase, User, Mail, FileText, Settings, Award } from 'lucide-react';
+import { Home, Briefcase, User, Mail, FileText, Settings, Award, Layers } from 'lucide-react';
 
 interface NavItem {
   id: string;
@@ -11,7 +11,8 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { id: 'home', label: 'Trang chủ', icon: <Home className="w-4 h-4" /> },
-  { id: 'work', label: 'Dự án', icon: <Briefcase className="w-4 h-4" /> },
+  { id: 'work', label: 'Dự án', icon: <Layers className="w-4 h-4" /> },
+  { id: 'experience', label: 'Kinh nghiệm', icon: <Briefcase className="w-4 h-4" /> },
   { id: 'about', label: 'Giới thiệu', icon: <User className="w-4 h-4" /> },
   { id: 'contact', label: 'Liên hệ', icon: <Mail className="w-4 h-4" /> },
 ];

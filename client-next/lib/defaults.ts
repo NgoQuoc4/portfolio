@@ -1,5 +1,5 @@
 // Single source of truth for all default/fallback data
-import type { Profile, ProjectItem, FreelanceJob } from './types';
+import type { Profile, ProjectItem, FreelanceJob, ExperienceItem } from './types';
 
 export const defaultProfile: Profile = {
   name: 'Ngô Chí Quốc',
@@ -189,5 +189,55 @@ export const defaultFreelanceJobs: FreelanceJob[] = [
     live_demo: 'https://course-main-seven.vercel.app/',
     status: 'completed',
     featured: true,
+  },
+];
+
+export const defaultExperiences: ExperienceItem[] = [
+  {
+    _id: 'exp-1',
+    company: 'Freelance & Independent Software Projects',
+    role: 'Senior Full Stack & Front End Developer',
+    period: '2023 — Hiện tại',
+    location: 'TP. Hồ Chí Minh & Remote',
+    type: 'Full-time / Freelance',
+    description: 'Chịu trách nhiệm kiến trúc kỹ thuật và trực tiếp phát triển các ứng dụng web tương tác cao cho các đối tác startups, trung tâm đào tạo và giải pháp SaaS.',
+    achievements: [
+      'Thiết kế kiến trúc và phát triển full-stack các web app với React 18, Next.js App Router, TypeScript và NestJS.',
+      'Chuẩn hóa hệ thống RESTful API, hệ thống bảo mật JWT Authentication, kết nối Prisma ORM với MySQL/PostgreSQL/MongoDB.',
+      'Tối ưu hóa hiệu năng render và caching (TanStack Query, Next.js Cache), đạt 95+ PageSpeed và Lighthouse.',
+      'Tích hợp các giải pháp AI (OpenAI API) vào sản phẩm thực tế, mang lại trải nghiệm thông minh cho người dùng.',
+    ],
+    tech_stack: ['ReactJS', 'Next.js', 'TypeScript', 'NestJS', 'Prisma ORM', 'TailwindCSS', 'PostgreSQL'],
+  },
+  {
+    _id: 'exp-2',
+    company: 'E-Commerce & Digital Commerce Agency',
+    role: 'Front End & E-Commerce Developer',
+    period: '2022 — 2023',
+    location: 'TP. Hồ Chí Minh',
+    type: 'Full-time',
+    description: 'Chuyên sâu phát triển và tùy biến giao diện thương mại điện tử chuyên nghiệp cho các thương hiệu trên nền tảng Shopify và BigCommerce.',
+    achievements: [
+      'Tùy biến theme chuyên sâu sử dụng Liquid (Shopify) và Handlebars (BigCommerce) đáp ứng 100% bản vẽ Figma.',
+      'Xây dựng luồng giỏ hàng động (Dynamic Cart Drawer, Upsell/Cross-sell) giúp tăng 28% giá trị đơn hàng trung bình.',
+      'Tối ưu Core Web Vitals, tối thiểu hóa JavaScript dư thừa và tăng tốc độ tải trang trên thiết bị di động.',
+      'Tích hợp các cổng thanh toán và đối tác vận chuyển phổ biến đảm bảo giao dịch mượt mà, bảo mật.',
+    ],
+    tech_stack: ['JavaScript (ES6+)', 'Liquid (Shopify)', 'Handlebars', 'HTML5/SCSS', 'REST APIs', 'Webpack'],
+  },
+  {
+    _id: 'exp-3',
+    company: 'Software Solutions & Web Development Lab',
+    role: 'Junior Web Developer / Intern',
+    period: '2021 — 2022',
+    location: 'TP. Hồ Chí Minh',
+    type: 'Full-time',
+    description: 'Tham gia phát triển các module giao diện người dùng, xây dựng landing page doanh nghiệp và bảo trì hệ thống web nội bộ.',
+    achievements: [
+      'Phát triển các component giao diện người dùng tái sử dụng được bằng ReactJS và Bootstrap/TailwindCSS.',
+      'Phối hợp cùng Backend team tích hợp các RESTful APIs xử lý dữ liệu biểu mẫu và xác thực người dùng.',
+      'Tham gia viết unit test cơ bản, rà soát code và khắc phục lỗi hiển thị trên đa trình duyệt (cross-browser).',
+    ],
+    tech_stack: ['ReactJS', 'JavaScript', 'HTML5/CSS3', 'Git', 'Bootstrap', 'Node.js'],
   },
 ];

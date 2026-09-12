@@ -6,6 +6,7 @@ import { CustomCursor } from '@/components/CustomCursor';
 import { FloatingDock } from '@/components/FloatingDock';
 import { HeroCanvas } from '@/components/HeroCanvas';
 import { SelectedWork } from '@/components/SelectedWork';
+import { ExperienceSection } from '@/components/ExperienceSection';
 import { AboutSection } from '@/components/AboutSection';
 import { ContactSection } from '@/components/ContactSection';
 import { Footer } from '@/components/Footer';
@@ -86,6 +87,9 @@ export default function Home() {
 
           {/* Section: Selected Work */}
           <SelectedWork projects={projects} />
+
+          {/* Section: Career & Work Experience */}
+          <ExperienceSection />
 
           {/* Section: About Me */}
           <AboutSection

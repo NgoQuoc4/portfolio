@@ -80,3 +80,16 @@ export interface FreelanceJob {
   status?: 'completed' | 'ongoing';
   featured?: boolean;
 }
+
+export interface ExperienceItem {
+  _id?: string;
+  company: string;
+  company_logo?: string;
+  role: string;
+  period: string;
+  location?: string;
+  type?: string;
+  description: string;
+  achievements: string[];
+  tech_stack: string[];
+}
