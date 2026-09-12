@@ -18,10 +18,10 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
     const getWorkCardCount = () => getWorkScroll()?.children.length || 0;
     const getWorkCardHeight = () => getWorkScroll()?.clientHeight || 1;
 
-    const remainingSections = ['experience', 'about', 'contact', 'footer'];
+    const afterWorkSections = ['experience', 'contact', 'footer'];
 
-    // Total steps: 0 (home), 1..cardCount (work cards), then experience, then about, then contact, then footer
-    const maxSteps = () => 1 + getWorkCardCount() + remainingSections.length - 1;
+    // Steps: 0 (home), 1 (about), 2..1+cardCount (work cards), 2+cardCount (experience), 3+cardCount (contact), 4+cardCount (footer)
+    const maxSteps = () => 1 + getWorkCardCount() + afterWorkSections.length;
 
     // Check if viewport is aligned with #work
     const isWorkActive = () => {
@@ -58,7 +58,7 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
       const workEl = getEl('work');
       const workScroll = getWorkScroll();
       const cardCount = getWorkCardCount();
-      const isCardStep = step >= 1 && step <= cardCount;
+      const isCardStep = step >= 2 && step <= 1 + cardCount;
 
       isAnimating = true;
       const onDone = () => {
@@ -66,16 +66,30 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
       };
 
       if (isCardStep && workEl && workScroll) {
-        const cardTop = (step - 1) * getWorkCardHeight();
+        const cardTop = (step - 2) * getWorkCardHeight();
         if (isWorkActive()) {
           smoothScrollTo(workScroll, cardTop, onDone);
         } else {
           workScroll.scrollTop = cardTop;
           smoothScrollTo(pageScroll!, workEl.offsetTop, onDone);
         }
+      } else if (step === 0) {
+        const targetEl = getEl('home');
+        if (targetEl) {
+          smoothScrollTo(pageScroll!, targetEl.offsetTop, onDone);
+        } else {
+          onDone();
+        }
+      } else if (step === 1) {
+        const targetEl = getEl('about');
+        if (targetEl) {
+          smoothScrollTo(pageScroll!, targetEl.offsetTop, onDone);
+        } else {
+          onDone();
+        }
       } else {
-        const targetId = step === 0 ? 'home' : remainingSections[step - 1 - cardCount];
-        const targetEl = getEl(targetId || 'home');
+        const targetId = afterWorkSections[step - 2 - cardCount];
+        const targetEl = getEl(targetId || 'footer');
         if (targetEl) {
           smoothScrollTo(pageScroll!, targetEl.offsetTop, onDone);
         } else {
@@ -92,15 +106,15 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
         if (isWorkActive() && workScroll) {
           const cardHeight = getWorkCardHeight();
           const cardIdx = Math.round(workScroll.scrollTop / cardHeight);
-          return 1 + Math.max(0, Math.min(cardCount - 1, cardIdx));
+          return 2 + Math.max(0, Math.min(cardCount - 1, cardIdx));
         }
 
         const allSections = [
           { id: 'home', step: 0 },
-          { id: 'experience', step: 1 + cardCount },
-          { id: 'about', step: 1 + cardCount + 1 },
-          { id: 'contact', step: 1 + cardCount + 2 },
-          { id: 'footer', step: 1 + cardCount + 3 },
+          { id: 'about', step: 1 },
+          { id: 'experience', step: 2 + cardCount },
+          { id: 'contact', step: 3 + cardCount },
+          { id: 'footer', step: 4 + cardCount },
         ];
 
         let closestStep = 0;

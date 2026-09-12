@@ -11,9 +11,9 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { id: 'home', label: 'Trang chủ', icon: <Home className="w-4 h-4" /> },
+  { id: 'about', label: 'Giới thiệu', icon: <User className="w-4 h-4" /> },
   { id: 'work', label: 'Dự án', icon: <Layers className="w-4 h-4" /> },
   { id: 'experience', label: 'Kinh nghiệm', icon: <Briefcase className="w-4 h-4" /> },
-  { id: 'about', label: 'Giới thiệu', icon: <User className="w-4 h-4" /> },
   { id: 'contact', label: 'Liên hệ', icon: <Mail className="w-4 h-4" /> },
 ];
 

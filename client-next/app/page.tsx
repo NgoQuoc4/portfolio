@@ -85,12 +85,6 @@ export default function Home() {
             titleRole={profile?.title || 'Lập trình viên Full Stack & Front End'}
           />
 
-          {/* Section: Selected Work */}
-          <SelectedWork projects={projects} />
-
-          {/* Section: Career & Work Experience */}
-          <ExperienceSection />
-
           {/* Section: About Me */}
           <AboutSection
             about1={profile?.about_text_1}
@@ -99,6 +93,12 @@ export default function Home() {
             brands={profile?.brand_logos}
             avatarUrl={profile?.avatar_url}
           />
+
+          {/* Section: Selected Work */}
+          <SelectedWork projects={projects} />
+
+          {/* Section: Career & Work Experience */}
+          <ExperienceSection />
 
           {/* Section: Contact */}
           <ContactSection
