@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://res.cloudinary.com/dguad3xyf/image/upload/v1786779310/premium_photo-1661290231745-15f1ed6fea88_gcrnme.avif',
+        url: 'https://images.unsplash.com/photo-1661956602944-249bcd04b63f?w=800&q=80',
         width: 1200,
         height: 630,
         alt: 'Dự Án Freelance & Đánh Giá Khách Hàng · Ngô Chí Quốc',

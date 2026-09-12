@@ -53,7 +53,7 @@ export const defaultProjects: ProjectItem[] = [
     description:
       'Nền tảng đăng ký khóa học, quản lý lịch sử đơn hàng và tương tác với nội dung khóa học trực tuyến, tích hợp bảng quản trị (Admin Dashboard) tùy chỉnh toàn diện.',
     image_url:
-      'https://res.cloudinary.com/dguad3xyf/image/upload/v1786779310/premium_photo-1661290231745-15f1ed6fea88_gcrnme.avif',
+      'https://images.unsplash.com/photo-1661956602944-249bcd04b63f?w=800&q=80',
     tech_stack: ['Next.js', 'NestJS', 'TypeScript', 'Prisma ORM', 'MySQL', 'Tailwind CSS', 'Ant Design', 'JWT'],
     category: '0 → 1',
     year: '2026',
