@@ -1,63 +1,43 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Preloader } from '@/components/Preloader';
 import { CustomCursor } from '@/components/CustomCursor';
 import { FloatingDock } from '@/components/FloatingDock';
-import { HeroCanvas } from '@/components/HeroCanvas';
-import { SelectedWork } from '@/components/SelectedWork';
-import { ExperienceSection } from '@/components/ExperienceSection';
 import { AboutSection } from '@/components/AboutSection';
 import { ContactSection } from '@/components/ContactSection';
 import { Footer } from '@/components/Footer';
 import { SmoothScroll } from '@/components/SmoothScroll';
-import api from '@/lib/api';
 import { defaultProfile, defaultProjects } from '@/lib/defaults';
 import type { Profile, ProjectItem } from '@/lib/types';
 
+// Lazy load heavy components to reduce First Load JS
+const HeroCanvas = dynamic(() => import('@/components/HeroCanvas').then(m => ({ default: m.HeroCanvas })), {
+  ssr: false,
+});
+const SelectedWork = dynamic(() => import('@/components/SelectedWork').then(m => ({ default: m.SelectedWork })));
+const ExperienceSection = dynamic(() => import('@/components/ExperienceSection').then(m => ({ default: m.ExperienceSection })));
+
 export default function Home() {
-  const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [projects, setProjects] = useState<ProjectItem[]>(defaultProjects);
   const [profile, setProfile] = useState<Profile>(defaultProfile);
 
   useEffect(() => {
-    // 1. First hydrate from localStorage for instant customization updates
+    // Hydrate from localStorage for instant customization updates
     try {
       const cachedProfile = localStorage.getItem('portfolio_profile');
-      if (cachedProfile) {
-        setProfile(JSON.parse(cachedProfile));
-      }
+      if (cachedProfile) setProfile(JSON.parse(cachedProfile));
+
       const cachedProjects = localStorage.getItem('portfolio_projects');
-      if (cachedProjects) {
-        setProjects(JSON.parse(cachedProjects));
-      }
+      if (cachedProjects) setProjects(JSON.parse(cachedProjects));
     } catch (e) {}
-
-    // 2. Fetch data from NestJS backend with gentle fallback
-    const fetchData = async () => {
-      try {
-        const [projRes, profRes] = await Promise.all([
-          api.get('/projects').catch(() => null),
-          api.get('/profile').catch(() => null),
-        ]);
-
-        if (projRes && projRes.data && projRes.data.length > 0) {
-          setProjects(projRes.data);
-        }
-        if (profRes && profRes.data) {
-          setProfile((prev) => ({ ...prev, ...profRes.data } as Profile));
-        }
-      } catch (err) {
-        console.warn('Backend not yet connected, using rich default showcase data:', err);
-      }
-    };
-
-    fetchData();
   }, []);
 
   return (
     <SmoothScroll>
       <main className="h-dvh overflow-hidden bg-canvas text-ink relative">
-        {/* 0. Cinematic Editorial Preloader (Style adikrz.netlify.app) */}
+        {/* 0. Cinematic Editorial Preloader */}
         <Preloader
           label={profile?.preloader_label || `Portfolio · ${profile?.name || 'Ngô Chí Quốc'}`}
           title={profile?.preloader_title || profile?.name || 'NGO CHI QUOC'}
@@ -66,10 +46,10 @@ export default function Home() {
         {/* 1. Custom Interactive Mouse Cursor */}
         <CustomCursor />
 
-        {/* 2. Floating Navigation Dock (Left on Desktop, Bottom on Mobile) */}
+        {/* 2. Floating Navigation Dock */}
         <FloatingDock />
 
-        {/* 3. Page Scroll Container (Smooth scrolling like sara-khalil.pages.dev) */}
+        {/* 3. Page Scroll Container */}
         <div
           id="page-scroll"
           className="h-dvh overflow-y-scroll [&::-webkit-scrollbar]:hidden"
@@ -111,7 +91,7 @@ export default function Home() {
             twitterLink={profile?.social_links?.twitter}
           />
 
-          {/* Section: Portvio-inspired Footer */}
+          {/* Section: Footer */}
           <Footer
             name={profile?.name || 'Ngô Chí Quốc'}
             title={profile?.title || 'Lập trình viên Full Stack & Front End'}

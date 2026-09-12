@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Printer, Mail, Phone, MapPin, ExternalLink, Globe, Briefcase, Calendar, GraduationCap } from 'lucide-react';
 
@@ -36,12 +37,13 @@ export default function ResumePage() {
         {/* Header section */}
         <header className="border-b border-border pb-8 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
-            <img
+            <Image
               src="https://res.cloudinary.com/dguad3xyf/image/upload/v1776242078/MeUJ0ogEM8MjZvYWfSb9_665822b791856_cvtpl_yljpfv.jpg"
               alt="Ngô Chí Quốc"
-              width="96"
-              height="96"
+              width={96}
+              height={96}
               className="w-24 h-24 rounded-2xl object-cover border-2 border-pink-500 shadow-md ring-4 ring-pink-500/10"
+              priority
             />
             <div>
               <h1 className="text-3xl sm:text-4xl font-bold font-sans tracking-tight text-ink">
