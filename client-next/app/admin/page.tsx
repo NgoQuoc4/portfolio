@@ -28,15 +28,32 @@ import {
   Copy,
   Check,
   Search,
+  Sun,
+  Moon,
+  Menu,
+  ChevronRight,
+  ShieldCheck,
+  SlidersHorizontal,
 } from 'lucide-react';
-
+import { ToastProvider, useToast } from '@/components/admin/Toast';
 
 export default function AdminPage() {
+  return (
+    <ToastProvider>
+      <AdminDashboard />
+    </ToastProvider>
+  );
+}
+
+function AdminDashboard() {
+  const { showToast } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [activeTab, setActiveTab] = useState<'hero' | 'projects' | 'about' | 'contact' | 'media' | 'messages'>('hero');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Media Library state
   const [mediaList, setMediaList] = useState<{
@@ -59,7 +76,6 @@ export default function AdminPage() {
   const [messages, setMessages] = useState<Message[]>([]);
 
   const [uploading, setUploading] = useState<string | null>(null);
-  const [msgNotice, setMsgNotice] = useState<string | null>(null);
 
   // Editing Project state
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
@@ -103,10 +119,34 @@ export default function AdminPage() {
       }
     } catch (e) {}
 
+    // Đồng bộ theme Dark/Light với trang chính
+    if (typeof document !== 'undefined') {
+      const isDark = document.body.classList.contains('dark-mode') || localStorage.getItem('dark-mode') === 'true';
+      setIsDarkMode(isDark);
+      if (isDark) {
+        document.body.classList.add('dark-mode');
+      }
+    }
+
     // Fetch live backend data if available
     fetchBackendData();
     fetchMediaList();
   }, []);
+
+  const toggleTheme = () => {
+    setIsDarkMode((prev) => {
+      const next = !prev;
+      if (typeof document !== 'undefined') {
+        if (next) {
+          document.body.classList.add('dark-mode');
+        } else {
+          document.body.classList.remove('dark-mode');
+        }
+      }
+      localStorage.setItem('dark-mode', String(next));
+      return next;
+    });
+  };
 
   const fetchBackendData = async () => {
     try {
@@ -191,10 +231,9 @@ export default function AdminPage() {
         setProfile((prev: any) => ({ ...prev, avatar_url: data.url }));
       }
 
-      setMsgNotice('Đã upload thành công ảnh lên Cloudinary (thư mục ngoquoc_portfolio)!');
-      setTimeout(() => setMsgNotice(null), 4000);
+      showToast('Đã upload thành công ảnh lên Cloudinary (thư mục ngoquoc_portfolio)!', 'success');
     } catch (err: any) {
-      alert(err.message || 'Lỗi khi upload ảnh lên Cloudinary');
+      showToast(err.message || 'Lỗi khi upload ảnh lên Cloudinary', 'error');
     } finally {
       setUploading(null);
     }
@@ -222,8 +261,7 @@ export default function AdminPage() {
       console.warn('Backend sync deferred (saved locally):', err);
     }
 
-    setMsgNotice('Đã lưu và cập nhật toàn bộ thông tin lên trang chính thành công!');
-    setTimeout(() => setMsgNotice(null), 4000);
+    showToast('Đã lưu và cập nhật toàn bộ thông tin lên trang chính thành công!', 'success');
   };
 
   // Projects CRUD
@@ -258,7 +296,7 @@ export default function AdminPage() {
         }).catch(() => null);
       } catch (err) {}
 
-      setMsgNotice(`Đã cập nhật dự án "${projectForm.title}"!`);
+      showToast(`Đã cập nhật dự án "${projectForm.title}"!`, 'success');
       setEditingProjectId(null);
     } else {
       // Create new
@@ -281,7 +319,7 @@ export default function AdminPage() {
         }).catch(() => null);
       } catch (err) {}
 
-      setMsgNotice(`Đã thêm mới dự án "${projectForm.title}"!`);
+      showToast(`Đã thêm mới dự án "${projectForm.title}"!`, 'success');
     }
 
     // Reset form
@@ -296,8 +334,6 @@ export default function AdminPage() {
       github_link: '',
       metrics: '',
     });
-
-    setTimeout(() => setMsgNotice(null), 4000);
   };
 
   const handleEditProjectClick = (p: any) => {
@@ -327,26 +363,24 @@ export default function AdminPage() {
       await api.delete(`/projects/${id}`).catch(() => null);
     } catch (err) {}
 
-    setMsgNotice('Đã xóa dự án thành công!');
-    setTimeout(() => setMsgNotice(null), 3000);
+    showToast('Đã xóa dự án thành công!', 'info');
   };
 
   const handleResetDefaultProjects = () => {
     if (!confirm('Khôi phục danh sách 4 dự án mặc định từ ngoquoc.vercel.app?')) return;
     setProjects(defaultProjects);
     localStorage.setItem('portfolio_projects', JSON.stringify(defaultProjects));
-    setMsgNotice('Đã khôi phục 4 dự án mặc định!');
-    setTimeout(() => setMsgNotice(null), 3000);
+    showToast('Đã khôi phục 4 dự án mặc định!', 'info');
   };
 
   const handleDeleteMessage = async (id: string) => {
     try {
       await api.delete(`/messages/${id}`);
       setMessages(messages.filter((m) => m._id !== id));
-      setMsgNotice('Đã xóa tin nhắn!');
-      setTimeout(() => setMsgNotice(null), 3000);
+      showToast('Đã xóa tin nhắn!', 'info');
     } catch {
       setMessages(messages.filter((m) => m._id !== id));
+      showToast('Đã xóa tin nhắn!', 'info');
     }
   };
 
@@ -385,14 +419,13 @@ export default function AdminPage() {
         throw new Error(data.error || 'Upload lên Cloudinary thất bại');
       }
 
-      setMsgNotice(`Đã tải ảnh lên Cloudinary thành công!`);
+      showToast('Đã tải ảnh lên Cloudinary thành công!', 'success');
       await fetchMediaList();
     } catch (err: any) {
-      alert(err.message || 'Lỗi khi tải ảnh lên Cloudinary');
+      showToast(err.message || 'Lỗi khi tải ảnh lên Cloudinary', 'error');
     } finally {
       setUploadingMediaFile(false);
       e.target.value = '';
-      setTimeout(() => setMsgNotice(null), 4000);
     }
   };
 
@@ -407,16 +440,16 @@ export default function AdminPage() {
       if (!res.ok) throw new Error(data.error || 'Xóa ảnh thất bại');
 
       setMediaList((prev) => prev.filter((m) => m.public_id !== publicId));
-      setMsgNotice('Đã xóa ảnh khỏi Cloudinary thành công!');
-      setTimeout(() => setMsgNotice(null), 3000);
+      showToast('Đã xóa ảnh khỏi Cloudinary thành công!', 'info');
     } catch (err: any) {
-      alert(err.message || 'Lỗi khi xóa ảnh khỏi Cloudinary');
+      showToast(err.message || 'Lỗi khi xóa ảnh khỏi Cloudinary', 'error');
     }
   };
 
   const handleCopyMediaUrl = (url: string) => {
     navigator.clipboard.writeText(url);
     setCopiedMediaUrl(url);
+    showToast('Đã sao chép link ảnh vào clipboard!', 'success');
     setTimeout(() => setCopiedMediaUrl(null), 2500);
   };
 
@@ -425,15 +458,13 @@ export default function AdminPage() {
     setProfile(updated);
     localStorage.setItem('portfolio_profile', JSON.stringify(updated));
     api.put('/profile', updated).catch(() => null);
-    setMsgNotice('Đã cập nhật Avatar mới cho trang chính!');
-    setTimeout(() => setMsgNotice(null), 3000);
+    showToast('Đã cập nhật Avatar mới cho trang chính!', 'success');
   };
 
   const handleUseInProjectFromMedia = (url: string) => {
     setProjectForm((prev) => ({ ...prev, image_url: url }));
     setActiveTab('projects');
-    setMsgNotice('Đã điền link ảnh vào form Tạo/Sửa Dự Án!');
-    setTimeout(() => setMsgNotice(null), 3500);
+    showToast('Đã điền link ảnh vào form Tạo/Sửa Dự Án!', 'info');
   };
 
   const filteredMedia = mediaList.filter((m) =>
@@ -495,78 +526,258 @@ export default function AdminPage() {
     );
   }
 
+  interface NavItem {
+    id: 'hero' | 'projects' | 'about' | 'contact' | 'media' | 'messages';
+    label: string;
+    icon: React.ElementType;
+    desc: string;
+    count?: number;
+    badge?: string;
+  }
+
+  const navItems: NavItem[] = [
+    { id: 'hero', label: '1. Nhận diện & Hero', icon: Sparkles, desc: 'Tùy chỉnh thông tin giới thiệu đầu trang' },
+    { id: 'projects', label: '2. Quản lý Dự án', icon: Briefcase, count: projects.length, desc: 'Danh sách và thông tin các dự án tiêu biểu' },
+    { id: 'media', label: '3. Thư viện Cloudinary', icon: ImageIcon, count: mediaList.length, badge: 'ngoquoc_portfolio', desc: 'Quản lý & đồng bộ hình ảnh đám mây' },
+    { id: 'about', label: '4. Giới thiệu & Kỹ năng', icon: User, desc: 'Cốt lõi tiểu sử và danh sách kỹ năng công nghệ' },
+    { id: 'contact', label: '5. Liên hệ & MXH', icon: Share2, desc: 'Thông tin email, điện thoại và mạng xã hội' },
+    { id: 'messages', label: '6. Hộp thư Tin nhắn', icon: MessageSquare, count: messages.length, desc: 'Tin nhắn phản hồi từ khách truy cập' },
+  ];
+
+  const currentTabMeta = navItems.find((n) => n.id === activeTab) || navItems[0];
+  const CurrentIcon = currentTabMeta.icon;
+
   // DASHBOARD MAIN
   return (
-    <div className="min-h-screen bg-canvas text-ink py-10 px-6 max-w-6xl mx-auto">
-      {/* Top Header Bar */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border pb-6 mb-8 gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-ink flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-pink-500" />
-            <span>Bảng Điều Khiển Quản Trị Trang Chính</span>
-          </h1>
-          <p className="text-xs text-ink-muted mt-1">
-            Tùy chỉnh thông tin Hero, Dự án, Kỹ năng, Liên hệ và ảnh Cloudinary
-          </p>
+    <div className="min-h-screen bg-canvas text-ink flex flex-col lg:flex-row antialiased">
+      {/* Mobile Top App Bar */}
+      <div className="lg:hidden sticky top-0 z-40 bg-surface-1/90 backdrop-blur-md border-b border-border px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 rounded-xl bg-surface-2 border border-border text-ink hover:text-pink-500 transition-colors cursor-pointer"
+            aria-label="Toggle navigation menu"
+          >
+            {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-pink-500 to-indigo-600 flex items-center justify-center text-white font-black text-xs shadow-xs">
+              NQ
+            </div>
+            <span className="font-bold text-sm text-ink">Quốc Admin</span>
+          </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-xl bg-surface-2 border border-border text-ink hover:text-pink-500 transition-colors cursor-pointer"
+            title={isDarkMode ? 'Chế độ Sáng' : 'Chế độ Tối'}
+            aria-label="Toggle theme"
+          >
+            {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+          </button>
           <Link
             href="/"
             target="_blank"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-surface-1 border border-border text-xs font-semibold text-ink hover:border-pink-500 shadow-sm transition-all"
+            className="p-2 rounded-xl bg-surface-2 border border-border text-ink hover:text-pink-500 transition-colors"
+            title="Xem trang chính"
           >
-            <Eye className="w-3.5 h-3.5 text-pink-500" />
-            <span>Xem trang chính (Live Site)</span>
-            <ExternalLink className="w-3 h-3 text-slate-400" />
+            <ExternalLink className="w-4 h-4" />
           </Link>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-1.5 text-xs text-rose-500 bg-rose-500/10 px-3.5 py-2 rounded-full hover:bg-rose-500/20 transition-colors cursor-pointer"
-          >
-            <LogOut className="w-3.5 h-3.5" />
-            <span>Đăng xuất</span>
-          </button>
         </div>
-      </header>
+      </div>
 
-      {/* Floating Status Notification */}
-      {msgNotice && (
-        <div className="mb-6 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 text-sm font-semibold flex items-center gap-2 shadow-sm animate-fade-in">
-          <CheckCircle2 className="w-4 h-4 shrink-0" />
-          <span>{msgNotice}</span>
-        </div>
+      {/* Mobile Overlay backdrop */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="lg:hidden fixed inset-0 z-40 bg-black/50 backdrop-blur-xs transition-opacity"
+        />
       )}
 
-      {/* Navigation Tabs */}
-      <nav className="flex flex-wrap gap-2 border-b border-border pb-3 mb-8">
-        {[
-          { id: 'hero', label: '1. Nhận diện & Hero', icon: <Sparkles className="w-4 h-4" /> },
-          { id: 'projects', label: `2. Dự án (${projects.length})`, icon: <Briefcase className="w-4 h-4" /> },
-          { id: 'about', label: '3. Giới thiệu & Kỹ năng', icon: <User className="w-4 h-4" /> },
-          { id: 'contact', label: '4. Liên hệ & MXH', icon: <Share2 className="w-4 h-4" /> },
-          { id: 'media', label: `5. Thư viện Ảnh Cloudinary (${mediaList.length})`, icon: <ImageIcon className="w-4 h-4" /> },
-          { id: 'messages', label: `6. Tin nhắn (${messages.length})`, icon: <MessageSquare className="w-4 h-4" /> },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => {
-              setActiveTab(tab.id as any);
-              if (tab.id === 'media' && mediaList.length === 0) {
-                fetchMediaList();
-              }
-            }}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer ${
-              activeTab === tab.id
-                ? 'bg-ink text-surface-1 shadow-sm'
-                : 'text-slate-600 hover:text-ink bg-surface-1 border border-border'
-            }`}
+      {/* Sleek Modern Sidebar */}
+      <aside
+        className={`fixed lg:sticky top-0 left-0 z-50 h-[100dvh] w-72 bg-surface-1/95 lg:bg-surface-1 border-r border-border backdrop-blur-xl flex flex-col justify-between transition-transform duration-300 ease-in-out shrink-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        }`}
+      >
+        {/* Brand Header */}
+        <div className="p-5 border-b border-border">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-500 via-purple-500 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md ring-2 ring-pink-500/20">
+                NQ
+              </div>
+              <div>
+                <h2 className="font-bold text-sm text-ink leading-tight">Ngô Quốc Portfolio</h2>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[11px] font-mono text-ink-subtle">Admin Console v2.0</span>
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden p-1.5 rounded-lg text-ink-muted hover:text-ink hover:bg-surface-2 cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="mt-4 p-2.5 rounded-xl bg-surface-2 border border-border flex items-center justify-between text-[11px] font-mono">
+            <span className="text-ink-muted flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-pink-500" />
+              <span>Vercel / MongoDB</span>
+            </span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Ready</span>
+          </div>
+        </div>
+
+        {/* Navigation Menu */}
+        <div className="p-3.5 flex-1 overflow-y-auto space-y-1">
+          <p className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-ink-subtle">
+            Quản lý nội dung
+          </p>
+
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setActiveTab(item.id as any);
+                  setSidebarOpen(false);
+                  if (item.id === 'media' && mediaList.length === 0) {
+                    fetchMediaList();
+                  }
+                }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer group text-left ${
+                  isActive
+                    ? 'bg-ink text-surface-1 shadow-sm'
+                    : 'text-ink-muted hover:text-ink hover:bg-surface-2'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-pink-400' : 'text-ink-subtle group-hover:text-ink'}`} />
+                  <span className="truncate">{item.label}</span>
+                </div>
+
+                {item.count !== undefined && (
+                  <span
+                    className={`px-2 py-0.5 rounded-full font-mono text-[10px] ${
+                      isActive
+                        ? 'bg-surface-1/20 text-surface-1'
+                        : 'bg-surface-2 text-ink-muted group-hover:text-ink border border-border'
+                    }`}
+                  >
+                    {item.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-border space-y-3 bg-surface-1">
+          <div className="flex items-center justify-between p-2 rounded-xl bg-surface-2 border border-border">
+            <span className="text-xs font-mono text-ink-muted flex items-center gap-2">
+              {isDarkMode ? <Moon className="w-3.5 h-3.5 text-indigo-400" /> : <Sun className="w-3.5 h-3.5 text-amber-500" />}
+              <span>{isDarkMode ? 'Giao diện Tối' : 'Giao diện Sáng'}</span>
+            </span>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-surface-1 text-ink hover:text-pink-500 border border-border shadow-xs transition-colors cursor-pointer"
+            >
+              Đổi theme
+            </button>
+          </div>
+
+          <Link
+            href="/"
+            target="_blank"
+            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-surface-2 hover:border-pink-500/40 border border-border text-xs font-semibold text-ink transition-all shadow-xs"
           >
-            {tab.icon}
-            <span>{tab.label}</span>
-          </button>
-        ))}
-      </nav>
+            <Eye className="w-3.5 h-3.5 text-pink-500" />
+            <span>Xem Portfolio</span>
+            <ExternalLink className="w-3 h-3 text-ink-subtle" />
+          </Link>
+
+          <div className="pt-2 border-t border-border flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-pink-500/10 text-pink-500 border border-pink-500/20 flex items-center justify-center text-xs font-bold">
+                A
+              </div>
+              <div className="text-left">
+                <p className="text-xs font-bold text-ink leading-none">admin</p>
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono mt-0.5">● Online</p>
+              </div>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
+              title="Đăng xuất"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 bg-canvas overflow-x-hidden">
+        {/* Desktop Top Header Bar */}
+        <header className="sticky top-0 z-30 bg-surface-1/80 backdrop-blur-md border-b border-border px-6 py-3.5 hidden lg:flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5 text-xs font-mono">
+            <span className="text-ink-subtle">Admin</span>
+            <ChevronRight className="w-3.5 h-3.5 text-ink-subtle" />
+            <span className="font-bold text-ink flex items-center gap-2">
+              <CurrentIcon className="w-4 h-4 text-pink-500" />
+              <span>{currentTabMeta.label}</span>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-500 text-xs font-mono font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse" />
+              <span>📁 ngoquoc_portfolio</span>
+            </div>
+
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-xl bg-surface-2 border border-border text-ink hover:text-pink-500 transition-colors cursor-pointer"
+              title={isDarkMode ? 'Chuyển sang Chế độ Sáng' : 'Chuyển sang Chế độ Tối'}
+              aria-label="Toggle theme"
+            >
+              {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+            </button>
+
+            <Link
+              href="/"
+              target="_blank"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-surface-2 border border-border text-xs font-semibold text-ink hover:border-pink-500 transition-all shadow-xs"
+            >
+              <Eye className="w-3.5 h-3.5 text-pink-500" />
+              <span>Xem trang chính</span>
+              <ExternalLink className="w-3 h-3 text-ink-subtle" />
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="p-2 rounded-xl text-rose-500 bg-rose-500/10 hover:bg-rose-500/20 transition-colors cursor-pointer"
+              title="Đăng xuất"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </header>
+
+        {/* Tab Content Container */}
+        <main className="flex-1 px-4 sm:px-8 lg:px-10 py-8 max-w-6xl w-full mx-auto">
 
       {/* TAB 1: HERO & IDENTITY */}
       {activeTab === 'hero' && (
@@ -1444,6 +1655,8 @@ export default function AdminPage() {
           )}
         </div>
       )}
+        </main>
+      </div>
     </div>
   );
 }
