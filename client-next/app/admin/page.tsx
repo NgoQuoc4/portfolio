@@ -124,6 +124,13 @@ export default function AdminPage() {
       setIsAuthenticated(true);
       fetchBackendData();
     } catch {
+      // Hỗ trợ đăng nhập trực tiếp trên Vercel khi backend NestJS chạy ở máy local
+      if (username.trim() === 'admin' && password === 'password123') {
+        localStorage.setItem('portfolio_admin_auth', 'true');
+        setIsAuthenticated(true);
+        fetchBackendData();
+        return;
+      }
       setLoginError('Sai tài khoản hoặc mật khẩu. Vui lòng thử lại.');
     }
   };
