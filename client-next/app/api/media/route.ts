@@ -11,7 +11,11 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const maxResults = searchParams.get('max_results') || '100';
 
-    const url = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image?max_results=${maxResults}&type=upload`;
+    const targetFolder = searchParams.get('folder') || process.env.CLOUDINARY_FOLDER || 'ngoquoc_portfolio';
+    const prefix = targetFolder ? `${targetFolder}/` : 'ngoquoc_portfolio/';
+
+    // Chỉ đồng bộ và lấy các ảnh nằm trong thư mục ngoquoc_portfolio
+    const url = `https://api.cloudinary.com/v1_1/${cloudName}/resources/image/upload?prefix=${encodeURIComponent(prefix)}&max_results=${maxResults}&type=upload`;
 
     const response = await fetch(url, {
       method: 'GET',
@@ -30,18 +34,22 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const resources = (data.resources || []).map((r: any) => ({
-      public_id: r.public_id,
-      url: r.secure_url,
-      format: r.format,
-      width: r.width,
-      height: r.height,
-      bytes: r.bytes,
-      created_at: r.created_at,
-    }));
+    // Đảm bảo chỉ nhận những file bắt đầu bằng ngoquoc_portfolio/
+    const resources = (data.resources || [])
+      .filter((r: any) => r.public_id.startsWith(prefix) || r.public_id.startsWith('ngoquoc_portfolio'))
+      .map((r: any) => ({
+        public_id: r.public_id,
+        url: r.secure_url,
+        format: r.format,
+        width: r.width,
+        height: r.height,
+        bytes: r.bytes,
+        created_at: r.created_at,
+      }));
 
     return NextResponse.json({
       success: true,
+      folder: prefix.replace(/\/$/, ''),
       total: resources.length,
       resources,
       next_cursor: data.next_cursor || null,

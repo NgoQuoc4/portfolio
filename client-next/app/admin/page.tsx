@@ -1191,9 +1191,13 @@ export default function AdminPage() {
                   <ImageIcon className="w-5 h-5 text-pink-500" />
                   <span>Quản Lý &amp; Đồng Bộ Thư Viện Ảnh Cloudinary</span>
                 </h2>
-                <p className="text-xs text-ink-muted mt-1">
-                  Kho lưu trữ đám mây Cloudinary: <span className="font-mono text-pink-500 font-semibold">dguad3xyf / ngoquoc_portfolio</span>
-                </p>
+                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                  <span className="text-xs text-ink-muted">Chỉ đồng bộ thư mục:</span>
+                  <span className="px-2 py-0.5 rounded-md bg-pink-500/10 text-pink-500 font-mono text-[11px] font-semibold border border-pink-500/20">
+                    📁 ngoquoc_portfolio/
+                  </span>
+                  <span className="text-xs text-ink-subtle">· Cloud: dguad3xyf</span>
+                </div>
               </div>
 
               <div className="flex items-center gap-3">
