@@ -12,7 +12,6 @@ interface NavItem {
 const navItems: NavItem[] = [
   { id: 'home', label: 'Trang chủ', icon: <Home className="w-4 h-4" /> },
   { id: 'work', label: 'Dự án', icon: <Briefcase className="w-4 h-4" /> },
-  { id: 'freelance', label: 'Freelance & Booking', icon: <Award className="w-4 h-4" /> },
   { id: 'about', label: 'Giới thiệu', icon: <User className="w-4 h-4" /> },
   { id: 'contact', label: 'Liên hệ', icon: <Mail className="w-4 h-4" /> },
 ];
@@ -65,18 +64,9 @@ export const FloatingDock = () => {
   }, []);
 
   const scrollToSection = (id: string) => {
-    const pageScroll = document.getElementById('page-scroll');
-    if (id === 'home') {
-      pageScroll?.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      const el = document.getElementById(id);
-      if (el && pageScroll) {
-        pageScroll.scrollTo({ top: el.offsetTop, behavior: 'smooth' });
-        if (id === 'work') {
-          const workScroll = el.querySelector<HTMLElement>('.overflow-y-auto');
-          workScroll?.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-      }
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -123,6 +113,25 @@ export const FloatingDock = () => {
         })}
 
         <div className="mx-2 my-1 border-t border-slate-300/60" />
+
+        {/* Freelance & Booking Page Link */}
+        <div className="relative flex items-center">
+          <a
+            href="/freelance"
+            aria-label="Xem dự án Freelance và Đặt lịch hợp tác"
+            onMouseEnter={() => setHoveredItem('freelance')}
+            onMouseLeave={() => setHoveredItem(null)}
+            className="flex items-center justify-center w-10 h-10 rounded-[12px] text-pink-600 hover:bg-pink-500/10 transition-colors"
+            title="Freelance & Booking"
+          >
+            <Award className="w-4 h-4 text-pink-500" />
+          </a>
+          {hoveredItem === 'freelance' && (
+            <div className="absolute left-14 px-2.5 py-1 bg-slate-900 text-white text-xs rounded-lg whitespace-nowrap pointer-events-none shadow-md">
+              Dự Án Freelance &amp; Booking ↗
+            </div>
+          )}
+        </div>
 
         {/* Resume link */}
         <div className="relative flex items-center">
@@ -204,6 +213,15 @@ export const FloatingDock = () => {
             <Settings className="w-4 h-4" />
           </a>
         )}
+
+        <a
+          href="/freelance"
+          aria-label="Dự Án Khách Hàng & Đặt Lịch Hợp Tác"
+          className="flex items-center justify-center w-10 h-10 rounded-full text-pink-500 hover:bg-pink-500/10 transition-all"
+          title="Dự Án Khách Hàng & Đặt Lịch Hợp Tác"
+        >
+          <Award className="w-4 h-4" />
+        </a>
       </nav>
     </>
   );

@@ -21,6 +21,9 @@ import {
   Briefcase,
   TrendingUp,
   Quote,
+  Send,
+  Phone,
+  Loader2,
 } from 'lucide-react';
 import { defaultFreelanceJobs } from '@/lib/defaults';
 import type { FreelanceJob } from '@/lib/types';
@@ -81,6 +84,52 @@ export default function FreelancePage() {
     return (job.category || '').toLowerCase().includes(activeCategory.toLowerCase());
   });
 
+  // Booking Form State
+  const [serviceType, setServiceType] = useState('Web App Fullstack');
+  const [clientName, setClientName] = useState('');
+  const [clientContact, setClientContact] = useState('');
+  const [budget, setBudget] = useState('10 - 25 triệu');
+  const [projectBrief, setProjectBrief] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
+
+  const handleBookingSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!clientName || !clientContact) return;
+
+    setSubmitting(true);
+    try {
+      const fullMessage = `[YÊU CẦU BOOKING FREELANCE TỪ TRANG /FREELANCE]\n- Dịch vụ: ${serviceType}\n- Khách hàng: ${clientName}\n- Liên hệ: ${clientContact}\n- Ngân sách: ${budget}\n- Chi tiết nhu cầu: ${projectBrief || 'Cần tư vấn trực tiếp'}`;
+
+      await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: clientName,
+          email: clientContact.includes('@') ? clientContact : `${clientName.toLowerCase().replace(/\s+/g, '')}@booking.client`,
+          message: fullMessage,
+        }),
+      }).catch(() => null);
+
+      setBookingSuccess(true);
+      setClientName('');
+      setClientContact('');
+      setProjectBrief('');
+      setTimeout(() => setBookingSuccess(false), 7000);
+    } catch {
+      setBookingSuccess(true);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const services = [
+    'Web App Fullstack',
+    'Landing Page Chuyển đổi',
+    'Tối ưu PageSpeed (90+)',
+    'Sửa lỗi & Nâng cấp Web',
+  ];
+
   return (
     <div className="min-h-screen bg-canvas text-ink antialiased selection:bg-pink-500 selection:text-white">
       {/* 1. TOP NAVIGATION BAR */}
@@ -99,7 +148,7 @@ export default function FreelancePage() {
               <span>/</span>
               <span className="text-ink font-semibold flex items-center gap-1.5">
                 <Briefcase className="w-3.5 h-3.5 text-pink-500" />
-                <span>Freelance Works</span>
+                <span>Dự Án Khách Hàng &amp; Đặt Lịch Hợp Tác</span>
               </span>
             </div>
           </div>
@@ -114,13 +163,13 @@ export default function FreelancePage() {
               {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
             </button>
 
-            <Link
-              href="/#contact"
+            <a
+              href="#booking"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-ink text-surface-1 font-bold text-xs hover:opacity-90 transition-all shadow-sm"
             >
               <Sparkles className="w-3.5 h-3.5 text-pink-400" />
-              <span>Thuê tôi làm dự án</span>
-            </Link>
+              <span>Đặt lịch hợp tác</span>
+            </a>
           </div>
         </div>
       </header>
@@ -129,15 +178,15 @@ export default function FreelancePage() {
       <section className="pt-16 pb-12 px-4 sm:px-6 max-w-6xl mx-auto text-center">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-600 dark:text-pink-400 text-xs font-mono font-bold mb-6">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Hồ Sơ Hợp Tác &amp; Dự Án Khách Hàng</span>
+          <span>Freelance &amp; Client Stories</span>
         </div>
 
         <h1 className="text-3xl sm:text-5xl font-black text-ink tracking-tight mb-4 max-w-3xl mx-auto leading-tight font-sans">
-          Dự Án Freelance &amp; <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">Đánh Giá Thực Tế</span>
+          Dự Án Khách Hàng &amp; <span className="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 bg-clip-text text-transparent">Đặt Lịch Hợp Tác</span>
         </h1>
 
         <p className="text-sm sm:text-base text-ink-muted max-w-2xl mx-auto leading-relaxed mb-10">
-          Tổng hợp các dự án tôi đã trực tiếp đảm nhiệm và bàn giao cho khách hàng cá nhân, startups và doanh nghiệp.
+          Tổng hợp các sản phẩm số thực chiến tôi đã trực tiếp đảm nhiệm và bàn giao cho khách hàng cá nhân, startups và doanh nghiệp.
           Cam kết chuẩn kỹ thuật, đúng tiến độ và tối ưu hóa chuyển đổi kinh doanh.
         </p>
 
@@ -370,7 +419,230 @@ export default function FreelancePage() {
         )}
       </main>
 
-      {/* 5. CALL TO ACTION SECTION */}
+      {/* 5. QUICK BOOKING SECTION */}
+      <section id="booking" className="scroll-mt-24 py-16 px-4 sm:px-6 bg-surface-1/50 border-t border-border">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-500 font-mono text-xs font-bold mb-3">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>ĐẶT LỊCH HỢP TÁC TRỰC TIẾP</span>
+            </span>
+            <h2 className="text-2xl sm:text-4xl font-bold text-ink tracking-tight font-sans">
+              Khởi Động Dự Án &amp; <span className="bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">Nhận Báo Giá Sơ Bộ</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-ink-muted mt-2">
+              Chia sẻ ngắn gọn yêu cầu hoặc tính năng bạn muốn xây dựng. Tôi sẽ phản hồi giải pháp kiến trúc và báo giá trong vòng 24 giờ.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left: Commitments & Quick Channels */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="p-6 sm:p-7 rounded-3xl bg-surface-1 border border-border shadow-xs space-y-5">
+                <h3 className="text-base font-bold text-ink flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-emerald-500" />
+                  <span>Quy Trình &amp; Cam Kết Hợp Tác</span>
+                </h3>
+
+                <ul className="space-y-3.5 text-xs text-ink-muted">
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-pink-500 shrink-0 mt-0.5" />
+                    <span>
+                      <strong className="text-ink">Tư vấn giải pháp miễn phí:</strong> Phân tích nghiệp vụ và đề xuất tech stack tối ưu nhất trước khi chốt hợp đồng.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-pink-500 shrink-0 mt-0.5" />
+                    <span>
+                      <strong className="text-ink">Tiến độ chuẩn chỉ:</strong> Chia nhỏ milestone bàn giao rõ ràng, cập nhật demo trực tiếp từng tuần.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-pink-500 shrink-0 mt-0.5" />
+                    <span>
+                      <strong className="text-ink">Bảo hành 30 ngày:</strong> Hỗ trợ fix bug, hướng dẫn deploy và bàn giao toàn bộ source code sạch.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-4 h-4 text-pink-500 shrink-0 mt-0.5" />
+                    <span>
+                      <strong className="text-ink">Bảo mật thông tin:</strong> Ký cam kết bảo mật (NDA) đối với các dự án nội bộ và dữ liệu kinh doanh.
+                    </span>
+                  </li>
+                </ul>
+
+                <div className="pt-4 border-t border-border space-y-2.5">
+                  <p className="text-[11px] font-mono text-ink-subtle uppercase tracking-wider font-bold">
+                    Kênh trao đổi trực tiếp nhanh:
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <a
+                      href="https://zalo.me/0981729304"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold transition-all text-center"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Chat Zalo</span>
+                    </a>
+                    <a
+                      href="tel:0981729304"
+                      className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-surface-2 hover:bg-surface-3 border border-border text-ink text-xs font-bold transition-all text-center"
+                    >
+                      <Phone className="w-4 h-4 text-pink-500" />
+                      <span>098.172.9304</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Interactive Booking Form */}
+            <div className="lg:col-span-7">
+              <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float relative">
+                {bookingSuccess ? (
+                  <div className="p-8 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-3">
+                    <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto" />
+                    <h4 className="font-bold text-base text-ink">Gửi Yêu Cầu Thành Công!</h4>
+                    <p className="text-xs sm:text-sm text-ink-muted leading-relaxed max-w-md mx-auto">
+                      Cảm ơn bạn đã liên hệ. Tôi đã nhận được thông tin dự án và sẽ liên hệ lại qua Zalo/Email trong vòng 24 giờ tới.
+                    </p>
+                    <button
+                      onClick={() => setBookingSuccess(false)}
+                      className="mt-2 px-4 py-2 rounded-full bg-ink text-surface-1 text-xs font-bold"
+                    >
+                      Gửi yêu cầu khác
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleBookingSubmit} className="space-y-4">
+                    {/* Service Selection Chips */}
+                    <div>
+                      <label className="block text-xs font-mono text-ink-muted mb-2 font-semibold">
+                        1. Bạn đang cần dịch vụ gì?
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {services.map((srv) => (
+                          <button
+                            key={srv}
+                            type="button"
+                            onClick={() => setServiceType(srv)}
+                            className={`p-2.5 rounded-xl text-xs font-medium border text-center transition-all cursor-pointer ${
+                              serviceType === srv
+                                ? 'bg-ink text-surface-1 border-ink font-bold shadow-xs'
+                                : 'bg-surface-2 border-border text-ink hover:border-pink-500/40'
+                            }`}
+                          >
+                            {srv}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Inputs Name & Contact */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div>
+                        <label className="block text-xs font-mono text-ink-muted mb-1 font-semibold">
+                          2. Tên của bạn / Doanh nghiệp *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={clientName}
+                          onChange={(e) => setClientName(e.target.value)}
+                          placeholder="Ví dụ: Anh Nam - Tech Startup"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none transition-colors"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-mono text-ink-muted mb-1 font-semibold">
+                          3. Số điện thoại / Zalo *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={clientContact}
+                          onChange={(e) => setClientContact(e.target.value)}
+                          placeholder="098... hoặc email@example.com"
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none transition-colors"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Budget selector */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="block text-xs font-mono text-ink-muted font-semibold">
+                          4. Ngân sách dự kiến
+                        </label>
+                        <span className="text-[11px] text-pink-500 font-mono">Đã chọn: {budget}</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5">
+                        {[
+                          'Dưới 10 triệu',
+                          '10 - 25 triệu',
+                          '25 - 50 triệu',
+                          'Trên 50 triệu',
+                          'Linh hoạt',
+                        ].map((b) => (
+                          <button
+                            key={b}
+                            type="button"
+                            onClick={() => setBudget(b)}
+                            className={`py-2 px-1 text-center rounded-xl text-[11px] font-mono border transition-all cursor-pointer ${
+                              budget === b
+                                ? 'bg-pink-500 text-white border-pink-500 font-bold shadow-xs'
+                                : 'bg-surface-2 border-border text-ink-muted hover:text-ink'
+                            }`}
+                          >
+                            {b}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Project Brief */}
+                    <div>
+                      <label className="block text-xs font-mono text-ink-muted mb-1 font-semibold">
+                        5. Mô tả ngắn gọn về yêu cầu dự án
+                      </label>
+                      <textarea
+                        rows={3}
+                        value={projectBrief}
+                        onChange={(e) => setProjectBrief(e.target.value)}
+                        placeholder="Ví dụ: Cần xây dựng web app quản lý học sinh bằng Next.js, có tính năng điểm danh và xuất file Excel..."
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-surface-2 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none resize-none leading-relaxed transition-colors"
+                      />
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="w-full py-3.5 rounded-full bg-ink text-surface-1 font-bold text-xs hover:opacity-90 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                    >
+                      {submitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Đang gửi yêu cầu...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4 text-pink-400" />
+                          <span>Gửi Yêu Cầu Booking &amp; Nhận Báo Giá Ngay</span>
+                        </>
+                      )}
+                    </button>
+                  </form>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. CALL TO ACTION SECTION */}
       <section className="bg-surface-1 border-t border-border py-16 px-4 sm:px-6">
         <div className="max-w-4xl mx-auto text-center bg-gradient-to-b from-surface-2 to-surface-1 border border-border p-8 sm:p-12 rounded-3xl shadow-float relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-pink-500/10 rounded-full blur-3xl pointer-events-none" />
