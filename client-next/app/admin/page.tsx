@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import api from '@/lib/api';
-import { defaultProfile, defaultProjects } from '@/lib/defaults';
-import type { Profile, ProjectItem, Message } from '@/lib/types';
+import { defaultProfile, defaultProjects, defaultFreelanceJobs } from '@/lib/defaults';
+import type { Profile, ProjectItem, Message, FreelanceJob } from '@/lib/types';
 import {
   Lock,
   Plus,
@@ -34,6 +34,8 @@ import {
   ChevronRight,
   ShieldCheck,
   SlidersHorizontal,
+  Award,
+  Star,
 } from 'lucide-react';
 import { ToastProvider, useToast } from '@/components/admin/Toast';
 
@@ -51,9 +53,30 @@ function AdminDashboard() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'hero' | 'projects' | 'about' | 'contact' | 'media' | 'messages'>('hero');
+  const [activeTab, setActiveTab] = useState<'hero' | 'projects' | 'about' | 'contact' | 'media' | 'messages' | 'freelance'>('hero');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Freelance Jobs state
+  const [freelanceJobs, setFreelanceJobs] = useState<FreelanceJob[]>(defaultFreelanceJobs);
+  const [editingJobId, setEditingJobId] = useState<string | null>(null);
+  const [jobForm, setJobForm] = useState({
+    title: '',
+    client_name: '',
+    role: '',
+    timeline: '',
+    category: 'Web App & EdTech',
+    scope: '',
+    deliverables: '',
+    tech_stack: '',
+    metrics: '',
+    image_url: '',
+    live_demo: '',
+    testimonial_quote: '',
+    testimonial_author: '',
+    testimonial_role: '',
+    testimonial_rating: 5,
+  });
 
   // Media Library state
   const [mediaList, setMediaList] = useState<{
@@ -116,6 +139,11 @@ function AdminDashboard() {
       const localProj = localStorage.getItem('portfolio_projects');
       if (localProj) {
         setProjects(JSON.parse(localProj));
+      }
+
+      const localJobs = localStorage.getItem('portfolio_freelance_jobs');
+      if (localJobs) {
+        setFreelanceJobs(JSON.parse(localJobs));
       }
     } catch (e) {}
 
@@ -205,7 +233,7 @@ function AdminDashboard() {
   // Cloudinary Uploader
   const handleCloudinaryUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
-    targetField: 'project_image' | 'profile_avatar'
+    targetField: 'project_image' | 'profile_avatar' | 'freelance_image'
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -229,6 +257,8 @@ function AdminDashboard() {
         setProjectForm((prev) => ({ ...prev, image_url: data.url }));
       } else if (targetField === 'profile_avatar') {
         setProfile((prev: any) => ({ ...prev, avatar_url: data.url }));
+      } else if (targetField === 'freelance_image') {
+        setJobForm((prev) => ({ ...prev, image_url: data.url }));
       }
 
       showToast('Đã upload thành công ảnh lên Cloudinary (thư mục ngoquoc_portfolio)!', 'success');
@@ -467,6 +497,115 @@ function AdminDashboard() {
     showToast('Đã điền link ảnh vào form Tạo/Sửa Dự Án!', 'info');
   };
 
+  const handleUseInFreelanceFromMedia = (url: string) => {
+    setJobForm((prev) => ({ ...prev, image_url: url }));
+    setActiveTab('freelance');
+    showToast('Đã điền link ảnh vào form Job Freelance!', 'info');
+  };
+
+  // --- FREELANCE JOBS CRUD ---
+  const handleSaveFreelanceJob = (e: React.FormEvent) => {
+    e.preventDefault();
+    const deliverablesArray = jobForm.deliverables.split(',').map((s) => s.trim()).filter(Boolean);
+    const techStackArray = jobForm.tech_stack.split(',').map((s) => s.trim()).filter(Boolean);
+
+    const testimonial = jobForm.testimonial_quote.trim()
+      ? {
+          quote: jobForm.testimonial_quote,
+          author: jobForm.testimonial_author || 'Khách hàng',
+          author_role: jobForm.testimonial_role || '',
+          rating: Number(jobForm.testimonial_rating) || 5,
+        }
+      : undefined;
+
+    if (editingJobId) {
+      const updated = freelanceJobs.map((j) => {
+        if (j._id === editingJobId) {
+          return {
+            ...j,
+            ...jobForm,
+            deliverables: deliverablesArray,
+            tech_stack: techStackArray,
+            testimonial,
+          };
+        }
+        return j;
+      });
+      setFreelanceJobs(updated);
+      localStorage.setItem('portfolio_freelance_jobs', JSON.stringify(updated));
+      showToast(`Đã cập nhật job freelance "${jobForm.title}"!`, 'success');
+      setEditingJobId(null);
+    } else {
+      const newJob: FreelanceJob = {
+        _id: `job-${Date.now()}`,
+        ...jobForm,
+        deliverables: deliverablesArray,
+        tech_stack: techStackArray,
+        testimonial,
+        status: 'completed',
+      };
+      const updated = [newJob, ...freelanceJobs];
+      setFreelanceJobs(updated);
+      localStorage.setItem('portfolio_freelance_jobs', JSON.stringify(updated));
+      showToast(`Đã thêm mới job freelance "${jobForm.title}"!`, 'success');
+    }
+
+    setJobForm({
+      title: '',
+      client_name: '',
+      role: '',
+      timeline: '',
+      category: 'Web App & EdTech',
+      scope: '',
+      deliverables: '',
+      tech_stack: '',
+      metrics: '',
+      image_url: '',
+      live_demo: '',
+      testimonial_quote: '',
+      testimonial_author: '',
+      testimonial_role: '',
+      testimonial_rating: 5,
+    });
+  };
+
+  const handleEditJobClick = (job: FreelanceJob) => {
+    setEditingJobId(job._id || null);
+    setJobForm({
+      title: job.title || '',
+      client_name: job.client_name || '',
+      role: job.role || '',
+      timeline: job.timeline || '',
+      category: job.category || 'Web App & EdTech',
+      scope: job.scope || '',
+      deliverables: Array.isArray(job.deliverables) ? job.deliverables.join(', ') : '',
+      tech_stack: Array.isArray(job.tech_stack) ? job.tech_stack.join(', ') : '',
+      metrics: job.metrics || '',
+      image_url: job.image_url || '',
+      live_demo: job.live_demo || '',
+      testimonial_quote: job.testimonial?.quote || '',
+      testimonial_author: job.testimonial?.author || '',
+      testimonial_role: job.testimonial?.author_role || '',
+      testimonial_rating: job.testimonial?.rating || 5,
+    });
+    window.scrollTo({ top: 300, behavior: 'smooth' });
+  };
+
+  const handleDeleteFreelanceJob = (id: string) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa job freelance này?')) return;
+    const updated = freelanceJobs.filter((j) => j._id !== id);
+    setFreelanceJobs(updated);
+    localStorage.setItem('portfolio_freelance_jobs', JSON.stringify(updated));
+    showToast('Đã xóa job freelance thành công!', 'info');
+  };
+
+  const handleResetDefaultJobs = () => {
+    if (!confirm('Khôi phục 3 job freelance mẫu ban đầu?')) return;
+    setFreelanceJobs(defaultFreelanceJobs);
+    localStorage.setItem('portfolio_freelance_jobs', JSON.stringify(defaultFreelanceJobs));
+    showToast('Đã khôi phục 3 job freelance mẫu!', 'info');
+  };
+
   const filteredMedia = mediaList.filter((m) =>
     (m.public_id || '').toLowerCase().includes(mediaSearch.toLowerCase()) ||
     (m.format || '').toLowerCase().includes(mediaSearch.toLowerCase())
@@ -527,7 +666,7 @@ function AdminDashboard() {
   }
 
   interface NavItem {
-    id: 'hero' | 'projects' | 'about' | 'contact' | 'media' | 'messages';
+    id: 'hero' | 'projects' | 'freelance' | 'media' | 'about' | 'contact' | 'messages';
     label: string;
     icon: React.ElementType;
     desc: string;
@@ -538,10 +677,11 @@ function AdminDashboard() {
   const navItems: NavItem[] = [
     { id: 'hero', label: '1. Nhận diện & Hero', icon: Sparkles, desc: 'Tùy chỉnh thông tin giới thiệu đầu trang' },
     { id: 'projects', label: '2. Quản lý Dự án', icon: Briefcase, count: projects.length, desc: 'Danh sách và thông tin các dự án tiêu biểu' },
-    { id: 'media', label: '3. Thư viện Cloudinary', icon: ImageIcon, count: mediaList.length, badge: 'ngoquoc_portfolio', desc: 'Quản lý & đồng bộ hình ảnh đám mây' },
-    { id: 'about', label: '4. Giới thiệu & Kỹ năng', icon: User, desc: 'Cốt lõi tiểu sử và danh sách kỹ năng công nghệ' },
-    { id: 'contact', label: '5. Liên hệ & MXH', icon: Share2, desc: 'Thông tin email, điện thoại và mạng xã hội' },
-    { id: 'messages', label: '6. Hộp thư Tin nhắn', icon: MessageSquare, count: messages.length, desc: 'Tin nhắn phản hồi từ khách truy cập' },
+    { id: 'freelance', label: '3. Jobs Freelance', icon: Award, count: freelanceJobs.length, desc: 'Dự án khách hàng, deliverables và đánh giá 5⭐' },
+    { id: 'media', label: '4. Thư viện Cloudinary', icon: ImageIcon, count: mediaList.length, badge: 'ngoquoc_portfolio', desc: 'Quản lý & đồng bộ hình ảnh đám mây' },
+    { id: 'about', label: '5. Giới thiệu & Kỹ năng', icon: User, desc: 'Cốt lõi tiểu sử và danh sách kỹ năng công nghệ' },
+    { id: 'contact', label: '6. Liên hệ & MXH', icon: Share2, desc: 'Thông tin email, điện thoại và mạng xã hội' },
+    { id: 'messages', label: '7. Hộp thư Tin nhắn', icon: MessageSquare, count: messages.length, desc: 'Tin nhắn phản hồi từ khách truy cập' },
   ];
 
   const currentTabMeta = navItems.find((n) => n.id === activeTab) || navItems[0];
@@ -1215,7 +1355,393 @@ function AdminDashboard() {
         </div>
       )}
 
-      {/* TAB 3: ABOUT & SKILLS */}
+      {/* TAB 3: FREELANCE JOBS */}
+      {activeTab === 'freelance' && (
+        <div className="space-y-8">
+          {/* Form Add / Edit Freelance Job */}
+          <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-4 mb-6">
+              <div>
+                <h2 className="text-lg font-bold text-ink flex items-center gap-2">
+                  <Award className="w-5 h-5 text-pink-500" />
+                  <span>{editingJobId ? 'Chỉnh Sửa Job Freelance' : 'Thêm Dự Án Freelance Mới'}</span>
+                </h2>
+                <p className="text-xs text-ink-muted mt-0.5">
+                  Nội dung này hiển thị trực tiếp tại trang công khai <Link href="/freelance" target="_blank" className="text-pink-500 font-mono hover:underline inline-flex items-center gap-0.5">/freelance <ExternalLink className="w-3 h-3" /></Link>
+                </p>
+              </div>
+
+              {editingJobId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingJobId(null);
+                    setJobForm({
+                      title: '',
+                      client_name: '',
+                      role: '',
+                      timeline: '',
+                      category: 'Web App & EdTech',
+                      scope: '',
+                      deliverables: '',
+                      tech_stack: '',
+                      metrics: '',
+                      image_url: '',
+                      live_demo: '',
+                      testimonial_quote: '',
+                      testimonial_author: '',
+                      testimonial_role: '',
+                      testimonial_rating: 5,
+                    });
+                  }}
+                  className="text-xs text-slate-500 hover:text-ink px-3 py-1.5 rounded-lg bg-surface-2 border border-border cursor-pointer self-start"
+                >
+                  Hủy chỉnh sửa
+                </button>
+              )}
+            </div>
+
+            <form onSubmit={handleSaveFreelanceJob} className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Tên dự án (Job Title) *</label>
+                <input
+                  type="text"
+                  required
+                  value={jobForm.title}
+                  onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
+                  placeholder="Ví dụ: Nền tảng E-Learning & Thanh toán Sakia"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Khách hàng / Doanh nghiệp (Client) *</label>
+                <input
+                  type="text"
+                  required
+                  value={jobForm.client_name}
+                  onChange={(e) => setJobForm({ ...jobForm, client_name: e.target.value })}
+                  placeholder="Ví dụ: Sakia Edu Group (Doanh nghiệp EdTech)"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Phân loại (Category)</label>
+                <select
+                  value={jobForm.category}
+                  onChange={(e) => setJobForm({ ...jobForm, category: e.target.value })}
+                  className="w-full px-3 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                >
+                  <option value="Web App & EdTech">Web App &amp; EdTech</option>
+                  <option value="SaaS & AI Solution">SaaS &amp; AI Solution</option>
+                  <option value="Tối ưu hóa & Performance">Tối ưu hóa &amp; Performance</option>
+                  <option value="E-Commerce">E-Commerce</option>
+                  <option value="Landing Page">Landing Page</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Vai trò đảm nhiệm (Role)</label>
+                <input
+                  type="text"
+                  required
+                  value={jobForm.role}
+                  onChange={(e) => setJobForm({ ...jobForm, role: e.target.value })}
+                  placeholder="Full Stack Web Developer / Lead Frontend"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Thời gian thực hiện (Timeline)</label>
+                <input
+                  type="text"
+                  value={jobForm.timeline}
+                  onChange={(e) => setJobForm({ ...jobForm, timeline: e.target.value })}
+                  placeholder="Ví dụ: 1.5 tháng (Hoàn thành trước hạn 5 ngày)"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Link sản phẩm thực tế (Live Demo nếu có)</label>
+                <input
+                  type="url"
+                  value={jobForm.live_demo}
+                  onChange={(e) => setJobForm({ ...jobForm, live_demo: e.target.value })}
+                  placeholder="https://example.com"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-mono text-slate-500 mb-1">Phạm vi công việc &amp; Bài toán giải quyết (Scope) *</label>
+                <textarea
+                  required
+                  rows={2}
+                  value={jobForm.scope}
+                  onChange={(e) => setJobForm({ ...jobForm, scope: e.target.value })}
+                  placeholder="Xây dựng trọn gói hệ thống đăng ký khóa học, tích hợp cổng thanh toán trực tuyến và CMS quản trị học viên..."
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none resize-none leading-relaxed"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-mono text-slate-500 mb-1">Hạng mục đã bàn giao (Deliverables - ngăn cách bằng dấu phẩy) *</label>
+                <textarea
+                  required
+                  rows={2}
+                  value={jobForm.deliverables}
+                  onChange={(e) => setJobForm({ ...jobForm, deliverables: e.target.value })}
+                  placeholder="Giao diện học viên responsive, Hệ thống video chống tải lậu, Dashboard doanh thu, Bảo mật JWT"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none resize-none leading-relaxed"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-mono text-slate-500 mb-1">Ngăn xếp công nghệ (Tech Stack - ngăn cách bằng dấu phẩy) *</label>
+                <input
+                  type="text"
+                  required
+                  value={jobForm.tech_stack}
+                  onChange={(e) => setJobForm({ ...jobForm, tech_stack: e.target.value })}
+                  placeholder="Next.js 14, NestJS, TypeScript, MySQL, Prisma, TailwindCSS"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-mono text-slate-500 mb-1">Kết quả &amp; Hiệu quả đo lường (Metrics)</label>
+                <input
+                  type="text"
+                  value={jobForm.metrics}
+                  onChange={(e) => setJobForm({ ...jobForm, metrics: e.target.value })}
+                  placeholder="Tăng 140% lượt đăng ký học trong tháng đầu tiên, PageSpeed đạt 98/100"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              {/* Client Testimonial Section */}
+              <div className="md:col-span-2 p-5 rounded-2xl bg-surface-2 border border-border space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-ink flex items-center gap-1.5 font-sans">
+                    <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                    <span>Đánh Giá &amp; Phản Hồi Từ Khách Hàng (Testimonial)</span>
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[11px] font-mono text-slate-400">Số sao:</span>
+                    <select
+                      value={jobForm.testimonial_rating}
+                      onChange={(e) => setJobForm({ ...jobForm, testimonial_rating: Number(e.target.value) })}
+                      className="px-2 py-1 rounded-lg bg-surface-1 border border-border text-xs text-ink font-bold"
+                    >
+                      <option value={5}>⭐⭐⭐⭐⭐ (5/5)</option>
+                      <option value={4}>⭐⭐⭐⭐ (4/5)</option>
+                      <option value={3}>⭐⭐⭐ (3/5)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Lời nhận xét của khách hàng (Quote)</label>
+                  <textarea
+                    rows={2}
+                    value={jobForm.testimonial_quote}
+                    onChange={(e) => setJobForm({ ...jobForm, testimonial_quote: e.target.value })}
+                    placeholder="Quốc làm việc cực kỳ chuyên nghiệp và kỷ luật. Bàn giao sớm hơn dự kiến và hỗ trợ kỹ thuật nhiệt tình..."
+                    className="w-full px-4 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none resize-none leading-relaxed"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-mono text-slate-500 mb-1">Tên khách hàng / Người đánh giá</label>
+                    <input
+                      type="text"
+                      value={jobForm.testimonial_author}
+                      onChange={(e) => setJobForm({ ...jobForm, testimonial_author: e.target.value })}
+                      placeholder="Ví dụ: Anh Nguyễn Minh Tuấn"
+                      className="w-full px-4 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono text-slate-500 mb-1">Chức vụ / Công ty</label>
+                    <input
+                      type="text"
+                      value={jobForm.testimonial_role}
+                      onChange={(e) => setJobForm({ ...jobForm, testimonial_role: e.target.value })}
+                      placeholder="Founder & Giám đốc Điều hành Sakia Edu"
+                      className="w-full px-4 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Job Photo Upload */}
+              <div className="md:col-span-2">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-mono text-slate-500">Hình ảnh dự án (Screenshot / Mockup)</label>
+                  <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold text-pink-500 hover:text-pink-600">
+                    {uploading === 'freelance_image' ? (
+                      <span className="flex items-center gap-1">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Đang tải lên Cloudinary...</span>
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1">
+                        <UploadCloud className="w-3.5 h-3.5" />
+                        <span>Tải ảnh từ máy lên Cloudinary (ngoquoc_portfolio)</span>
+                      </span>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploading === 'freelance_image'}
+                      onChange={(e) => handleCloudinaryUpload(e, 'freelance_image')}
+                    />
+                  </label>
+                </div>
+
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="text"
+                    value={jobForm.image_url}
+                    onChange={(e) => setJobForm({ ...jobForm, image_url: e.target.value })}
+                    placeholder="https://res.cloudinary.com/dguad3xyf/... hoặc nhấn tải lên ở góc phải"
+                    className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                  {jobForm.image_url && (
+                    <img
+                      src={jobForm.image_url}
+                      alt="Preview"
+                      className="w-11 h-11 rounded-xl object-cover border border-border shrink-0"
+                    />
+                  )}
+                </div>
+              </div>
+
+              <div className="md:col-span-2 pt-4 flex items-center justify-between border-t border-border mt-2">
+                <button
+                  type="submit"
+                  className="px-8 py-3 rounded-full bg-pink-500 text-white font-bold text-sm hover:bg-pink-600 transition-all shadow-sm cursor-pointer"
+                >
+                  {editingJobId ? 'Cập nhật Job Freelance' : 'Lưu & Thêm Job Freelance'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleResetDefaultJobs}
+                  className="text-xs text-slate-500 hover:text-ink flex items-center gap-1.5 cursor-pointer"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Khôi phục 3 job freelance mẫu</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* List of Existing Freelance Jobs */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="font-sans font-bold text-base text-ink">
+                Danh sách dự án Freelance đã hoàn thành ({freelanceJobs.length})
+              </h3>
+              <Link
+                href="/freelance"
+                target="_blank"
+                className="text-xs font-mono text-pink-500 hover:underline flex items-center gap-1"
+              >
+                <span>Xem trang công khai</span>
+                <ExternalLink className="w-3 h-3" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {freelanceJobs.map((job, idx) => (
+                <div
+                  key={job._id || idx}
+                  className="bg-surface-1 border border-border rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:border-pink-500/50 transition-colors"
+                >
+                  <div className="flex gap-4">
+                    {job.image_url ? (
+                      <img
+                        src={job.image_url}
+                        alt={job.title}
+                        className="w-20 h-20 rounded-xl object-cover border border-border shrink-0"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 rounded-xl bg-surface-2 border border-border flex items-center justify-center text-slate-400 shrink-0">
+                        <Award className="w-6 h-6 opacity-40" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-md bg-pink-500/10 text-pink-500 font-semibold border border-pink-500/20">
+                          {job.category}
+                        </span>
+                        <span className="text-[10px] font-mono text-slate-400">
+                          {job.timeline}
+                        </span>
+                      </div>
+                      <h4 className="font-bold text-sm text-ink truncate leading-tight">{job.title}</h4>
+                      <p className="text-xs text-ink-muted mt-0.5 truncate">
+                        Khách hàng: <span className="font-semibold text-ink">{job.client_name}</span>
+                      </p>
+                      {job.testimonial && (
+                        <div className="flex items-center gap-1 mt-2 text-amber-400">
+                          {[...Array(job.testimonial.rating || 5)].map((_, sIdx) => (
+                            <Star key={sIdx} className="w-3 h-3 fill-amber-400" />
+                          ))}
+                          <span className="text-[10px] font-mono text-ink-muted ml-1 truncate">
+                            "{job.testimonial.quote.slice(0, 45)}..."
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 mt-3 border-t border-border">
+                    <div>
+                      {job.live_demo && (
+                        <a
+                          href={job.live_demo}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-mono text-pink-500 hover:underline flex items-center gap-1"
+                        >
+                          Demo <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleEditJobClick(job)}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-pink-500 hover:bg-surface-2 transition-colors cursor-pointer"
+                        title="Chỉnh sửa job này"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteFreelanceJob(job._id || '')}
+                        className="p-1.5 rounded-lg text-slate-500 hover:text-rose-500 hover:bg-surface-2 transition-colors cursor-pointer"
+                        title="Xóa job này"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: ABOUT & SKILLS */}
       {activeTab === 'about' && (
         <form onSubmit={handleSaveProfile} className="space-y-6">
           <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float">
@@ -1554,22 +2080,30 @@ function AdminDashboard() {
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-1.5">
+                      <div className="grid grid-cols-3 gap-1">
                         <button
                           type="button"
                           onClick={() => handleSetAvatarFromMedia(item.url)}
-                          className="py-1 px-2 rounded-lg bg-surface-2 hover:bg-emerald-500/15 hover:text-emerald-600 text-[10px] font-mono font-medium text-ink transition-colors cursor-pointer text-center"
+                          className="py-1 px-1.5 rounded-lg bg-surface-2 hover:bg-emerald-500/15 hover:text-emerald-600 text-[10px] font-mono font-medium text-ink transition-colors cursor-pointer text-center truncate"
                           title="Đặt làm ảnh Avatar trang chính"
                         >
-                          Làm Avatar
+                          Avatar
                         </button>
                         <button
                           type="button"
                           onClick={() => handleUseInProjectFromMedia(item.url)}
-                          className="py-1 px-2 rounded-lg bg-surface-2 hover:bg-purple-500/15 hover:text-purple-600 text-[10px] font-mono font-medium text-ink transition-colors cursor-pointer text-center"
+                          className="py-1 px-1.5 rounded-lg bg-surface-2 hover:bg-purple-500/15 hover:text-purple-600 text-[10px] font-mono font-medium text-ink transition-colors cursor-pointer text-center truncate"
                           title="Điền link ảnh vào Dự án"
                         >
-                          Gán Dự án
+                          Dự án
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleUseInFreelanceFromMedia(item.url)}
+                          className="py-1 px-1.5 rounded-lg bg-surface-2 hover:bg-pink-500/15 hover:text-pink-600 text-[10px] font-mono font-medium text-ink transition-colors cursor-pointer text-center truncate"
+                          title="Điền link ảnh vào Job Freelance"
+                        >
+                          Freelance
                         </button>
                       </div>
                     </div>

@@ -1,5 +1,5 @@
 // Single source of truth for all default/fallback data
-import type { Profile, ProjectItem } from './types';
+import type { Profile, ProjectItem, FreelanceJob } from './types';
 
 export const defaultProfile: Profile = {
   name: 'Ngô Chí Quốc',
@@ -105,5 +105,89 @@ export const defaultProjects: ProjectItem[] = [
     metrics: ['Tối ưu hóa luồng checkout & giỏ hàng', 'Cơ chế cache thông minh với TanStack Query', 'Giao diện tương thích đa thiết bị'],
     live_demo: 'https://cfdshop-eosin.vercel.app/',
     github_link: 'https://github.com/NgoQuoc4/cfdshop',
+  },
+];
+
+export const defaultFreelanceJobs: FreelanceJob[] = [
+  {
+    _id: 'job-1',
+    title: 'Nền tảng E-Learning & Thanh toán Trực tuyến Sakia',
+    client_name: 'Sakia Edu Group (Doanh nghiệp EdTech)',
+    role: 'Full Stack Web Developer',
+    timeline: '1.5 tháng (Hoàn thành trước hạn 5 ngày)',
+    category: 'Web App & EdTech',
+    scope: 'Xây dựng trọn gói hệ thống đăng ký khóa học, tích hợp cổng thanh toán trực tuyến và CMS quản trị học viên.',
+    deliverables: [
+      'Giao diện học viên responsive đa thiết bị',
+      'Hệ thống xem video bài giảng chống tải lậu',
+      'Dashboard quản trị doanh thu & đơn hàng cho admin',
+      'Tích hợp xác thực JWT bảo mật 2 lớp',
+    ],
+    tech_stack: ['Next.js 14', 'NestJS', 'TypeScript', 'MySQL', 'Prisma', 'TailwindCSS'],
+    metrics: 'Tăng 140% lượt đăng ký học trực tuyến trong tháng đầu tiên ra mắt, điểm PageSpeed đạt 98/100.',
+    testimonial: {
+      quote: 'Quốc làm việc cực kỳ chuyên nghiệp và kỷ luật. Giải pháp kiến trúc bạn đưa ra rất tối ưu, bàn giao sớm hơn thỏa thuận ban đầu và hỗ trợ kỹ thuật nhiệt tình sau khi go-live.',
+      author: 'Anh Nguyễn Minh Tuấn',
+      author_role: 'Founder & Giám đốc Điều hành Sakia Edu',
+      rating: 5,
+    },
+    image_url: 'https://res.cloudinary.com/dguad3xyf/image/upload/v1786779310/premium_photo-1661290231745-15f1ed6fea88_gcrnme.avif',
+    live_demo: 'http://trangsakiaonline.com/',
+    status: 'completed',
+    featured: true,
+  },
+  {
+    _id: 'job-2',
+    title: 'Hệ thống Đặt món & Sổ tay Công thức AI Thông minh',
+    client_name: 'Gourmet Lab Studio (Singapore)',
+    role: 'Lead Frontend Developer',
+    timeline: '3 tuần',
+    category: 'SaaS & AI Solution',
+    scope: 'Phát triển giao diện tương tác cao hỗ trợ Cooking Mode rảnh tay và gợi ý thực đơn bằng OpenAI API.',
+    deliverables: [
+      'Chế độ Cooking Mode toàn màn hình với bộ đếm giờ thông minh',
+      'Giao diện tìm kiếm tức thì theo nguyên liệu có sẵn trong tủ lạnh',
+      'Tích hợp AI Prompting tối ưu chi phí token',
+      'Hệ thống quản lý trạng thái mượt mà không re-render dư thừa',
+    ],
+    tech_stack: ['React 18', 'TypeScript', 'Vite', 'TanStack Query', 'TailwindCSS', 'OpenAI API'],
+    metrics: 'Thời gian tương tác trung bình của người dùng tăng gấp 2.8 lần so với ứng dụng cũ.',
+    testimonial: {
+      quote: 'Excellent frontend execution! Quoc delivered clean, modular code with exceptional attention to UI micro-interactions. Will definitely hire him again for future frontend modules.',
+      author: 'David Tan',
+      author_role: 'Product Lead @ Gourmet Lab',
+      rating: 5,
+    },
+    image_url: 'https://res.cloudinary.com/dguad3xyf/image/upload/v1777965113/21f8ebd4-9547-4110-b704-99130b7090dd_xumnav.jpg',
+    live_demo: 'https://recipe-cookbook-phi.vercel.app/',
+    status: 'completed',
+    featured: true,
+  },
+  {
+    _id: 'job-3',
+    title: 'Tối ưu hóa Hiệu năng & Tái cấu trúc Frontend CDF Course',
+    client_name: 'Trung tâm Đào tạo Công nghệ CDF',
+    role: 'Performance Optimization & Frontend Specialist',
+    timeline: '2 tuần',
+    category: 'Tối ưu hóa & Performance',
+    scope: 'Kiểm toán Core Web Vitals, tối ưu bundle JavaScript, nén tài nguyên hình ảnh và chuẩn hóa SEO.',
+    deliverables: [
+      'Giảm 68% kích thước bundle ban đầu bằng code-splitting',
+      'Tối ưu LCP từ 4.8s xuống còn 1.1s trên mạng di động 4G',
+      'Cấu hình lazy loading thông minh cho danh sách khóa học',
+      'Bổ sung Schema.org và sitemap tự động phục vụ SEO',
+    ],
+    tech_stack: ['ReactJS', 'Vite', 'Redux Toolkit', 'Cloudinary CDN', 'Web Vitals'],
+    metrics: 'Điểm Lighthouse Performance trên Mobile tăng từ 43 lên 96 điểm. Tỉ lệ bounce rate giảm 32%.',
+    testimonial: {
+      quote: 'Website chạy nhanh như bay sau khi bạn Quốc tối ưu. Học viên không còn phàn nàn về tình trạng giật lag khi tải video hay xem chi tiết khóa học nữa.',
+      author: 'Chị Hoàng Thảo My',
+      author_role: 'Quản lý Đào tạo & Vận hành CDF',
+      rating: 5,
+    },
+    image_url: 'https://res.cloudinary.com/dguad3xyf/image/upload/v1776339617/6c4e14b5-73c4-4445-9d40-e86d3fae4254_oyzud9.jpg',
+    live_demo: 'https://course-main-seven.vercel.app/',
+    status: 'completed',
+    featured: true,
   },
 ];

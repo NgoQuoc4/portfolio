@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Coffee, Lightbulb, Folder, Sparkles } from 'lucide-react';
+import { Coffee, Lightbulb, Folder, Sparkles, Award } from 'lucide-react';
 
 interface HeroCanvasProps {
   profileName?: string;
@@ -365,6 +366,15 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
               Xem Dự Án Nổi Bật
             </span>
           </a>
+
+          <Link
+            href="/freelance"
+            className="px-6 py-3 rounded-full bg-surface-1 border border-border hover:border-pink-500/50 text-sm font-semibold text-ink shadow-sm hover:scale-105 transition-all flex items-center gap-2"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Freelance Works</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-pink-500/10 text-pink-500 font-bold">Mới</span>
+          </Link>
 
           <a
             href="#contact"

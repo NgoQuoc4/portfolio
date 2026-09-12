@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { ArrowUpRight, Check, Send } from 'lucide-react';
 import api from '../lib/api';
 
@@ -177,6 +178,15 @@ export const Footer: React.FC<FooterProps> = ({
                   >
                     Dự án
                   </a>
+                </li>
+                <li>
+                  <Link
+                    href="/freelance"
+                    className="text-ink hover:text-pink-500 dark:hover:text-pink-400 transition-colors inline-flex items-center gap-1.5 hover:translate-x-1 duration-200 font-semibold"
+                  >
+                    <span>Freelance Works</span>
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-pink-500/10 text-pink-500 font-bold">Mới</span>
+                  </Link>
                 </li>
               </ul>
             </div>

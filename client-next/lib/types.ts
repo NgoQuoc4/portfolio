@@ -56,3 +56,27 @@ export interface Message {
   message: string;
   createdAt?: string;
 }
+
+export interface FreelanceJob {
+  _id?: string;
+  title: string;
+  client_name: string;
+  client_avatar?: string;
+  role: string;
+  timeline: string;
+  category: string;
+  scope: string;
+  deliverables: string[];
+  tech_stack: string[];
+  metrics: string;
+  testimonial?: {
+    quote: string;
+    author: string;
+    author_role?: string;
+    rating: number;
+  };
+  image_url?: string;
+  live_demo?: string;
+  status?: 'completed' | 'ongoing';
+  featured?: boolean;
+}
