@@ -74,28 +74,30 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
               </div>
             </div>
 
-            <h2 className="font-sans font-bold text-3xl sm:text-4xl lg:text-[40px] text-ink tracking-tight leading-[1.25]">
-              Kỹ thuật <span className="text-pink-500 dark:text-pink-400 font-extrabold underline decoration-pink-400/40 decoration-wavy underline-offset-8">chuẩn xác</span>,<br />
+            <h2 className="font-sans font-bold text-3xl sm:text-4xl lg:text-[42px] text-ink tracking-tight leading-[1.25]">
+              Kỹ thuật chuẩn xác,<br />
               tập trung vào{' '}
-              <span className="font-serif italic font-medium gradient-text-flow">
+              <span className="text-pink-500 dark:text-pink-400 font-bold">
                 trải nghiệm thực tế
               </span>.
             </h2>
-            <p className="text-base text-ink-muted dark:text-slate-300 leading-relaxed font-sans">
+            <p className="text-base text-slate-700 dark:text-slate-200 leading-relaxed font-sans font-normal">
               {about1}
             </p>
-            <p className="text-base text-ink-muted dark:text-slate-300 leading-relaxed font-sans">
+            <p className="text-base text-slate-700 dark:text-slate-200 leading-relaxed font-sans font-normal">
               {about2}
             </p>
 
             {/* Skills Pills */}
             <div className="pt-2">
-              <p className="font-mono text-xs text-slate-400 uppercase tracking-widest mb-3">Kỹ năng &amp; Công nghệ chính</p>
+              <p className="font-mono text-xs text-slate-600 dark:text-slate-300 uppercase tracking-widest mb-3 font-semibold">
+                Kỹ năng &amp; Công nghệ chính
+              </p>
               <div className="flex flex-wrap gap-2">
                 {skills.map((s) => (
                   <span
                     key={s}
-                    className="font-mono text-xs text-slate-700 dark:text-slate-200 bg-surface-2 border border-border px-3 py-1.5 rounded-full hover:border-pink-500 transition-colors"
+                    className="font-mono text-xs text-slate-800 dark:text-slate-100 bg-slate-100/90 dark:bg-surface-2 border border-slate-300/80 dark:border-border px-3 py-1.5 rounded-full font-medium hover:border-pink-500 hover:text-pink-600 transition-colors shadow-2xs"
                   >
                     {s}
                   </span>
@@ -110,7 +112,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
               >
                 Xem chi tiết Hồ sơ / CV
               </a>
-              <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 rounded-full px-3 py-1 font-medium">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 bg-emerald-500/15 rounded-full px-3 py-1 font-semibold">
                 Sẵn sàng nhận dự án mới
               </span>
             </div>
@@ -118,23 +120,23 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
 
           {/* Right Column: Brands & Tech Logos Grid */}
           <div>
-            <p className="font-mono text-xs text-slate-400 uppercase tracking-widest mb-6 text-center lg:text-left">
+            <p className="font-mono text-xs text-slate-600 dark:text-slate-300 uppercase tracking-widest mb-6 text-center lg:text-left font-semibold">
               Công nghệ &amp; Nền tảng chuyên môn
             </p>
             <div className="grid grid-cols-3 gap-4">
               {brands.map((b) => (
                 <div
                   key={b.name}
-                  className="group flex flex-col items-center justify-center p-5 rounded-2xl bg-surface-2 border border-border hover:border-pink-300 dark:hover:border-pink-900 transition-all duration-300 hover:scale-105"
+                  className="group flex flex-col items-center justify-center p-5 rounded-2xl bg-surface-2 border border-border hover:border-pink-400/80 dark:hover:border-pink-600 transition-all duration-300 hover:scale-105 shadow-2xs"
                 >
                   <Image
                     src={b.logo_url}
                     alt={b.name}
                     width={40}
                     height={40}
-                    className="object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300 mb-2"
+                    className="object-contain transition-transform duration-300 group-hover:scale-110 mb-2"
                   />
-                  <span className="font-mono text-[11px] text-slate-500 group-hover:text-ink transition-colors font-medium">
+                  <span className="font-mono text-[11px] text-slate-700 dark:text-slate-300 group-hover:text-pink-500 transition-colors font-semibold">
                     {b.name}
                   </span>
                 </div>
