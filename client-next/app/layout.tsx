@@ -5,17 +5,20 @@ import './globals.css';
 const jakarta = Plus_Jakarta_Sans({
   variable: '--font-sans',
   subsets: ['latin'],
+  display: 'swap',
 });
 
 const jetbrains = JetBrains_Mono({
   variable: '--font-mono',
   subsets: ['latin'],
+  display: 'swap',
 });
 
 const instrumentSerif = Instrument_Serif({
   variable: '--font-serif',
   weight: '400',
   subsets: ['latin'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {

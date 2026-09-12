@@ -65,9 +65,9 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
                 <p className="font-mono text-xs text-pink-500 uppercase tracking-widest font-semibold">
                   Về Lập Trình Viên
                 </p>
-                <h3 className="font-sans font-bold text-lg text-ink">
+                <p className="font-sans font-bold text-lg text-ink">
                   Ngô Chí Quốc
-                </h3>
+                </p>
                 <p className="font-mono text-xs text-ink-muted">
                   Lập trình viên Full Stack &amp; Front End · Hồ Chí Minh
                 </p>

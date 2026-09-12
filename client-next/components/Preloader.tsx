@@ -18,10 +18,17 @@ export const Preloader: React.FC<PreloaderProps> = ({
   const [isRemoved, setIsRemoved] = useState(false);
 
   useEffect(() => {
+    // Check if user already saw the preloader in this session
+    if (typeof window !== 'undefined' && sessionStorage.getItem('preloader_shown')) {
+      setIsRemoved(true);
+      if (onComplete) onComplete();
+      return;
+    }
+
     // Khóa cuộn trang khi đang chạy preloader
     document.body.style.overflow = 'hidden';
 
-    const duration = 2000; // 2 giây đếm số
+    const duration = 650; // Tinh gọn thời gian để tối ưu chỉ số LCP & FCP
     let start: number | null = null;
     let animationFrameId: number;
 
@@ -29,7 +36,6 @@ export const Preloader: React.FC<PreloaderProps> = ({
       if (start === null) start = now;
       const progress = Math.min((now - start) / duration, 1);
 
-      // Hàm giải tích easeOutCubic: ban đầu số tăng nhanh, sau đó hãm phanh chậm dần về 100%
       const eased = 1 - Math.pow(1 - progress, 3);
       const currentPct = Math.round(eased * 100);
       setCount(currentPct);
@@ -37,17 +43,19 @@ export const Preloader: React.FC<PreloaderProps> = ({
       if (progress < 1) {
         animationFrameId = requestAnimationFrame(tick);
       } else {
-        // Đã đạt 100%: Dừng lại 240ms rồi kích hoạt hiệu ứng rèm cuốn lên
+        // Đã đạt 100%: hoàn tất mượt mà
         setTimeout(() => {
           setIsDone(true);
           document.body.style.overflow = '';
+          try {
+            sessionStorage.setItem('preloader_shown', 'true');
+          } catch {}
           if (onComplete) onComplete();
 
-          // Sau khi hoàn tất transition (1000ms), xóa hoàn toàn khỏi DOM
           setTimeout(() => {
             setIsRemoved(true);
-          }, 1100);
-        }, 240);
+          }, 450);
+        }, 120);
       }
     };
 
@@ -65,41 +73,33 @@ export const Preloader: React.FC<PreloaderProps> = ({
     <aside
       role="status"
       aria-live="polite"
-      aria-label="Loading portfolio"
+      aria-label="Đang tải trang"
       style={{
-        transition: 'transform 1s cubic-bezier(0.76, 0, 0.24, 1)',
+        transition: 'transform 0.45s cubic-bezier(0.76, 0, 0.24, 1)',
         transform: isDone ? 'translateY(-100%)' : 'translateY(0)',
         willChange: 'transform',
       }}
       className="fixed inset-0 z-[10000] bg-[#141414] text-white flex flex-col items-center justify-center select-none overflow-hidden"
     >
-      {/* 1. Ảnh nền nghệ thuật trừu tượng */}
-      <img
-        src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1920&q=80"
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 w-full h-full object-cover object-center opacity-30 pointer-events-none"
-      />
-
-      {/* 2. Lớp phủ Scrim Gradient điện ảnh */}
+      {/* 1. Lớp phủ Scrim Gradient điện ảnh thuần CSS nhẹ nhàng không tốn băng thông */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'linear-gradient(180deg, rgba(10,10,10,.65) 0%, rgba(10,10,10,.45) 45%, rgba(10,10,10,.75) 100%)',
+          background: 'radial-gradient(circle at 50% 40%, rgba(244, 114, 182, 0.12) 0%, rgba(10, 10, 10, 0.95) 75%)',
         }}
       />
 
-      {/* 3. Khung nội dung trung tâm: Label & Title Serif */}
+      {/* 2. Khung nội dung trung tâm: Label & Title Serif (Dùng thẻ p để giữ cấu trúc H1 duy nhất cho SEO) */}
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
         <p className="m-0 mb-4 text-[11px] sm:text-xs font-mono uppercase tracking-[0.25em] text-white/60 animate-[fadeInUp_0.8s_ease_forwards_0.1s]">
           {label}
         </p>
-        <h1
+        <p
           style={{ fontFamily: 'var(--font-serif, "Instrument Serif", "Georgia", serif)' }}
           className="m-0 text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-normal leading-[1.05] tracking-tight text-white/95 italic animate-[fadeInUp_1s_cubic-bezier(0.2,0.7,0.2,1)_forwards_0.25s]"
         >
           {title}
-        </h1>
+        </p>
       </div>
 
       {/* 4. Đồng hồ đếm số phần trăm ở góc dưới bên phải */}

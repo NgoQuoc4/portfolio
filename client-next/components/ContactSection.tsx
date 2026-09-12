@@ -136,6 +136,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <button
                   onClick={handleCopyEmail}
                   type="button"
+                  aria-label="Sao chép địa chỉ email của Ngô Chí Quốc"
                   className="px-3 py-1.5 rounded-xl hover:bg-surface-2 text-ink-muted hover:text-ink transition-colors cursor-pointer text-xs font-mono flex items-center gap-1.5"
                   title="Sao chép email"
                 >
@@ -236,10 +237,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block font-mono text-[11px] text-ink-muted uppercase tracking-wider mb-1.5">
+                <label htmlFor="contact-name" className="block font-mono text-[11px] text-ink-muted uppercase tracking-wider mb-1.5">
                   Họ và tên <span className="text-pink-500">*</span>
                 </label>
                 <input
+                  id="contact-name"
                   type="text"
                   required
                   placeholder="Ví dụ: Nguyễn Văn A"
@@ -250,10 +252,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               </div>
 
               <div>
-                <label className="block font-mono text-[11px] text-ink-muted uppercase tracking-wider mb-1.5">
+                <label htmlFor="contact-email" className="block font-mono text-[11px] text-ink-muted uppercase tracking-wider mb-1.5">
                   Địa chỉ Email <span className="text-pink-500">*</span>
                 </label>
                 <input
+                  id="contact-email"
                   type="email"
                   required
                   placeholder="email@vidu.com"
@@ -264,10 +267,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               </div>
 
               <div>
-                <label className="block font-mono text-[11px] text-ink-muted uppercase tracking-wider mb-1.5">
+                <label htmlFor="contact-message" className="block font-mono text-[11px] text-ink-muted uppercase tracking-wider mb-1.5">
                   Nội dung trao đổi <span className="text-pink-500">*</span>
                 </label>
                 <textarea
+                  id="contact-message"
                   required
                   rows={3}
                   placeholder="Bạn đang có dự án, câu hỏi hay cơ hội hợp tác nào?"

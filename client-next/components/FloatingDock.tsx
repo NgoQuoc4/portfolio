@@ -83,6 +83,7 @@ export const FloatingDock = () => {
     <>
       {/* Desktop Vertical Dock (Left) */}
       <nav
+        aria-label="Điều hướng chính trên máy tính"
         className="fixed left-4 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col gap-1 p-1.5 backdrop-blur-md"
         style={{
           width: '52px',
@@ -126,6 +127,7 @@ export const FloatingDock = () => {
         <div className="relative flex items-center">
           <a
             href="/resume"
+            aria-label="Xem hồ sơ và CV của Ngô Chí Quốc"
             onMouseEnter={() => setHoveredItem('resume')}
             onMouseLeave={() => setHoveredItem(null)}
             className="flex items-center justify-center w-10 h-10 rounded-[12px] text-slate-600 hover:text-slate-900 hover:bg-black/5 transition-colors"
@@ -145,6 +147,7 @@ export const FloatingDock = () => {
           <div className="relative flex items-center">
             <a
               href="/admin"
+              aria-label="Trang quản trị Admin"
               onMouseEnter={() => setHoveredItem('admin')}
               onMouseLeave={() => setHoveredItem(null)}
               className="flex items-center justify-center w-10 h-10 rounded-[12px] text-slate-600 hover:text-pink-600 hover:bg-pink-500/10 transition-colors"
@@ -163,6 +166,7 @@ export const FloatingDock = () => {
 
       {/* Mobile Horizontal Dock (Bottom) */}
       <nav
+        aria-label="Điều hướng trên thiết bị di động"
         className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex md:hidden items-center gap-1.5 p-1.5 backdrop-blur-md"
         style={{
           background: 'rgba(244, 245, 248, 0.92)',
@@ -192,6 +196,7 @@ export const FloatingDock = () => {
         {isAdmin && (
           <a
             href="/admin"
+            aria-label="Trang quản trị Admin"
             className="flex items-center justify-center w-10 h-10 rounded-full text-slate-600 hover:text-pink-600 transition-all"
             title="Quản trị Admin"
           >

@@ -97,17 +97,18 @@ export const Footer: React.FC<FooterProps> = ({
 
             {/* Newsletter Box */}
             <div className="flex flex-col gap-3">
-              <h4 className="font-sans font-bold text-lg text-ink">Bản tin cập nhật</h4>
+              <p className="font-sans font-bold text-lg text-ink">Bản tin cập nhật</p>
               <p className="text-sm text-ink-muted leading-relaxed">
                 Nhận thông tin về các dự án mới nhất, bài viết kỹ thuật và kinh nghiệm thực chiến.
               </p>
 
               <form onSubmit={handleSubscribe} className="mt-2 flex flex-col gap-3">
-                <label className="text-xs font-mono text-ink-subtle uppercase tracking-wider">
+                <label htmlFor="newsletter-email" className="text-xs font-mono text-ink-subtle uppercase tracking-wider">
                   Địa chỉ email
                 </label>
                 <div className="flex flex-col sm:flex-row gap-2.5">
                   <input
+                    id="newsletter-email"
                     type="email"
                     value={newsletterEmail}
                     onChange={(e) => setNewsletterEmail(e.target.value)}
@@ -141,9 +142,9 @@ export const Footer: React.FC<FooterProps> = ({
           <div className="w-full lg:w-auto grid grid-cols-2 sm:grid-cols-3 gap-8 sm:gap-14 lg:gap-20">
             {/* Menu */}
             <div className="flex flex-col gap-4">
-              <h5 className="font-mono text-xs uppercase tracking-widest text-ink-muted font-semibold">
+              <p className="font-mono text-xs uppercase tracking-widest text-ink-muted font-semibold">
                 Điều hướng
-              </h5>
+              </p>
               <ul className="flex flex-col gap-3 text-sm sm:text-base">
                 <li>
                   <a
@@ -182,9 +183,9 @@ export const Footer: React.FC<FooterProps> = ({
 
             {/* Social Media */}
             <div className="flex flex-col gap-4">
-              <h5 className="font-mono text-xs uppercase tracking-widest text-ink-muted font-semibold">
+              <p className="font-mono text-xs uppercase tracking-widest text-ink-muted font-semibold">
                 Mạng xã hội
-              </h5>
+              </p>
               <ul className="flex flex-col gap-3 text-sm sm:text-base">
                 {githubLink && (
                   <li>
@@ -243,9 +244,9 @@ export const Footer: React.FC<FooterProps> = ({
 
             {/* Location */}
             <div className="flex flex-col gap-4 col-span-2 sm:col-span-1">
-              <h5 className="font-mono text-xs uppercase tracking-widest text-ink-muted font-semibold">
+              <p className="font-mono text-xs uppercase tracking-widest text-ink-muted font-semibold">
                 Địa điểm
-              </h5>
+              </p>
               <p className="text-sm sm:text-base text-ink leading-relaxed">
                 {location}
               </p>
@@ -295,6 +296,7 @@ export const Footer: React.FC<FooterProps> = ({
         {/* SECTION 3: THE GIGANTIC BRAND TEXT AT THE VERY BOTTOM */}
         <div className="w-full relative overflow-hidden pt-4 md:pt-6">
           <svg
+            role="img"
             viewBox="0 0 1140 158"
             className="w-full h-auto text-ink fill-current block select-none pointer-events-none opacity-90 hover:opacity-100 transition-opacity"
             style={{ width: '100%', height: 'auto', aspectRatio: '7.2025' }}

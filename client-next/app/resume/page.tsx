@@ -39,6 +39,8 @@ export default function ResumePage() {
             <img
               src="https://res.cloudinary.com/dguad3xyf/image/upload/v1776242078/MeUJ0ogEM8MjZvYWfSb9_665822b791856_cvtpl_yljpfv.jpg"
               alt="Ngô Chí Quốc"
+              width="96"
+              height="96"
               className="w-24 h-24 rounded-2xl object-cover border-2 border-pink-500 shadow-md ring-4 ring-pink-500/10"
             />
             <div>

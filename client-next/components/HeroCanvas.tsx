@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { Coffee, Lightbulb, Folder, Sparkles } from 'lucide-react';
 
@@ -83,10 +84,13 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
 
               {/* Photo Area */}
               <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden bg-surface-2 border border-border/60 shadow-inner">
-                <img
+                <Image
                   src={avatarUrl}
-                  alt={profileName}
-                  className="w-full h-full object-cover object-top pointer-events-none select-none"
+                  alt={`Ảnh đại diện chân dung ${profileName}`}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 160px, 240px"
+                  className="object-cover object-top pointer-events-none select-none"
                 />
               </div>
 
@@ -139,6 +143,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
             <button
               type="button"
               onClick={toggleMood}
+              aria-label="Chuyển đổi giao diện sáng tối"
               className={`w-28 h-28 rounded-2xl border shadow-float flex flex-col items-center justify-center p-3 transition-all ${
                 isDarkMode
                   ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
@@ -226,6 +231,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
                 href={`https://chatgpt.com/?q=${candidatePrompt}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Hỏi ChatGPT về năng lực của Ngô Chí Quốc"
                 className="w-7 h-7 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 flex items-center justify-center transition-colors"
                 title="Hỏi ChatGPT"
               >
@@ -235,6 +241,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
                 href={`https://claude.ai/new?q=${candidatePrompt}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Hỏi Claude về năng lực của Ngô Chí Quốc"
                 className="w-7 h-7 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 flex items-center justify-center transition-colors"
                 title="Hỏi Claude"
               >
@@ -244,6 +251,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
                 href={`https://www.google.com/search?q=${candidatePrompt}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label="Hỏi Gemini về năng lực của Ngô Chí Quốc"
                 className="w-7 h-7 rounded-full bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 flex items-center justify-center transition-colors"
                 title="Hỏi Gemini"
               >
@@ -264,6 +272,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
         <button
           type="button"
           onClick={toggleMood}
+          aria-label="Chuyển đổi giao diện sáng tối"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-1 border border-border text-xs font-mono text-ink shadow-sm"
         >
           <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
@@ -286,10 +295,13 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
           {/* Polaroid Frame */}
           <div className="w-full bg-surface-1 border border-border shadow-float rounded-2xl p-2.5 flex flex-col items-center">
             <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden bg-surface-2 border border-border/60 shadow-inner">
-              <img
+              <Image
                 src={avatarUrl}
-                alt={profileName}
-                className="w-full h-full object-cover object-top"
+                alt={`Ảnh đại diện chân dung ${profileName}`}
+                fill
+                priority
+                sizes="160px"
+                className="object-cover object-top"
               />
             </div>
             <div className="pt-2 pb-0.5 flex items-center justify-between w-full px-1">

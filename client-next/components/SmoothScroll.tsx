@@ -178,12 +178,25 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
       }
     }
 
-    pageScroll.addEventListener('wheel', onWheel, { passive: false });
+    if (isDesktop()) {
+      pageScroll.addEventListener('wheel', onWheel, { passive: false });
+    }
     window.addEventListener('keydown', onKeyDown);
+
+    const onResize = () => {
+      if (!isDesktop()) {
+        pageScroll.removeEventListener('wheel', onWheel);
+      } else {
+        pageScroll.removeEventListener('wheel', onWheel);
+        pageScroll.addEventListener('wheel', onWheel, { passive: false });
+      }
+    };
+    window.addEventListener('resize', onResize);
 
     return () => {
       pageScroll.removeEventListener('wheel', onWheel);
       window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('resize', onResize);
     };
   }, []);
 
