@@ -20,6 +20,9 @@ const instrumentSerif = Instrument_Serif({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://ngoquoc.vercel.app'),
+  alternates: {
+    canonical: '/',
+  },
   icons: {
     icon: [
       { url: '/icon.svg', type: 'image/svg+xml' },
@@ -29,7 +32,10 @@ export const metadata: Metadata = {
       { url: '/apple-icon', sizes: '180x180', type: 'image/png' },
     ],
   },
-  title: 'Ngô Chí Quốc · Lập trình viên Full Stack & Front End',
+  title: {
+    default: 'Ngô Chí Quốc · Lập trình viên Full Stack & Front End',
+    template: '%s | Ngô Chí Quốc',
+  },
   description:
     'Portfolio của Ngô Chí Quốc - Lập trình viên Full Stack & Front End chuyên ReactJS, Next.js, NestJS, TypeScript và xây dựng trải nghiệm kỹ thuật số chất lượng cao.',
   keywords: [
@@ -42,6 +48,8 @@ export const metadata: Metadata = {
     'NestJS',
     'TypeScript',
     'Portfolio',
+    'Web Developer Vietnam',
+    'Lập trình viên TP Hồ Chí Minh',
   ],
   authors: [{ name: 'Ngô Chí Quốc', url: 'https://github.com/NgoQuoc4' }],
   creator: 'Ngô Chí Quốc',
@@ -77,7 +85,65 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
+};
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Person',
+      '@id': 'https://ngoquoc.vercel.app/#person',
+      name: 'Ngô Chí Quốc',
+      alternateName: ['Ngo Chi Quoc', 'Quoc Ngo'],
+      jobTitle: 'Full Stack & Front End Developer',
+      description:
+        'Lập trình viên Full Stack & Front End chuyên ReactJS, Next.js, NestJS, TypeScript và xây dựng trải nghiệm kỹ thuật số chất lượng cao.',
+      url: 'https://ngoquoc.vercel.app',
+      image:
+        'https://res.cloudinary.com/dguad3xyf/image/upload/v1776242078/MeUJ0ogEM8MjZvYWfSb9_665822b791856_cvtpl_yljpfv.jpg',
+      sameAs: [
+        'https://github.com/NgoQuoc4',
+      ],
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Hồ Chí Minh',
+        addressCountry: 'VN',
+      },
+      knowsAbout: [
+        'ReactJS',
+        'Next.js',
+        'TypeScript',
+        'NestJS',
+        'NodeJS',
+        'ExpressJS',
+        'Prisma ORM',
+        'MongoDB',
+        'MySQL',
+        'TailwindCSS',
+        'Full Stack Development',
+      ],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://ngoquoc.vercel.app/#website',
+      url: 'https://ngoquoc.vercel.app',
+      name: 'Ngô Chí Quốc Portfolio',
+      description:
+        'Portfolio của Ngô Chí Quốc - Lập trình viên Full Stack & Front End chuyên ReactJS, Next.js, NestJS, TypeScript.',
+      publisher: {
+        '@id': 'https://ngoquoc.vercel.app/#person',
+      },
+      inLanguage: 'vi-VN',
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -87,6 +153,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="vi" className={`${jakarta.variable} ${jetbrains.variable} ${instrumentSerif.variable} scroll-smooth`}>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="font-sans antialiased bg-canvas text-ink min-h-screen">
         {children}
       </body>
