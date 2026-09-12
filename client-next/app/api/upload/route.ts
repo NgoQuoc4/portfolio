@@ -1,15 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-
-// Guard: only allow requests with valid admin secret
-function isAuthorized(req: NextRequest): boolean {
-  const secret = process.env.ADMIN_API_SECRET;
-  if (!secret) return false;
-  return req.headers.get('x-admin-secret') === secret;
-}
+import { isAdminAuthenticated } from '@/lib/serverAuth';
 
 export async function POST(req: NextRequest) {
-  if (!isAuthorized(req)) {
+  if (!isAdminAuthenticated(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   try {

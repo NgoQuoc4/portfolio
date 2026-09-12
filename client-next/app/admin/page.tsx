@@ -135,11 +135,11 @@ function AdminDashboard() {
 
   // Initial load
   useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    const devAuth = localStorage.getItem('portfolio_admin_auth');
-    if (savedToken || devAuth === 'true') {
-      setIsAuthenticated(true);
-    }
+    // Check active session cookie via server
+    fetch('/api/auth')
+      .then((r) => r.json())
+      .then((d) => { if (d.authenticated) setIsAuthenticated(true); })
+      .catch(() => {});
 
     // Load custom profile & projects from localStorage if available
     try {
@@ -230,28 +230,36 @@ function AdminDashboard() {
     e.preventDefault();
     setLoginError('');
     try {
+      // Try NestJS backend first
       const res = await api.post('/auth/login', { username, password });
       const jwtToken = res.data.token;
       localStorage.setItem('token', jwtToken);
-      localStorage.removeItem('portfolio_admin_auth');
       setIsAuthenticated(true);
       fetchBackendData();
     } catch {
-      // Hỗ trợ đăng nhập trực tiếp trên Vercel khi backend NestJS chạy ở máy local
-      const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
-      if (username.trim() === 'admin' && adminPassword && password === adminPassword) {
-        localStorage.setItem('portfolio_admin_auth', 'true');
+      // Fallback: use Next.js cookie session (works on Vercel without NestJS)
+      try {
+        const res = await fetch('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          setLoginError(data.error || 'Sai tài khoản hoặc mật khẩu. Vui lòng thử lại.');
+          return;
+        }
         setIsAuthenticated(true);
         fetchBackendData();
-        return;
+      } catch {
+        setLoginError('Không thể kết nối server. Vui lòng thử lại.');
       }
-      setLoginError('Sai tài khoản hoặc mật khẩu. Vui lòng thử lại.');
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    localStorage.removeItem('portfolio_admin_auth');
+    fetch('/api/auth', { method: 'DELETE' }).catch(() => {});
     setIsAuthenticated(false);
   };
 
@@ -270,7 +278,6 @@ function AdminDashboard() {
 
       const res = await fetch('/api/upload', {
         method: 'POST',
-        headers: { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_API_SECRET || '' },
         body: formData,
       });
 
@@ -492,7 +499,6 @@ function AdminDashboard() {
     try {
       const res = await fetch(`/api/media?public_id=${encodeURIComponent(publicId)}`, {
         method: 'DELETE',
-        headers: { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_API_SECRET || '' },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Xóa ảnh thất bại');

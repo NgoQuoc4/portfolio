@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { isAdminAuthenticated } from '@/lib/serverAuth';
 
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
 const apiKey = process.env.CLOUDINARY_API_KEY;
@@ -7,14 +8,6 @@ const apiSecret = process.env.CLOUDINARY_API_SECRET;
 function getAuthHeader() {
   if (!apiKey || !apiSecret) throw new Error('Cloudinary credentials not configured');
   return `Basic ${Buffer.from(`${apiKey}:${apiSecret}`).toString('base64')}`;
-}
-
-// Simple API key guard for mutating operations
-function isAuthorized(req: NextRequest): boolean {
-  const secret = process.env.ADMIN_API_SECRET;
-  if (!secret) return false; // Fail closed if not configured
-  const header = req.headers.get('x-admin-secret');
-  return header === secret;
 }
 
 // 1. GET: Lấy danh sách toàn bộ ảnh đã upload trên Cloudinary
@@ -77,8 +70,8 @@ export async function GET(req: NextRequest) {
 
 // 2. DELETE: Xóa ảnh khỏi Cloudinary qua public_id
 export async function DELETE(req: NextRequest) {
-  // Require admin secret to prevent unauthorized deletions
-  if (!isAuthorized(req)) {
+  // Require admin session cookie
+  if (!isAdminAuthenticated(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
