@@ -32,6 +32,7 @@ export default function FreelancePage() {
   const [jobs, setJobs] = useState<FreelanceJob[]>(defaultFreelanceJobs);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
     // Theme sync
@@ -287,15 +288,23 @@ export default function FreelancePage() {
                   </div>
 
                   {job.live_demo && (
-                    <a
-                      href={job.live_demo}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="absolute bottom-4 right-4 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/80 hover:bg-black text-white font-mono text-xs font-semibold backdrop-blur-md transition-all shadow-md"
-                    >
-                      <span>Xem Sản Phẩm</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
+                    <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                      <button
+                        onClick={() => setPreviewUrl(job.live_demo!)}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-pink-500/90 hover:bg-pink-500 text-white font-mono text-xs font-semibold backdrop-blur-md transition-all shadow-md"
+                      >
+                        <span>🖥️ Preview</span>
+                      </button>
+                      <a
+                        href={job.live_demo}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/80 hover:bg-black text-white font-mono text-xs font-semibold backdrop-blur-md transition-all shadow-md"
+                      >
+                        <span>Xem Sản Phẩm</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
                   )}
                 </div>
 
@@ -686,6 +695,55 @@ export default function FreelancePage() {
       <footer className="py-8 px-4 border-t border-border bg-canvas text-center text-xs font-mono text-ink-subtle">
         <p>© 2026 Ngô Chí Quốc. Mọi quyền được bảo lưu.</p>
       </footer>
+
+      {/* Live Preview Modal */}
+      {previewUrl && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => setPreviewUrl(null)}
+        >
+          <div
+            className="relative w-full max-w-4xl bg-surface-1 rounded-2xl overflow-hidden shadow-2xl border border-border"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Browser chrome */}
+            <div className="flex items-center gap-2 px-4 py-3 bg-surface-2 border-b border-border">
+              <div className="flex gap-1.5">
+                <button onClick={() => setPreviewUrl(null)} className="w-3 h-3 rounded-full bg-red-400 hover:bg-red-500 transition-colors" />
+                <div className="w-3 h-3 rounded-full bg-amber-400" />
+                <div className="w-3 h-3 rounded-full bg-emerald-400" />
+              </div>
+              <div className="flex-1 mx-3 px-3 py-1 rounded-lg bg-surface-1 border border-border text-xs font-mono text-ink-muted truncate">
+                {previewUrl}
+              </div>
+              <a
+                href={previewUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 px-3 py-1 rounded-lg bg-pink-500 text-white text-xs font-mono font-semibold hover:bg-pink-600 transition-colors flex items-center gap-1.5"
+              >
+                <ExternalLink className="w-3 h-3" />
+                Mở tab mới
+              </a>
+            </div>
+            {/* Screenshot */}
+            <div className="relative aspect-video bg-surface-2 overflow-hidden">
+              <img
+                src={`https://image.thum.io/get/width/1200/crop/800/${previewUrl}`}
+                alt={`Preview of ${previewUrl}`}
+                className="w-full h-full object-cover object-top"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&q=80';
+                }}
+              />
+              <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/60 text-white text-[10px] font-mono">
+                Screenshot · thum.io
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
