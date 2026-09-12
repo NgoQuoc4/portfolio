@@ -77,27 +77,27 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
             <h2 className="font-sans font-bold text-3xl sm:text-4xl lg:text-[42px] text-ink tracking-tight leading-[1.25]">
               Kỹ thuật chuẩn xác,<br />
               tập trung vào{' '}
-              <span className="text-pink-500 dark:text-pink-400 font-bold">
+              <span className="text-pink-500 font-bold">
                 trải nghiệm thực tế
               </span>.
             </h2>
-            <p className="text-base text-slate-700 dark:text-slate-200 leading-relaxed font-sans font-normal">
+            <p className="text-base text-ink/90 leading-relaxed font-sans font-medium">
               {about1}
             </p>
-            <p className="text-base text-slate-700 dark:text-slate-200 leading-relaxed font-sans font-normal">
+            <p className="text-base text-ink/90 leading-relaxed font-sans font-medium">
               {about2}
             </p>
 
             {/* Skills Pills */}
             <div className="pt-2">
-              <p className="font-mono text-xs text-slate-600 dark:text-slate-300 uppercase tracking-widest mb-3 font-semibold">
+              <p className="font-mono text-xs text-ink-muted uppercase tracking-widest mb-3 font-bold">
                 Kỹ năng &amp; Công nghệ chính
               </p>
               <div className="flex flex-wrap gap-2">
                 {skills.map((s) => (
                   <span
                     key={s}
-                    className="font-mono text-xs text-slate-800 dark:text-slate-100 bg-slate-100/90 dark:bg-surface-2 border border-slate-300/80 dark:border-border px-3 py-1.5 rounded-full font-medium hover:border-pink-500 hover:text-pink-600 transition-colors shadow-2xs"
+                    className="font-mono text-xs text-ink bg-surface-2 border border-border px-3.5 py-1.5 rounded-full font-bold shadow-xs hover:border-pink-500 hover:text-pink-500 transition-colors"
                   >
                     {s}
                   </span>
@@ -112,7 +112,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
               >
                 Xem chi tiết Hồ sơ / CV
               </a>
-              <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 bg-emerald-500/15 rounded-full px-3 py-1 font-semibold">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 bg-emerald-500/15 rounded-full px-3 py-1 font-bold">
                 Sẵn sàng nhận dự án mới
               </span>
             </div>
@@ -120,23 +120,23 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
 
           {/* Right Column: Brands & Tech Logos Grid */}
           <div>
-            <p className="font-mono text-xs text-slate-600 dark:text-slate-300 uppercase tracking-widest mb-6 text-center lg:text-left font-semibold">
+            <p className="font-mono text-xs text-ink-muted uppercase tracking-widest mb-6 text-center lg:text-left font-bold">
               Công nghệ &amp; Nền tảng chuyên môn
             </p>
             <div className="grid grid-cols-3 gap-4">
               {brands.map((b) => (
                 <div
                   key={b.name}
-                  className="group flex flex-col items-center justify-center p-5 rounded-2xl bg-surface-2 border border-border hover:border-pink-400/80 dark:hover:border-pink-600 transition-all duration-300 hover:scale-105 shadow-2xs"
+                  className="group flex flex-col items-center justify-center p-5 rounded-2xl bg-surface-2 border border-border hover:border-pink-500 transition-all duration-300 hover:scale-105 shadow-xs"
                 >
                   <Image
                     src={b.logo_url}
                     alt={b.name}
-                    width={40}
-                    height={40}
+                    width={42}
+                    height={42}
                     className="object-contain transition-transform duration-300 group-hover:scale-110 mb-2"
                   />
-                  <span className="font-mono text-[11px] text-slate-700 dark:text-slate-300 group-hover:text-pink-500 transition-colors font-semibold">
+                  <span className="font-mono text-xs text-ink transition-colors font-bold mt-1">
                     {b.name}
                   </span>
                 </div>

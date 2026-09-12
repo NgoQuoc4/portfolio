@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark-mode, .dark-mode *));
+
 @theme {
   --color-canvas: var(--color-canvas);
   --color-surface-1: var(--color-surface-1);
@@ -21,9 +23,9 @@
   --color-surface-3: #e5e8ef;
   --color-border: #e2e6ee;
   --color-border-hover: #cbd2df;
-  --color-ink: #10141e;
-  --color-ink-muted: #5e687e;
-  --color-ink-subtle: #8e98ac;
+  --color-ink: #0f172a;
+  --color-ink-muted: #334155;
+  --color-ink-subtle: #475569;
   --color-accent: #f472b6;
   --color-accent-purple: #c084fc;
 }
@@ -35,9 +37,9 @@ body.dark-mode {
   --color-surface-3: #242836;
   --color-border: #262a38;
   --color-border-hover: #3d4358;
-  --color-ink: #f3f5f9;
-  --color-ink-muted: #9ba4b8;
-  --color-ink-subtle: #687288;
+  --color-ink: #f8fafc;
+  --color-ink-muted: #cbd5e1;
+  --color-ink-subtle: #94a3b8;
   --color-accent: #f472b6;
   --color-accent-purple: #a855f7;
 }
