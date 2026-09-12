@@ -24,6 +24,16 @@ import {
   Send,
   Phone,
   Loader2,
+  Globe,
+  RefreshCw,
+  Maximize2,
+  Minimize2,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Monitor,
+  Camera,
+  ShieldAlert,
 } from 'lucide-react';
 import { defaultFreelanceJobs } from '@/lib/defaults';
 import type { FreelanceJob } from '@/lib/types';
@@ -32,7 +42,11 @@ export default function FreelancePage() {
   const [jobs, setJobs] = useState<FreelanceJob[]>(defaultFreelanceJobs);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewJob, setPreviewJob] = useState<FreelanceJob | null>(null);
+  const [previewMode, setPreviewMode] = useState<'live' | 'screenshot'>('live');
+  const [iframeLoading, setIframeLoading] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     // Theme sync
@@ -56,6 +70,26 @@ export default function FreelancePage() {
     } catch (e) {
       console.warn('Using default freelance jobs:', e);
     }
+  }, []);
+
+  const openPreview = (job: FreelanceJob) => {
+    setPreviewJob(job);
+    const isHttps = job.live_demo?.startsWith('https://');
+    setPreviewMode(isHttps ? 'live' : 'screenshot');
+    setIframeLoading(true);
+  };
+
+  const closePreview = () => {
+    setPreviewJob(null);
+    setIsFullscreen(false);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closePreview();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const toggleTheme = () => {
@@ -262,7 +296,12 @@ export default function FreelancePage() {
             >
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
                 {/* Image Showcase Column */}
-                <div className="lg:col-span-5 relative bg-surface-2 overflow-hidden min-h-[260px] lg:min-h-[420px] flex items-center justify-center border-b lg:border-b-0 lg:border-r border-border">
+                <div
+                  onClick={() => job.live_demo && openPreview(job)}
+                  className={`lg:col-span-5 relative bg-surface-2 overflow-hidden min-h-[260px] lg:min-h-[420px] flex items-center justify-center border-b lg:border-b-0 lg:border-r border-border group ${
+                    job.live_demo ? 'cursor-pointer' : ''
+                  }`}
+                >
                   {job.image_url ? (
                     <img
                       src={job.image_url}
@@ -278,7 +317,7 @@ export default function FreelancePage() {
                   )}
 
                   {/* Badge floating */}
-                  <div className="absolute top-4 left-4 flex flex-wrap gap-2">
+                  <div className="absolute top-4 left-4 flex flex-wrap gap-2 z-10">
                     <span className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-white font-mono text-[11px] font-bold">
                       #{idx + 1}
                     </span>
@@ -287,21 +326,35 @@ export default function FreelancePage() {
                     </span>
                   </div>
 
+                  {/* Hover banner on image */}
                   {job.live_demo && (
-                    <div className="absolute bottom-4 right-4 flex items-center gap-2">
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none z-10">
+                      <span className="px-4 py-2 rounded-full bg-pink-500 text-white font-mono text-xs font-bold shadow-lg flex items-center gap-2 transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                        <Monitor className="w-4 h-4" /> Bấm để xem Live Preview
+                      </span>
+                    </div>
+                  )}
+
+                  {job.live_demo && (
+                    <div className="absolute bottom-4 right-4 flex items-center gap-2 z-20">
                       <button
-                        onClick={() => setPreviewUrl(job.live_demo!)}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-pink-500/90 hover:bg-pink-500 text-white font-mono text-xs font-semibold backdrop-blur-md transition-all shadow-md"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openPreview(job);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-pink-500 hover:bg-pink-600 text-white font-mono text-xs font-semibold backdrop-blur-md transition-all shadow-md hover:scale-105 active:scale-95"
                       >
-                        <span>🖥️ Preview</span>
+                        <Monitor className="w-3.5 h-3.5" />
+                        <span>Live Preview</span>
                       </button>
                       <a
                         href={job.live_demo}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/80 hover:bg-black text-white font-mono text-xs font-semibold backdrop-blur-md transition-all shadow-md"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-black/80 hover:bg-black text-white font-mono text-xs font-semibold backdrop-blur-md transition-all shadow-md hover:scale-105 active:scale-95"
                       >
-                        <span>Xem Sản Phẩm</span>
+                        <span>Mở Web</span>
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
@@ -697,47 +750,223 @@ export default function FreelancePage() {
       </footer>
 
       {/* Live Preview Modal */}
-      {previewUrl && (
+      {previewJob && (
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-          onClick={() => setPreviewUrl(null)}
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={closePreview}
         >
           <div
-            className="relative w-full max-w-4xl bg-surface-1 rounded-2xl overflow-hidden shadow-2xl border border-border"
+            className={`relative w-full bg-surface-1 rounded-2xl overflow-hidden shadow-2xl border border-border flex flex-col transition-all duration-300 ${
+              isFullscreen ? 'max-w-[98vw] h-[95vh]' : 'max-w-5xl h-[85vh]'
+            }`}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Browser chrome */}
-            <div className="flex items-center gap-2 px-4 py-3 bg-surface-2 border-b border-border">
-              <div className="flex gap-1.5">
-                <button onClick={() => setPreviewUrl(null)} className="w-3 h-3 rounded-full bg-red-400 hover:bg-red-500 transition-colors" />
-                <div className="w-3 h-3 rounded-full bg-amber-400" />
-                <div className="w-3 h-3 rounded-full bg-emerald-400" />
+            {/* Top Browser Chrome */}
+            <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 bg-surface-2 border-b border-border select-none">
+              {/* Left: Window Controls + Project Title */}
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={closePreview}
+                    title="Đóng (Esc)"
+                    className="w-3.5 h-3.5 rounded-full bg-red-500 hover:bg-red-600 transition-colors"
+                  />
+                  <button
+                    onClick={() => setPreviewMode((m) => (m === 'live' ? 'screenshot' : 'live'))}
+                    title="Đổi chế độ xem"
+                    className="w-3.5 h-3.5 rounded-full bg-amber-400 hover:bg-amber-500 transition-colors"
+                  />
+                  <button
+                    onClick={() => setIsFullscreen(!isFullscreen)}
+                    title={isFullscreen ? 'Thu nhỏ' : 'Toàn màn hình'}
+                    className="w-3.5 h-3.5 rounded-full bg-emerald-500 hover:bg-emerald-600 transition-colors"
+                  />
+                </div>
+                <div className="hidden sm:flex items-center gap-2 truncate">
+                  <span className="text-xs font-bold text-ink truncate max-w-[200px] md:max-w-[280px]">
+                    {previewJob.title}
+                  </span>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-500 font-semibold shrink-0">
+                    {previewJob.category}
+                  </span>
+                </div>
               </div>
-              <div className="flex-1 mx-3 px-3 py-1 rounded-lg bg-surface-1 border border-border text-xs font-mono text-ink-muted truncate">
-                {previewUrl}
+
+              {/* Center: Address Bar */}
+              <div className="flex-1 max-w-md mx-2 px-3 py-1 rounded-lg bg-surface-1 border border-border text-xs font-mono text-ink-muted flex items-center gap-2 truncate">
+                <Globe className="w-3.5 h-3.5 text-pink-500 shrink-0" />
+                <span className="truncate">{previewJob.live_demo}</span>
+                {previewJob.live_demo?.startsWith('https://') && (
+                  <span className="text-[10px] text-emerald-500 font-bold shrink-0 ml-auto">SSL ✓</span>
+                )}
               </div>
-              <a
-                href={previewUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="shrink-0 px-3 py-1 rounded-lg bg-pink-500 text-white text-xs font-mono font-semibold hover:bg-pink-600 transition-colors flex items-center gap-1.5"
-              >
-                <ExternalLink className="w-3 h-3" />
-                Mở tab mới
-              </a>
+
+              {/* Right: Mode Switch & Actions */}
+              <div className="flex items-center gap-1.5 shrink-0">
+                {/* Switch Mode: Live vs Screenshot */}
+                <div className="hidden md:flex items-center bg-surface-1 p-0.5 rounded-lg border border-border">
+                  <button
+                    onClick={() => {
+                      setPreviewMode('live');
+                      setIframeLoading(true);
+                    }}
+                    className={`px-2.5 py-1 rounded-md text-xs font-mono font-medium flex items-center gap-1 transition-colors ${
+                      previewMode === 'live'
+                        ? 'bg-pink-500 text-white shadow-sm'
+                        : 'text-ink-muted hover:text-ink'
+                    }`}
+                  >
+                    <Monitor className="w-3 h-3" />
+                    <span>Live App</span>
+                  </button>
+                  <button
+                    onClick={() => setPreviewMode('screenshot')}
+                    className={`px-2.5 py-1 rounded-md text-xs font-mono font-medium flex items-center gap-1 transition-colors ${
+                      previewMode === 'screenshot'
+                        ? 'bg-pink-500 text-white shadow-sm'
+                        : 'text-ink-muted hover:text-ink'
+                    }`}
+                  >
+                    <Camera className="w-3 h-3" />
+                    <span>Screenshot</span>
+                  </button>
+                </div>
+
+                {previewMode === 'live' && previewJob.live_demo?.startsWith('https://') && (
+                  <button
+                    onClick={() => {
+                      setIframeLoading(true);
+                      setReloadKey((k) => k + 1);
+                    }}
+                    title="Tải lại trang"
+                    className="p-1.5 rounded-lg hover:bg-surface-1 border border-transparent hover:border-border text-ink-muted hover:text-ink transition-colors"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${iframeLoading ? 'animate-spin text-pink-500' : ''}`} />
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setIsFullscreen(!isFullscreen)}
+                  title={isFullscreen ? 'Thu nhỏ' : 'Toàn màn hình'}
+                  className="hidden sm:inline-flex p-1.5 rounded-lg hover:bg-surface-1 border border-transparent hover:border-border text-ink-muted hover:text-ink transition-colors"
+                >
+                  {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+                </button>
+
+                <a
+                  href={previewJob.live_demo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1 rounded-lg bg-pink-500 text-white text-xs font-mono font-semibold hover:bg-pink-600 transition-colors flex items-center gap-1.5 shadow-sm"
+                >
+                  <span>Mở tab mới</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+
+                <button
+                  onClick={closePreview}
+                  className="p-1.5 rounded-lg hover:bg-surface-1 text-ink-muted hover:text-ink transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            {/* Screenshot */}
-            <div className="relative aspect-video bg-surface-2 overflow-hidden">
-              <img
-                src={`https://image.thum.io/get/width/1200/crop/800/${previewUrl}`}
-                alt={`Preview of ${previewUrl}`}
-                className="w-full h-full object-cover object-top"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&q=80';
-                }}
-              />
-              <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-black/60 text-white text-[10px] font-mono">
-                Screenshot · thum.io
+
+            {/* Content Area */}
+            <div className="relative flex-1 bg-surface-2 overflow-hidden flex flex-col">
+              {/* HTTP Notice Banner */}
+              {previewJob.live_demo?.startsWith('http://') && (
+                <div className="px-4 py-2 bg-amber-500/10 border-b border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs flex items-center justify-between gap-2 font-mono shrink-0">
+                  <div className="flex items-center gap-2">
+                    <ShieldAlert className="w-4 h-4 shrink-0" />
+                    <span>Dự án chạy giao thức HTTP (chưa có SSL). Trình duyệt chặn nhúng tương tác trực tiếp — Bạn có thể xem ảnh chụp hoặc mở tab mới.</span>
+                  </div>
+                  <a
+                    href={previewJob.live_demo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline font-bold shrink-0 hover:text-amber-700"
+                  >
+                    Mở tab mới ↗
+                  </a>
+                </div>
+              )}
+
+              {/* LIVE IFRAME VIEW */}
+              {previewMode === 'live' && previewJob.live_demo?.startsWith('https://') ? (
+                <div className="relative w-full flex-1 min-h-0">
+                  {iframeLoading && (
+                    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-surface-1/90 backdrop-blur-sm gap-3">
+                      <Loader2 className="w-8 h-8 animate-spin text-pink-500" />
+                      <p className="text-xs font-mono text-ink-muted">Đang kết nối tới live app...</p>
+                    </div>
+                  )}
+                  <iframe
+                    key={reloadKey}
+                    src={previewJob.live_demo}
+                    className="w-full h-full border-0 bg-white"
+                    onLoad={() => setIframeLoading(false)}
+                    title={previewJob.title}
+                    sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
+                  />
+                </div>
+              ) : (
+                /* SCREENSHOT VIEW */
+                <div className="relative w-full flex-1 min-h-0 overflow-auto bg-surface-2 flex items-start justify-center p-4">
+                  <div className="relative max-w-full rounded-xl overflow-hidden shadow-lg border border-border">
+                    <img
+                      src={`https://image.thum.io/get/width/1200/crop/800/${previewJob.live_demo}`}
+                      alt={`Screenshot of ${previewJob.title}`}
+                      className="w-full h-auto object-cover object-top"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          previewJob.image_url || 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&q=80';
+                      }}
+                    />
+                    <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-black/75 backdrop-blur-md text-white text-[11px] font-mono flex items-center gap-1.5">
+                      <span>Screenshot · thum.io</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom Bar: Prev / Next project navigation */}
+            <div className="flex items-center justify-between px-4 py-2 bg-surface-2 border-t border-border text-xs font-mono text-ink-muted select-none shrink-0">
+              <div>
+                {(() => {
+                  const currIdx = jobs.findIndex((j) => j._id === previewJob._id);
+                  const prev = currIdx > 0 ? jobs[currIdx - 1] : null;
+                  if (!prev) return null;
+                  return (
+                    <button
+                      onClick={() => openPreview(prev)}
+                      className="inline-flex items-center gap-1 hover:text-pink-500 transition-colors"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Trước:</span> {prev.title.slice(0, 20)}...
+                    </button>
+                  );
+                })()}
+              </div>
+              <div className="text-[11px] text-ink-subtle">
+                Phím tắt: <kbd className="px-1.5 py-0.5 rounded bg-surface-1 border border-border text-[10px]">Esc</kbd> để đóng
+              </div>
+              <div>
+                {(() => {
+                  const currIdx = jobs.findIndex((j) => j._id === previewJob._id);
+                  const next = currIdx >= 0 && currIdx < jobs.length - 1 ? jobs[currIdx + 1] : null;
+                  if (!next) return null;
+                  return (
+                    <button
+                      onClick={() => openPreview(next)}
+                      className="inline-flex items-center gap-1 hover:text-pink-500 transition-colors"
+                    >
+                      <span className="hidden sm:inline">Kế tiếp:</span> {next.title.slice(0, 20)}...
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  );
+                })()}
               </div>
             </div>
           </div>
