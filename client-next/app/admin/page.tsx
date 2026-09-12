@@ -238,7 +238,8 @@ function AdminDashboard() {
       fetchBackendData();
     } catch {
       // Hỗ trợ đăng nhập trực tiếp trên Vercel khi backend NestJS chạy ở máy local
-      if (username.trim() === 'admin' && password === 'password123') {
+      const adminPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD;
+      if (username.trim() === 'admin' && adminPassword && password === adminPassword) {
         localStorage.setItem('portfolio_admin_auth', 'true');
         setIsAuthenticated(true);
         fetchBackendData();
@@ -269,6 +270,7 @@ function AdminDashboard() {
 
       const res = await fetch('/api/upload', {
         method: 'POST',
+        headers: { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_API_SECRET || '' },
         body: formData,
       });
 
@@ -465,6 +467,7 @@ function AdminDashboard() {
 
       const res = await fetch('/api/upload', {
         method: 'POST',
+        headers: { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_API_SECRET || '' },
         body: formData,
       });
 
@@ -489,6 +492,7 @@ function AdminDashboard() {
     try {
       const res = await fetch(`/api/media?public_id=${encodeURIComponent(publicId)}`, {
         method: 'DELETE',
+        headers: { 'x-admin-secret': process.env.NEXT_PUBLIC_ADMIN_API_SECRET || '' },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Xóa ảnh thất bại');

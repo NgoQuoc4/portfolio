@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 
+// Guard: only allow requests with valid admin secret
+function isAuthorized(req: NextRequest): boolean {
+  const secret = process.env.ADMIN_API_SECRET;
+  if (!secret) return false;
+  return req.headers.get('x-admin-secret') === secret;
+}
+
 export async function POST(req: NextRequest) {
+  if (!isAuthorized(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   try {
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
@@ -10,10 +20,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'dguad3xyf';
-    const apiKey = process.env.CLOUDINARY_API_KEY || '931633996125836';
-    const apiSecret = process.env.CLOUDINARY_API_SECRET || 'hxDOyEQKgXP_7XQb8MCDYW3_BSg';
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
     const folder = process.env.CLOUDINARY_FOLDER || 'ngoquoc_portfolio';
+
+    if (!cloudName || !apiKey || !apiSecret) {
+      return NextResponse.json({ error: 'Cloudinary not configured' }, { status: 500 });
+    }
     const timestamp = Math.floor(Date.now() / 1000).toString();
 
     // Chuẩn bị chuỗi ký chữ ký theo định dạng Cloudinary: key1=val1&key2=val2...secret

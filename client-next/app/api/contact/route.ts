@@ -29,8 +29,15 @@ export async function POST(req: Request) {
       );
     }
 
-    const user = process.env.EMAIL_USER || 'ngochiquoc140@gmail.com';
+    const user = process.env.EMAIL_USER;
     const pass = process.env.EMAIL_PASS;
+
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: 'EMAIL_USER chưa được cấu hình trong .env.local.' },
+        { status: 503 }
+      );
+    }
 
     // 2. Check credentials configuration
     if (!pass) {
@@ -68,10 +75,12 @@ export async function POST(req: Request) {
       second: '2-digit',
     });
 
-    // 4. Clean and prepare email content
-    const sanitizedName = name.trim();
-    const sanitizedEmail = email.trim();
-    const sanitizedMessage = message.trim();
+    // 4. Escape HTML and prepare email content
+    const escHtml = (s: string) =>
+      s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const sanitizedName = escHtml(name.trim());
+    const sanitizedEmail = escHtml(email.trim());
+    const sanitizedMessage = escHtml(message.trim());
 
     // 5. Send notification email to the website owner
     await transporter.sendMail({

@@ -1,12 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'dguad3xyf';
-const apiKey = process.env.CLOUDINARY_API_KEY || '931633996125836';
-const apiSecret = process.env.CLOUDINARY_API_SECRET || 'hxDOyEQKgXP_7XQb8MCDYW3_BSg';
-const authHeader = `Basic ${Buffer.from(`${apiKey}:${apiSecret}`).toString('base64')}`;
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+const apiKey = process.env.CLOUDINARY_API_KEY;
+const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+function getAuthHeader() {
+  if (!apiKey || !apiSecret) throw new Error('Cloudinary credentials not configured');
+  return `Basic ${Buffer.from(`${apiKey}:${apiSecret}`).toString('base64')}`;
+}
+
+// Simple API key guard for mutating operations
+function isAuthorized(req: NextRequest): boolean {
+  const secret = process.env.ADMIN_API_SECRET;
+  if (!secret) return false; // Fail closed if not configured
+  const header = req.headers.get('x-admin-secret');
+  return header === secret;
+}
 
 // 1. GET: Lấy danh sách toàn bộ ảnh đã upload trên Cloudinary
 export async function GET(req: NextRequest) {
+  const authHeader = getAuthHeader();
   try {
     const { searchParams } = new URL(req.url);
     const maxResults = searchParams.get('max_results') || '100';
@@ -64,7 +77,13 @@ export async function GET(req: NextRequest) {
 
 // 2. DELETE: Xóa ảnh khỏi Cloudinary qua public_id
 export async function DELETE(req: NextRequest) {
+  // Require admin secret to prevent unauthorized deletions
+  if (!isAuthorized(req)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   try {
+    const authHeader = getAuthHeader();
     const { searchParams } = new URL(req.url);
     const publicId = searchParams.get('public_id');
 
