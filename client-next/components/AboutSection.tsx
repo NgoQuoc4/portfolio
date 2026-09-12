@@ -74,13 +74,17 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
               </div>
             </div>
 
-            <h2 className="font-sans font-semibold text-3xl sm:text-4xl text-ink tracking-tight leading-tight">
-              Kỹ thuật chuẩn xác,<br />tập trung vào trải nghiệm thực tế.
+            <h2 className="font-sans font-bold text-3xl sm:text-4xl lg:text-[40px] text-ink tracking-tight leading-[1.25]">
+              Kỹ thuật <span className="text-pink-500 dark:text-pink-400 font-extrabold underline decoration-pink-400/40 decoration-wavy underline-offset-8">chuẩn xác</span>,<br />
+              tập trung vào{' '}
+              <span className="font-serif italic font-medium gradient-text-flow">
+                trải nghiệm thực tế
+              </span>.
             </h2>
-            <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed font-sans">
+            <p className="text-base text-ink-muted dark:text-slate-300 leading-relaxed font-sans">
               {about1}
             </p>
-            <p className="text-base text-slate-600 dark:text-slate-300 leading-relaxed font-sans">
+            <p className="text-base text-ink-muted dark:text-slate-300 leading-relaxed font-sans">
               {about2}
             </p>
 
