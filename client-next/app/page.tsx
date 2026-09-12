@@ -6,6 +6,7 @@ import { CustomCursor } from '@/components/CustomCursor';
 import { FloatingDock } from '@/components/FloatingDock';
 import { HeroCanvas } from '@/components/HeroCanvas';
 import { SelectedWork } from '@/components/SelectedWork';
+import { FreelanceSection } from '@/components/FreelanceSection';
 import { AboutSection } from '@/components/AboutSection';
 import { ContactSection } from '@/components/ContactSection';
 import { Footer } from '@/components/Footer';
@@ -86,6 +87,13 @@ export default function Home() {
 
           {/* Section: Selected Work */}
           <SelectedWork projects={projects} />
+
+          {/* Section: Freelance Projects & Quick Booking */}
+          <FreelanceSection
+            calendarLink={profile?.calendar_link}
+            email={profile?.email || 'ngochiquoc140@gmail.com'}
+            phone={profile?.phone || '0981729304'}
+          />
 
           {/* Section: About Me */}
           <AboutSection
