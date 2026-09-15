@@ -42,10 +42,10 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
   avatarUrl = 'https://res.cloudinary.com/dguad3xyf/image/upload/v1776242078/MeUJ0ogEM8MjZvYWfSb9_665822b791856_cvtpl_yljpfv.jpg',
 }) => {
   return (
-    <section id="about" className="snap-start relative min-h-[100dvh] md:h-dvh flex items-center py-16 md:py-0 bg-surface-1">
+    <section id="about" className="snap-start relative min-h-[100dvh] md:h-dvh flex items-center py-12 md:py-0 bg-surface-1 overflow-x-hidden md:overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 w-full">
         <motion.div
-          className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
+          className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 items-center"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: 'easeOut' }}
@@ -120,7 +120,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
 
           {/* Right Column: Brands & Tech Logos Grid */}
           <div>
-            <p className="font-mono text-xs text-ink-muted uppercase tracking-widest mb-6 text-center lg:text-left font-bold">
+            <p className="font-mono text-xs text-ink-muted uppercase tracking-widest mb-6 text-center md:text-left font-bold">
               Công nghệ &amp; Nền tảng chuyên môn
             </p>
             <div className="grid grid-cols-3 gap-4">

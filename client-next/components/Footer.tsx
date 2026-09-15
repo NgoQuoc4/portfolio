@@ -74,7 +74,7 @@ export const Footer: React.FC<FooterProps> = ({
   return (
     <footer
       id="footer"
-      className="snap-start relative min-h-dvh md:h-dvh bg-canvas text-ink flex flex-col justify-between pt-8 md:pt-10 pb-2 md:pb-4 overflow-hidden border-t border-border transition-colors duration-300"
+      className="snap-start relative min-h-dvh md:h-dvh bg-canvas text-ink flex flex-col justify-between pt-8 md:pt-10 pb-20 md:pb-4 overflow-hidden border-t border-border transition-colors duration-300"
     >
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 w-full relative z-10 flex flex-col justify-between flex-1 gap-4 md:gap-6 min-h-0">
         {/* SECTION 1: Brand & Newsletter (Left) + Multi-column Links (Right) */}

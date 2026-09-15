@@ -77,7 +77,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   return (
     <section
       id="contact"
-      className="snap-start relative min-h-[100dvh] md:h-dvh bg-canvas flex items-center py-12 md:py-0"
+      className="snap-start relative min-h-[100dvh] md:h-dvh bg-canvas flex items-center py-12 md:py-0 overflow-x-hidden md:overflow-hidden"
     >
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 w-full">
         <motion.div
@@ -85,10 +85,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="rounded-3xl bg-surface-1 border border-border shadow-float overflow-hidden grid grid-cols-1 lg:grid-cols-12"
+          className="rounded-3xl bg-surface-1 border border-border shadow-float overflow-hidden grid grid-cols-1 md:grid-cols-12"
         >
           {/* Left Panel: Info & Direct Channels (Col 6) */}
-          <div className="lg:col-span-6 p-8 sm:p-10 lg:p-12 bg-surface-2/30 border-b lg:border-b-0 lg:border-r border-border flex flex-col justify-between">
+          <div className="md:col-span-6 p-6 sm:p-8 lg:p-12 bg-surface-2/30 border-b md:border-b-0 md:border-r border-border flex flex-col justify-between">
             <div>
               {/* Category & Status */}
               <div className="flex flex-wrap items-center gap-2.5 mb-4">
@@ -220,7 +220,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
           </div>
 
           {/* Right Panel: Sleek Message Form (Col 6) */}
-          <div className="lg:col-span-6 p-8 sm:p-10 lg:p-12 bg-surface-1 flex flex-col justify-center">
+          <div className="md:col-span-6 p-6 sm:p-8 lg:p-12 bg-surface-1 flex flex-col justify-center">
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-1.5">
                 <div className="w-8 h-8 rounded-xl bg-pink-500/10 flex items-center justify-center text-pink-500">

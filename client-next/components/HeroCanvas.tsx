@@ -53,7 +53,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
   );
 
   return (
-    <section id="home" className="snap-start relative min-h-[100dvh] md:h-dvh w-full bg-canvas bg-grid flex flex-col justify-center items-center px-6 overflow-hidden select-none">
+    <section id="home" className="snap-start relative min-h-[100dvh] md:h-dvh w-full bg-canvas bg-grid flex flex-col justify-center items-center px-6 overflow-x-hidden md:overflow-hidden select-none">
       {/* Background radial highlight */}
       <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
         <div className="w-[600px] h-[600px] rounded-full bg-pink-400/5 blur-3xl" />
@@ -292,7 +292,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
           initial={{ opacity: 0, scale: 0.9, rotate: -3 }}
           animate={{ opacity: 1, scale: 1, rotate: -3 }}
           transition={{ duration: 0.6 }}
-          className="md:hidden mx-auto mb-6 w-70 sm:w-40 relative group"
+          className="md:hidden mx-auto mb-6 w-36 sm:w-44 relative group"
         >
           {/* Subtle Washi Tape decoration */}
           <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-12 h-3.5 bg-amber-200/70 dark:bg-amber-100/20 backdrop-blur-sm -rotate-2 shadow-sm border border-amber-300/40 rounded-[2px] z-10 pointer-events-none" />

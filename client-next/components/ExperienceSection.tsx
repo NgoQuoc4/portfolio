@@ -46,17 +46,17 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
   return (
     <section
       id="experience"
-      className="snap-start relative min-h-[100dvh] md:h-dvh flex flex-col justify-center py-16 md:py-0 px-6 md:px-12 bg-canvas overflow-hidden"
+      className="snap-start relative min-h-[100dvh] md:h-dvh flex flex-col justify-center py-12 md:py-0 px-6 md:px-12 bg-canvas overflow-x-hidden md:overflow-hidden"
     >
       <div className="max-w-[1400px] mx-auto w-full">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 pb-4 border-b border-border">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 md:mb-8 pb-4 border-b border-border">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-500 font-mono text-xs font-bold mb-2">
               <Briefcase className="w-3.5 h-3.5" />
               <span>HÀNH TRÌNH SỰ NGHIỆP</span>
             </div>
-            <h2 className="font-sans font-bold text-3xl sm:text-4xl text-ink tracking-tight">
+            <h2 className="font-sans font-bold text-2xl sm:text-3xl md:text-4xl text-ink tracking-tight">
               Kinh Nghiệm Làm Việc &amp;{' '}
               <span className="bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
                 Dấu Ấn Chuyên Môn
@@ -80,14 +80,14 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
         </div>
 
         {/* 2-Column Interactive Career Showcase */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
           {/* Left Column: Company Selector List (4 cols) */}
-          <div className="lg:col-span-4 space-y-2.5">
+          <div className="md:col-span-4 space-y-2.5">
             <p className="text-[11px] font-mono uppercase tracking-wider text-ink-subtle font-bold px-1">
               Danh sách công ty &amp; vai trò:
             </p>
 
-            <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 [&::-webkit-scrollbar]:hidden">
+            <div className="flex md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 [&::-webkit-scrollbar]:hidden">
               {experiences.map((exp, idx) => {
                 const isSelected = selectedIndex === idx;
                 return (
@@ -97,7 +97,7 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
                     aria-pressed={isSelected}
                     aria-label={`Xem kinh nghiệm tại ${exp.company} vai trò ${exp.role}`}
                     onClick={() => setSelectedIndex(idx)}
-                    className={`w-full text-left p-4 rounded-2xl border transition-all cursor-pointer shrink-0 min-w-[260px] lg:min-w-0 ${
+                    className={`w-full text-left p-3.5 sm:p-4 rounded-2xl border transition-all cursor-pointer shrink-0 min-w-[260px] md:min-w-0 ${
                       isSelected
                         ? 'bg-surface-1 border-pink-500 shadow-md ring-1 ring-pink-500/20'
                         : 'bg-surface-1/60 border-border hover:border-border-hover hover:bg-surface-1 text-ink-muted hover:text-ink'
@@ -129,7 +129,7 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
           </div>
 
           {/* Right Column: Detailed Experience Card (8 cols) */}
-          <div className="lg:col-span-8">
+          <div className="md:col-span-8">
             <motion.div
               key={currentExp._id || selectedIndex}
               initial={{ opacity: 0, y: 15 }}
