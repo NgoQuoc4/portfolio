@@ -178,12 +178,12 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
               <p className="font-mono text-[10px] text-ink-subtle ml-2">quoc — zsh</p>
             </div>
             <div className="p-3.5 space-y-1.5 font-mono text-[11px]">
-              <p className="text-ink-muted"><span className="text-pink-500">~ $</span> whoami</p>
+              <p className="text-ink-muted"><span className="text-pink-700 dark:text-pink-400 font-bold">~ $</span> whoami</p>
               <p className="text-ink font-semibold">Lập trình viên Full Stack &amp; Front End</p>
-              <p className="text-ink-muted mt-1"><span className="text-pink-500">~ $</span> chuyen_mon</p>
+              <p className="text-ink-muted mt-1"><span className="text-pink-700 dark:text-pink-400 font-bold">~ $</span> chuyen_mon</p>
               <p className="text-ink">ReactJS, NextJS, NestJS &amp; TypeScript</p>
               <p className="text-ink-muted mt-1">
-                <span className="text-pink-500">~ $</span> <span className="inline-block w-1.5 h-3.5 bg-ink-muted animate-cursor align-middle" />
+                <span className="text-pink-700 dark:text-pink-400 font-bold">~ $</span> <span className="inline-block w-1.5 h-3.5 bg-ink-muted animate-cursor align-middle" />
               </p>
             </div>
           </div>
@@ -237,30 +237,30 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Hỏi ChatGPT về năng lực của Ngô Chí Quốc"
-                className="w-7 h-7 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 hover:bg-emerald-200 dark:hover:bg-emerald-900 flex items-center justify-center transition-colors"
                 title="Hỏi ChatGPT"
               >
-                <span className="font-bold text-[10px]">GPT</span>
+                <span className="font-extrabold text-[10px]">GPT</span>
               </a>
               <a
                 href={`https://claude.ai/new?q=${candidatePrompt}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Hỏi Claude về năng lực của Ngô Chí Quốc"
-                className="w-7 h-7 rounded-full bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded-full bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-200 hover:bg-amber-200 dark:hover:bg-amber-900 flex items-center justify-center transition-colors"
                 title="Hỏi Claude"
               >
-                <span className="font-bold text-[10px]">CL</span>
+                <span className="font-extrabold text-[10px]">CL</span>
               </a>
               <a
                 href={`https://www.google.com/search?q=${candidatePrompt}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Hỏi Gemini về năng lực của Ngô Chí Quốc"
-                className="w-7 h-7 rounded-full bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded-full bg-blue-100 dark:bg-blue-950/80 text-blue-800 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-900 flex items-center justify-center transition-colors"
                 title="Hỏi Gemini"
               >
-                <span className="font-bold text-[10px]">GEM</span>
+                <span className="font-extrabold text-[10px]">GEM</span>
               </a>
             </div>
           </div>
@@ -377,7 +377,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
           >
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Freelance Works</span>
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-pink-500/10 text-pink-500 font-bold">Mới</span>
+            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-pink-100 dark:bg-pink-950 text-pink-800 dark:text-pink-300 font-bold">Mới</span>
           </Link>
 
           <a

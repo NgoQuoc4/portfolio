@@ -185,7 +185,7 @@ export const Footer: React.FC<FooterProps> = ({
                     className="text-ink hover:text-pink-500 dark:hover:text-pink-400 transition-colors inline-flex items-center gap-1.5 hover:translate-x-1 duration-200 font-semibold"
                   >
                     <span>Freelance Works</span>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-pink-500/10 text-pink-500 font-bold">Mới</span>
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-pink-100 dark:bg-pink-950 text-pink-800 dark:text-pink-300 font-bold">Mới</span>
                   </Link>
                 </li>
               </ul>
@@ -262,7 +262,7 @@ export const Footer: React.FC<FooterProps> = ({
               </p>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-fit">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                <span className="font-mono text-[11px] text-emerald-600 dark:text-emerald-400 font-medium whitespace-nowrap">
+                <span className="font-mono text-[11px] text-emerald-800 dark:text-emerald-300 font-semibold whitespace-nowrap">
                   Làm việc toàn cầu / Remote
                 </span>
               </div>
