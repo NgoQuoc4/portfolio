@@ -7,6 +7,48 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://ngoquoc.vercel.app/freelance',
   },
+  keywords: [
+    // Định danh cá nhân
+    'Ngô Chí Quốc',
+    'Ngo Chi Quoc',
+    'Quoc Ngo freelance',
+    // Dịch vụ tìm kiếm phổ biến
+    'nhận làm web freelance',
+    'nhận làm dự án web',
+    'thuê lập trình viên freelance',
+    'thuê frontend developer',
+    'thuê full stack developer',
+    'lập trình viên freelance TP HCM',
+    'lập trình viên freelance Hồ Chí Minh',
+    'freelance developer Việt Nam',
+    // Công nghệ
+    'ReactJS developer',
+    'Next.js developer',
+    'NestJS developer',
+    'TypeScript developer',
+    'TailwindCSS developer',
+    'NodeJS freelance',
+    // Loại dự án
+    'xây dựng web app',
+    'xây dựng SaaS',
+    'tích hợp AI vào web',
+    'tối ưu hiệu năng website',
+    'tối ưu Core Web Vitals',
+    'làm landing page',
+    'thiết kế giao diện web',
+    'phát triển e-commerce',
+    // English keywords
+    'hire frontend developer Vietnam',
+    'hire full stack developer Vietnam',
+    'web development freelance Vietnam',
+    'React developer for hire',
+    'Next.js developer for hire',
+    'AI web integration freelance',
+    'SaaS frontend developer',
+    'remote developer Vietnam',
+    'freelance web developer Ho Chi Minh City',
+    'portfolio freelance projects',
+  ],
   openGraph: {
     title: 'Dự Án Freelance & Đánh Giá Khách Hàng · Ngô Chí Quốc',
     description:

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Coffee, Lightbulb, Folder, Sparkles, Award } from 'lucide-react';
+import { Lightbulb, Folder, Sparkles } from 'lucide-react';
 
 interface HeroCanvasProps {
   profileName?: string;
@@ -18,7 +18,7 @@ interface HeroCanvasProps {
 export const HeroCanvas: React.FC<HeroCanvasProps> = ({
   profileName = 'Ngô Chí Quốc',
   avatarUrl = 'https://res.cloudinary.com/dguad3xyf/image/upload/v1776242078/MeUJ0ogEM8MjZvYWfSb9_665822b791856_cvtpl_yljpfv.jpg',
-  headline = 'Tôi biến sự mơ hồ thành định hướng sản phẩm rõ ràng & tạo ra giá trị với AI.',
+  headline: _headline,
   subIntro,
   statusText = 'Sẵn sàng hợp tác cho các dự án & cơ hội mới',
   titleRole = 'Lập trình viên Full Stack & Front End',
@@ -60,7 +60,11 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
       </div>
 
       {/* 1. DESKTOP DRAGGABLE DIGITAL DESK (>= 768px) */}
-      <div className="absolute inset-0 max-w-[1600px] mx-auto hidden md:block pointer-events-none">
+      <div
+        role="region"
+        aria-label="Bàn làm việc số tương tác kéo thả"
+        className="absolute inset-0 max-w-[1600px] mx-auto hidden md:block pointer-events-none"
+      >
        
 
         {/* Polaroid Avatar Photo (Style Sara Khalil) */}
@@ -118,11 +122,11 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
           transition={{ duration: 0.6, delay: 0.1 }}
         >
           <div className="w-48 h-48 bg-amber-100 dark:bg-amber-900/60 border border-amber-300 dark:border-amber-700/50 shadow-float rounded-xl p-5 -rotate-3 hover:rotate-0 transition-transform cursor-grab active:cursor-grabbing">
-            <p className="font-mono text-[10px] uppercase tracking-widest text-amber-800 dark:text-amber-200 mb-2 font-bold">Nguyên tắc</p>
-            <div className="space-y-1.5 text-xs text-amber-900 dark:text-amber-100 italic font-serif">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-amber-950 dark:text-amber-200 mb-2 font-bold">Nguyên tắc</p>
+            <div className="space-y-1.5 text-xs text-amber-950 dark:text-amber-100 italic font-serif">
               <p>✨ Thực tế &gt; tranh luận</p>
               <p>🚀 Hoàn thành quan trọng nhất</p>
-              <p>💡 Hỏi "tại sao" hai lần</p>
+              <p>💡 Hỏi &quot;tại sao&quot; hai lần</p>
               <p>⚡ Hiệu quả hơn hào nhoáng</p>
             </div>
           </div>

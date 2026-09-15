@@ -18,17 +18,20 @@ export const Preloader: React.FC<PreloaderProps> = ({
   const [isRemoved, setIsRemoved] = useState(false);
 
   useEffect(() => {
-    // Check if user already saw the preloader in this session
-    if (typeof window !== 'undefined' && sessionStorage.getItem('preloader_shown')) {
-      setIsRemoved(true);
-      if (onComplete) onComplete();
-      return;
+    // Check if user already saw preloader or prefers reduced motion
+    if (typeof window !== 'undefined') {
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (prefersReduced || sessionStorage.getItem('preloader_shown')) {
+        setIsRemoved(true);
+        if (onComplete) onComplete();
+        return;
+      }
     }
 
     // Khóa cuộn trang khi đang chạy preloader
     document.body.style.overflow = 'hidden';
 
-    const duration = 650; // Tinh gọn thời gian để tối ưu chỉ số LCP & FCP
+    const duration = 350; // Rút ngắn thời gian để tối ưu vượt trội chỉ số LCP & FCP
     let start: number | null = null;
     let animationFrameId: number;
 
@@ -43,7 +46,7 @@ export const Preloader: React.FC<PreloaderProps> = ({
       if (progress < 1) {
         animationFrameId = requestAnimationFrame(tick);
       } else {
-        // Đã đạt 100%: hoàn tất mượt mà
+        // Đã đạt 100%: hoàn tất nhanh chóng
         setTimeout(() => {
           setIsDone(true);
           document.body.style.overflow = '';
@@ -54,8 +57,8 @@ export const Preloader: React.FC<PreloaderProps> = ({
 
           setTimeout(() => {
             setIsRemoved(true);
-          }, 450);
-        }, 120);
+          }, 200);
+        }, 50);
       }
     };
 

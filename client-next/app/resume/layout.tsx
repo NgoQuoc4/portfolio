@@ -7,6 +7,28 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://ngoquoc.vercel.app/resume',
   },
+  keywords: [
+    // Định danh
+    'CV Ngô Chí Quốc',
+    'Resume Ngo Chi Quoc',
+    'Hồ sơ năng lực Ngô Chí Quốc',
+    'CV NgoQuoc4',
+    // Vị trí tuyển dụng
+    'CV Frontend Developer',
+    'CV Full Stack Developer',
+    'Hồ sơ lập trình viên ReactJS',
+    'Hồ sơ lập trình viên Next.js',
+    'Frontend Developer CV Vietnam',
+    'Full Stack Developer Resume Vietnam',
+    'Software Engineer CV Ho Chi Minh City',
+    // Tuyển dụng & Kỹ năng
+    'Tuyển dụng lập trình viên TP HCM',
+    'Tuyển dụng ReactJS TP HCM',
+    'Tuyển dụng NextJS Developer',
+    'TypeScript Developer CV',
+    'NestJS Developer CV',
+    'Lập trình viên chuyên ReactJS NextJS NestJS',
+  ],
   openGraph: {
     title: 'CV & Hồ sơ năng lực · Ngô Chí Quốc',
     description:

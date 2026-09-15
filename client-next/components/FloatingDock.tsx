@@ -93,10 +93,11 @@ export const FloatingDock = () => {
                 onClick={() => scrollToSection(item.id)}
                 onMouseEnter={() => setHoveredItem(item.id)}
                 onMouseLeave={() => setHoveredItem(null)}
+                aria-current={isActive ? 'page' : undefined}
                 className={`relative flex items-center justify-center w-10 h-10 rounded-[12px] transition-all duration-200 cursor-pointer ${
                   isActive
                     ? 'text-pink-600 bg-pink-500/15 font-semibold shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-black/5'
+                    : 'text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-black/5'
                 }`}
                 aria-label={item.label}
               >
@@ -141,7 +142,7 @@ export const FloatingDock = () => {
             aria-label="Xem hồ sơ và CV của Ngô Chí Quốc"
             onMouseEnter={() => setHoveredItem('resume')}
             onMouseLeave={() => setHoveredItem(null)}
-            className="flex items-center justify-center w-10 h-10 rounded-[12px] text-slate-600 hover:text-slate-900 hover:bg-black/5 transition-colors"
+            className="flex items-center justify-center w-10 h-10 rounded-[12px] text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-black/5 transition-colors"
             title="Hồ sơ / CV"
           >
             <FileText className="w-4 h-4" />
@@ -161,7 +162,7 @@ export const FloatingDock = () => {
               aria-label="Trang quản trị Admin"
               onMouseEnter={() => setHoveredItem('admin')}
               onMouseLeave={() => setHoveredItem(null)}
-              className="flex items-center justify-center w-10 h-10 rounded-[12px] text-slate-600 hover:text-pink-600 hover:bg-pink-500/10 transition-colors"
+              className="flex items-center justify-center w-10 h-10 rounded-[12px] text-slate-700 dark:text-slate-300 hover:text-pink-600 hover:bg-pink-500/10 transition-colors"
               title="Admin Dashboard"
             >
               <Settings className="w-4 h-4" />
@@ -192,10 +193,11 @@ export const FloatingDock = () => {
             <button
               key={item.id}
               onClick={() => scrollToSection(item.id)}
+              aria-current={isActive ? 'page' : undefined}
               className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
                 isActive
                   ? 'text-pink-600 bg-pink-500/15'
-                  : 'text-slate-600 hover:text-slate-900'
+                  : 'text-slate-700 dark:text-slate-300 hover:text-slate-950'
               }`}
               aria-label={item.label}
             >

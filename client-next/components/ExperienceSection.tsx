@@ -94,6 +94,8 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
                   <button
                     key={exp._id || idx}
                     type="button"
+                    aria-pressed={isSelected}
+                    aria-label={`Xem kinh nghiệm tại ${exp.company} vai trò ${exp.role}`}
                     onClick={() => setSelectedIndex(idx)}
                     className={`w-full text-left p-4 rounded-2xl border transition-all cursor-pointer shrink-0 min-w-[260px] lg:min-w-0 ${
                       isSelected
@@ -102,11 +104,11 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2 mb-1.5">
-                      <span className="font-mono text-[11px] font-semibold text-pink-500">
+                      <span className="font-mono text-[11px] font-bold text-pink-600 dark:text-pink-400">
                         {exp.period}
                       </span>
                       {exp.type && (
-                        <span className="px-2 py-0.5 rounded-md bg-surface-2 border border-border text-[10px] font-mono text-ink-subtle">
+                        <span className="px-2 py-0.5 rounded-md bg-surface-2 border border-border text-[10px] font-mono text-slate-700 dark:text-slate-300 font-medium">
                           {exp.type}
                         </span>
                       )}

@@ -237,7 +237,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="contact-name" className="block font-mono text-[11px] text-ink-muted uppercase tracking-wider mb-1.5">
+                <label htmlFor="contact-name" className="block font-mono text-[11px] text-slate-700 dark:text-slate-300 font-semibold uppercase tracking-wider mb-1.5">
                   Họ và tên <span className="text-pink-500">*</span>
                 </label>
                 <input
@@ -247,12 +247,12 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   placeholder="Ví dụ: Nguyễn Văn A"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-sm text-ink placeholder:text-ink-subtle focus:outline-none focus:border-pink-500 transition-colors"
+                  className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-sm text-ink placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-pink-500 transition-colors"
                 />
               </div>
 
               <div>
-                <label htmlFor="contact-email" className="block font-mono text-[11px] text-ink-muted uppercase tracking-wider mb-1.5">
+                <label htmlFor="contact-email" className="block font-mono text-[11px] text-slate-700 dark:text-slate-300 font-semibold uppercase tracking-wider mb-1.5">
                   Địa chỉ Email <span className="text-pink-500">*</span>
                 </label>
                 <input
@@ -262,12 +262,12 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   placeholder="email@vidu.com"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-sm text-ink placeholder:text-ink-subtle focus:outline-none focus:border-pink-500 transition-colors"
+                  className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-sm text-ink placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-pink-500 transition-colors"
                 />
               </div>
 
               <div>
-                <label htmlFor="contact-message" className="block font-mono text-[11px] text-ink-muted uppercase tracking-wider mb-1.5">
+                <label htmlFor="contact-message" className="block font-mono text-[11px] text-slate-700 dark:text-slate-300 font-semibold uppercase tracking-wider mb-1.5">
                   Nội dung trao đổi <span className="text-pink-500">*</span>
                 </label>
                 <textarea
@@ -277,13 +277,14 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   placeholder="Bạn đang có dự án, câu hỏi hay cơ hội hợp tác nào?"
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-sm text-ink placeholder:text-ink-subtle focus:outline-none focus:border-pink-500 transition-colors resize-none"
+                  className="w-full px-4 py-3 rounded-xl bg-surface-2 border border-border text-sm text-ink placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-pink-500 transition-colors resize-none"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
+                aria-label={loading ? 'Đang gửi tin nhắn...' : 'Gửi Tin Nhắn'}
                 className="w-full py-3.5 rounded-xl bg-ink text-surface-1 font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer shadow-sm pt-3"
               >
                 <Send className="w-4 h-4" />
@@ -291,12 +292,12 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               </button>
 
               {status === 'success' && (
-                <p className="text-xs text-emerald-600 font-semibold text-center pt-2 animate-fade-in">
+                <p role="status" aria-live="polite" className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold text-center pt-2 animate-fade-in">
                   ✅ Tin nhắn đã được gửi thành công đến email! Tôi sẽ phản hồi sớm nhất.
                 </p>
               )}
               {status === 'error' && (
-                <p className="text-xs text-rose-500 font-semibold text-center pt-2 animate-fade-in leading-relaxed">
+                <p role="alert" aria-live="assertive" className="text-xs text-rose-600 dark:text-rose-400 font-semibold text-center pt-2 animate-fade-in leading-relaxed">
                   ❌ {errorMessage || `Không thể gửi tin nhắn lúc này. Vui lòng liên hệ trực tiếp: ${email}`}
                 </p>
               )}

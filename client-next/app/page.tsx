@@ -12,10 +12,9 @@ import { SmoothScroll } from '@/components/SmoothScroll';
 import { defaultProfile, defaultProjects } from '@/lib/defaults';
 import type { Profile, ProjectItem } from '@/lib/types';
 
-// Lazy load heavy components to reduce First Load JS
-const HeroCanvas = dynamic(() => import('@/components/HeroCanvas').then(m => ({ default: m.HeroCanvas })), {
-  ssr: false,
-});
+import { HeroCanvas } from '@/components/HeroCanvas';
+
+// Lazy load below-the-fold components to reduce initial JS payload
 const SelectedWork = dynamic(() => import('@/components/SelectedWork').then(m => ({ default: m.SelectedWork })));
 const ExperienceSection = dynamic(() => import('@/components/ExperienceSection').then(m => ({ default: m.ExperienceSection })));
 

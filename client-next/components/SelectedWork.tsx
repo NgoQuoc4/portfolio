@@ -36,16 +36,18 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects = [] }) => 
           </h2>
 
           {/* Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2 mt-4">
+          <div role="group" aria-label="Bộ lọc danh mục dự án" className="flex flex-wrap items-center gap-2 mt-4">
             {categories.map((cat) => (
               <button
                 key={cat}
                 type="button"
+                aria-pressed={selectedFilter === cat}
+                aria-label={`Lọc theo danh mục ${cat}`}
                 onClick={() => setSelectedFilter(cat)}
-                className={`font-mono text-xs uppercase tracking-widest px-3.5 py-1.5 rounded-full border transition-all ${
+                className={`font-mono text-xs uppercase tracking-widest px-3.5 py-1.5 rounded-full border transition-all cursor-pointer ${
                   selectedFilter === cat
                     ? 'bg-ink text-surface-1 border-ink font-semibold shadow-sm'
-                    : 'text-ink-muted border-border hover:border-border-hover bg-surface-1'
+                    : 'text-ink-muted hover:text-ink border-border hover:border-border-hover bg-surface-1'
                 }`}
               >
                 {cat}
@@ -84,7 +86,7 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects = [] }) => 
                   {proj.image_url ? (
                     <Image
                       src={proj.image_url}
-                      alt={proj.title}
+                      alt={`Hình ảnh giao diện dự án ${proj.title} do Ngô Chí Quốc phát triển`}
                       fill
                       sizes="(max-width: 1024px) 100vw, 50vw"
                       className="object-cover object-top transition-transform duration-700 ease-out group-hover/image:scale-105"
@@ -95,7 +97,7 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects = [] }) => 
                     </div>
                   )}
                   <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
-                  <span className="absolute top-4 left-5 font-mono text-[10px] uppercase tracking-widest text-white/90 bg-black/40 backdrop-blur-sm px-2.5 py-1 rounded-full">
+                  <span className="absolute top-4 left-5 font-mono text-[10px] uppercase tracking-widest text-white font-bold bg-black/60 backdrop-blur-sm px-2.5 py-1 rounded-full">
                     {proj.year || '2025'}
                   </span>
                 </div>
@@ -103,7 +105,7 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects = [] }) => 
                 {/* Right Column: Project Details */}
                 <div className="w-full md:w-1/2 p-6 sm:p-8 md:p-10 flex flex-col justify-center shrink-0">
                   {proj.brand_logo && (
-                    <span className="font-mono text-xs uppercase tracking-wider text-pink-500 font-semibold mb-2">
+                    <span className="font-mono text-xs uppercase tracking-wider text-pink-600 dark:text-pink-400 font-bold mb-2">
                       {proj.brand_logo}
                     </span>
                   )}
@@ -121,7 +123,7 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects = [] }) => 
                     {proj.tech_stack.map((t) => (
                       <span
                         key={t}
-                        className="font-mono text-[10px] uppercase tracking-wider text-ink-muted bg-surface-2 px-2.5 py-1 rounded-full border border-border"
+                        className="font-mono text-[10px] uppercase tracking-wider text-slate-700 dark:text-slate-300 font-semibold bg-surface-2 px-2.5 py-1 rounded-full border border-border"
                       >
                         {t}
                       </span>
@@ -132,7 +134,7 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects = [] }) => 
                   {proj.metrics && proj.metrics.length > 0 && (
                     <div className="space-y-1.5 mb-6 border-t border-border pt-3">
                       {proj.metrics.map((m, mIdx) => (
-                        <p key={mIdx} className="font-mono text-xs text-ink-muted flex items-center gap-2">
+                        <p key={mIdx} className="font-mono text-xs text-slate-800 dark:text-slate-200 font-medium flex items-center gap-2">
                           <CheckCircle2 className="w-3.5 h-3.5 text-pink-500 shrink-0" />
                           <span>{m}</span>
                         </p>
@@ -147,7 +149,8 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects = [] }) => 
                         href={proj.live_demo}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-pink-600 hover:text-pink-500 font-mono uppercase tracking-wider transition-colors"
+                        aria-label={`Trải nghiệm trực tiếp dự án ${proj.title}`}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-pink-600 dark:text-pink-400 hover:text-pink-500 font-mono uppercase tracking-wider transition-colors"
                       >
                         <span>Trải Nghiệm Trực Tiếp</span>
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -158,10 +161,11 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects = [] }) => 
                         href={proj.github_link}
                         target="_blank"
                         rel="noopener noreferrer"
+                        aria-label={`Xem mã nguồn dự án ${proj.title} trên GitHub`}
                         className="inline-flex items-center gap-1.5 text-xs font-semibold text-ink-muted hover:text-ink font-mono uppercase tracking-wider transition-colors"
                       >
                         <span>Mã Nguồn (GitHub)</span>
-                        <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                        <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
                           <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
                         </svg>
                       </a>
