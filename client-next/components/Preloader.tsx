@@ -13,6 +13,7 @@ export const Preloader: React.FC<PreloaderProps> = ({
   title = "NGO CHI QUOC",
   onComplete, 
 }) => {
+  const [mounted, setMounted] = useState(false);
   const [count, setCount] = useState(0);
   const [isDone, setIsDone] = useState(false);
   const [isRemoved, setIsRemoved] = useState(false);
@@ -28,6 +29,8 @@ export const Preloader: React.FC<PreloaderProps> = ({
         return;
       }
     }
+
+    setMounted(true);
 
     // Khóa cuộn trang khi đang chạy preloader
     document.body.style.overflow = 'hidden';
@@ -71,7 +74,7 @@ export const Preloader: React.FC<PreloaderProps> = ({
     };
   }, [onComplete]);
 
-  if (isRemoved) return null;
+  if (!mounted || isRemoved) return null;
 
   return (
     <aside
