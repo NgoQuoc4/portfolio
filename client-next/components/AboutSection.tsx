@@ -42,62 +42,65 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
   avatarUrl = 'https://res.cloudinary.com/dguad3xyf/image/upload/v1776242078/MeUJ0ogEM8MjZvYWfSb9_665822b791856_cvtpl_yljpfv.jpg',
 }) => {
   return (
-    <section id="about" className="snap-start relative min-h-[100dvh] md:h-dvh flex items-center py-12 md:py-0 bg-surface-1 overflow-x-hidden md:overflow-hidden">
+    <section id="about" className="snap-start relative min-h-[100dvh] md:h-dvh flex flex-col justify-center py-10 md:py-0 bg-surface-1 overflow-x-hidden md:overflow-hidden">
       <div className="max-w-[1400px] mx-auto px-6 md:px-12 w-full">
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-16 items-center"
-          initial={{ opacity: 0, y: 40 }}
+          className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-14 items-center"
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
-          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+          viewport={{ once: true, margin: '-60px' }}
         >
           {/* Left Column: Bio & Philosophy */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
+          <div className="space-y-3.5 sm:space-y-4 lg:space-y-5">
+            <div className="flex items-center gap-3.5">
               <Image
                 src={avatarUrl}
                 alt="Ngô Chí Quốc"
-                width={64}
-                height={64}
-                className="rounded-full object-cover border-2 border-pink-500 shadow-md ring-4 ring-pink-500/10"
+                width={52}
+                height={52}
+                className="rounded-full object-cover border-2 border-pink-500 shadow-sm ring-2 ring-pink-500/15 shrink-0"
               />
               <div>
-                <p className="font-mono text-xs text-pink-500 uppercase tracking-widest font-semibold">
+                <p className="font-mono text-[11px] text-pink-500 uppercase tracking-wider font-semibold">
                   Về Lập Trình Viên
                 </p>
-                <p className="font-sans font-bold text-lg text-ink">
+                <p className="font-sans font-bold text-base sm:text-lg text-ink leading-tight">
                   Ngô Chí Quốc
                 </p>
-                <p className="font-mono text-xs text-ink-muted">
+                <p className="font-mono text-[11px] text-ink-muted">
                   Lập trình viên Full Stack &amp; Front End · Hồ Chí Minh
                 </p>
               </div>
             </div>
 
-            <h2 className="font-sans font-bold text-3xl sm:text-4xl lg:text-[42px] text-ink tracking-tight leading-[1.25]">
+            <h2 className="font-sans font-bold text-2xl sm:text-3xl lg:text-4xl text-ink tracking-tight leading-snug">
               Kỹ thuật chuẩn xác,<br />
               tập trung vào{' '}
               <span className="text-pink-500 font-bold">
                 trải nghiệm thực tế
               </span>.
             </h2>
-            <p className="text-base text-ink/90 leading-relaxed font-sans font-medium">
-              {about1}
-            </p>
-            <p className="text-base text-ink/90 leading-relaxed font-sans font-medium">
-              {about2}
-            </p>
+
+            <div className="space-y-2 text-xs sm:text-sm text-ink/90 leading-relaxed font-sans">
+              <p>
+                {about1}
+              </p>
+              <p>
+                {about2}
+              </p>
+            </div>
 
             {/* Skills Pills */}
-            <div className="pt-2">
-              <p className="font-mono text-xs text-ink-muted uppercase tracking-widest mb-3 font-bold">
+            <div className="pt-1">
+              <p className="font-mono text-[11px] text-ink-muted uppercase tracking-wider mb-2 font-bold">
                 Kỹ năng &amp; Công nghệ chính
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {skills.map((s) => (
                   <span
                     key={s}
-                    className="font-mono text-xs text-ink bg-surface-2 border border-border px-3.5 py-1.5 rounded-full font-bold shadow-xs hover:border-pink-500 hover:text-pink-500 transition-colors"
+                    className="font-mono text-[11px] sm:text-xs text-ink bg-surface-2 border border-border px-2.5 sm:px-3 py-1 rounded-full font-medium shadow-2xs hover:border-pink-500 hover:text-pink-500 transition-colors"
                   >
                     {s}
                   </span>
@@ -105,14 +108,14 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
               </div>
             </div>
 
-            <div className="pt-4 flex items-center gap-3">
+            <div className="pt-1.5 flex flex-wrap items-center gap-2.5">
               <a
                 href="/resume"
-                className="inline-flex items-center px-6 py-3 rounded-full bg-ink text-surface-1 text-sm font-semibold hover:opacity-90 shadow-sm transition-all"
+                className="inline-flex items-center px-5 py-2.5 rounded-full bg-ink text-surface-1 text-xs sm:text-sm font-semibold hover:opacity-90 shadow-sm transition-all"
               >
                 Xem chi tiết Hồ sơ / CV
               </a>
-              <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 bg-emerald-500/15 rounded-full px-3 py-1 font-bold">
+              <span className="font-mono text-[10px] uppercase tracking-wider text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 bg-emerald-500/15 rounded-full px-2.5 py-1 font-bold">
                 Sẵn sàng nhận dự án mới
               </span>
             </div>
@@ -120,23 +123,23 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
 
           {/* Right Column: Brands & Tech Logos Grid */}
           <div>
-            <p className="font-mono text-xs text-ink-muted uppercase tracking-widest mb-6 text-center md:text-left font-bold">
+            <p className="font-mono text-[11px] text-ink-muted uppercase tracking-wider mb-4 text-center md:text-left font-bold">
               Công nghệ &amp; Nền tảng chuyên môn
             </p>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-3 lg:gap-3.5">
               {brands.map((b) => (
                 <div
                   key={b.name}
-                  className="group flex flex-col items-center justify-center p-5 rounded-2xl bg-surface-2 border border-border hover:border-pink-500 transition-all duration-300 hover:scale-105 shadow-xs"
+                  className="group flex flex-col items-center justify-center p-3.5 sm:p-4 rounded-xl bg-surface-2 border border-border hover:border-pink-500 transition-all duration-300 hover:scale-105 shadow-2xs"
                 >
                   <Image
                     src={b.logo_url}
                     alt={b.name}
-                    width={42}
-                    height={42}
-                    className="object-contain transition-transform duration-300 group-hover:scale-110 mb-2"
+                    width={34}
+                    height={34}
+                    className="object-contain transition-transform duration-300 group-hover:scale-110 mb-1.5"
                   />
-                  <span className="font-mono text-xs text-ink transition-colors font-bold mt-1">
+                  <span className="font-mono text-[11px] text-ink transition-colors font-semibold">
                     {b.name}
                   </span>
                 </div>
@@ -148,3 +151,4 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
     </section>
   );
 };
+

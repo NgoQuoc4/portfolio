@@ -24,19 +24,19 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects = [] }) => 
       : displayProjects.filter((p) => (p.category || '0 → 1') === selectedFilter);
 
   return (
-    <section id="work" className="snap-start relative z-10 min-h-dvh md:h-dvh flex flex-col bg-canvas">
-      {/* 1. Header (Fixed height slot on desktop) */}
-      <div className="shrink-0 bg-canvas flex items-end pt-8 md:pt-0" style={{ height: 210 }}>
-        <div className="max-w-[1400px] mx-auto px-6 md:px-12 w-full pb-6">
-          <p className="font-mono text-xs text-pink-500 uppercase tracking-widest mb-1.5 font-semibold">
+    <section id="work" className="snap-start relative z-10 min-h-dvh md:h-dvh flex flex-col bg-canvas overflow-x-hidden md:overflow-hidden">
+      {/* 1. Header (Compact responsive height on laptop/desktop) */}
+      <div className="shrink-0 bg-canvas flex items-end pt-6 md:pt-0 md:h-[155px] lg:h-[175px]">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-12 w-full pb-3 md:pb-4">
+          <p className="font-mono text-[11px] text-pink-500 uppercase tracking-wider mb-1 font-semibold">
             Dự Án Chọn Lọc
           </p>
-          <h2 className="font-sans font-semibold text-3xl sm:text-4xl text-ink tracking-tight">
+          <h2 className="font-sans font-semibold text-2xl sm:text-3xl lg:text-4xl text-ink tracking-tight">
             Các sản phẩm đã phát triển
           </h2>
 
           {/* Filter Pills */}
-          <div role="group" aria-label="Bộ lọc danh mục dự án" className="flex flex-wrap items-center gap-2 mt-4">
+          <div role="group" aria-label="Bộ lọc danh mục dự án" className="flex flex-wrap items-center gap-2 mt-2.5 sm:mt-3">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -44,7 +44,7 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects = [] }) => 
                 aria-pressed={selectedFilter === cat}
                 aria-label={`Lọc theo danh mục ${cat}`}
                 onClick={() => setSelectedFilter(cat)}
-                className={`font-mono text-xs uppercase tracking-widest px-3.5 py-1.5 rounded-full border transition-all cursor-pointer ${
+                className={`font-mono text-xs uppercase tracking-widest px-3 py-1 rounded-full border transition-all cursor-pointer ${
                   selectedFilter === cat
                     ? 'bg-ink text-surface-1 border-ink font-semibold shadow-sm'
                     : 'text-ink-muted hover:text-ink border-border hover:border-border-hover bg-surface-1'
@@ -67,14 +67,14 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects = [] }) => 
             key={proj._id || idx}
             className="snap-start w-full md:sticky md:top-0 md:h-[var(--slot-h)] mb-8 md:mb-0 md:flex md:flex-col md:justify-center"
             style={{
-              ['--slot-h' as any]: 'calc(100dvh - 210px)',
+              ['--slot-h' as any]: 'calc(100dvh - 170px)',
               zIndex: (idx + 1) * 10,
             }}
           >
             <div
               className="max-w-[1400px] mx-auto w-full px-6 md:px-12 h-auto md:h-[var(--card-h)]"
               style={{
-                ['--card-h' as any]: 'min(calc(100dvh - 260px), 640px)',
+                ['--card-h' as any]: 'min(calc(100dvh - 190px), 620px)',
               }}
             >
               <div
@@ -103,7 +103,7 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects = [] }) => 
                 </div>
 
                 {/* Right Column: Project Details */}
-                <div className="w-full md:w-1/2 p-6 sm:p-8 md:p-10 flex flex-col justify-center shrink-0">
+                <div className="w-full md:w-1/2 p-5 sm:p-6 md:p-6 lg:p-8 flex flex-col justify-center shrink-0">
                   {proj.brand_logo && (
                     <span className="font-mono text-xs uppercase tracking-wider text-pink-600 dark:text-pink-400 font-bold mb-2">
                       {proj.brand_logo}

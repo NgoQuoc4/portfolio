@@ -31,9 +31,8 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
 
     let isAnimating = false;
     let cooldownUntil = 0;
-    let lastWheelTime = 0;
-    let lastDelta = 0;
-    let lastDir = 0;
+    let accumulatedDelta = 0;
+    let resetTimer: ReturnType<typeof setTimeout> | null = null;
 
     // Smooth scroll using native browser smooth scrolling
     function smoothScrollTo(element: HTMLElement, targetTop: number, onDone: () => void) {
@@ -182,43 +181,39 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
       }
     }
 
-    // Wheel event handler
+    // Wheel event handler with fluid trackpad accumulator
     function onWheel(e: WheelEvent) {
       if (!isDesktop()) return;
 
       const target = e.target as HTMLElement;
       if (target?.closest('input, textarea, select, [data-no-snap="true"]')) return;
 
-      const delta = Math.abs(e.deltaY);
-      if (delta < 2) return;
+      const rawDelta = e.deltaY;
+      if (Math.abs(rawDelta) < 1.5) return;
 
       e.preventDefault();
 
       const now = performance.now();
-      const dir = e.deltaY > 0 ? 1 : -1;
-      const timeSinceLastWheel = now - lastWheelTime;
 
-      // Filter out decaying trackpad momentum
-      const isDecayingInertia = timeSinceLastWheel < 60 && delta < lastDelta && dir === lastDir;
-
-      lastWheelTime = now;
-      lastDelta = delta;
-      lastDir = dir;
-
-      // If in cooldown or animation, ignore event
+      // If currently animating or in cooldown, discard and reset accumulator
       if (isAnimating || now < cooldownUntil) {
+        accumulatedDelta = 0;
         return;
       }
 
-      // Trigger condition:
-      // 1. Not decaying trackpad momentum
-      // 2. Either deliberate mouse notch / pause (> 90ms), direction change, or acceleration
-      const isDeliberate =
-        !isDecayingInertia &&
-        delta >= 10 &&
-        (timeSinceLastWheel > 90 || dir !== lastDir || delta > 1.3 * lastDelta || delta >= 80);
+      accumulatedDelta += rawDelta;
 
-      if (isDeliberate) {
+      if (resetTimer) clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => {
+        accumulatedDelta = 0;
+      }, 150);
+
+      // Laptop trackpad swipe: reaches 30-40 delta within 30-60ms.
+      // Standard mouse wheel notch: delta is ~100 on the first event.
+      if (Math.abs(accumulatedDelta) >= 30) {
+        const dir = accumulatedDelta > 0 ? 1 : -1;
+        accumulatedDelta = 0;
+        if (resetTimer) clearTimeout(resetTimer);
         changeStep(dir);
       }
     }
@@ -272,6 +267,7 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
     window.addEventListener('resize', onResize);
 
     return () => {
+      if (resetTimer) clearTimeout(resetTimer);
       pageScroll.removeEventListener('wheel', onWheel);
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('resize', onResize);

@@ -67,11 +67,11 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
       >
        
 
-        {/* Polaroid Avatar Photo (Style Sara Khalil) */}
+        {/* Polaroid Avatar Photo */}
         <motion.div
           drag
           dragMomentum={false}
-          className="absolute left-[10%] lg:left-[3%] top-[3%] lg:top-[4%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
+          className="absolute left-[3%] top-[3%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
           initial={{ opacity: 0, y: -20, rotate: -4 }}
           animate={{ opacity: 1, y: 0, rotate: -4 }}
           whileHover={{ rotate: 0, scale: 1.05 }}
@@ -83,9 +83,9 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
             </span>
 
             {/* Polaroid Frame */}
-            <div className="relative w-48 sm:w-52 md:w-56 lg:w-60 bg-surface-1 border border-border shadow-float rounded-2xl p-2.5 sm:p-3 flex flex-col items-center transition-shadow hover:shadow-2xl">
+            <div className="relative w-40 sm:w-44 md:w-48 lg:w-52 xl:w-56 bg-surface-1 border border-border shadow-float rounded-2xl p-2.5 flex flex-col items-center transition-shadow hover:shadow-2xl">
               {/* Subtle Washi Tape decoration */}
-              <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-14 h-4 bg-amber-200/70 dark:bg-amber-100/20 backdrop-blur-sm -rotate-2 shadow-sm border border-amber-300/40 rounded-[2px] z-10 pointer-events-none" />
+              <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 w-12 h-3.5 bg-amber-200/70 dark:bg-amber-100/20 backdrop-blur-sm -rotate-2 shadow-sm border border-amber-300/40 rounded-[2px] z-10 pointer-events-none" />
 
               {/* Photo Area */}
               <div className="relative w-full aspect-[4/5] rounded-xl overflow-hidden bg-surface-2 border border-border/60 shadow-inner">
@@ -94,17 +94,17 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
                   alt={`Ảnh đại diện chân dung ${profileName}`}
                   fill
                   priority
-                  sizes="(max-width: 768px) 160px, 240px"
+                  sizes="(max-width: 768px) 160px, 220px"
                   className="object-cover object-top pointer-events-none select-none"
                 />
               </div>
 
               {/* Polaroid Caption */}
-              <div className="pt-2.5 pb-0.5 flex items-center justify-between w-full px-1.5">
-                <span className="font-serif italic text-sm sm:text-base text-ink font-semibold">
+              <div className="pt-2 pb-0.5 flex items-center justify-between w-full px-1">
+                <span className="font-serif italic text-xs sm:text-sm text-ink font-semibold">
                   {profileName.split(' ').pop()} 👋
                 </span>
-                <span className="font-mono text-[10px] sm:text-xs text-ink-subtle uppercase tracking-wider">
+                <span className="font-mono text-[9px] sm:text-[10px] text-ink-subtle uppercase tracking-wider">
                   2026
                 </span>
               </div>
@@ -112,18 +112,18 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
           </div>
         </motion.div>
 
-        {/* Sticky Note (Top-Right-Center) */}
+        {/* Sticky Note (Visible on larger screens >= 1280px) */}
         <motion.div
           drag
           dragMomentum={false}
-          className="absolute left-[85%] top-[40%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
+          className="absolute right-[3%] top-[34%] pointer-events-auto cursor-grab active:cursor-grabbing z-20 hidden xl:block"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          <div className="w-48 h-48 bg-amber-100 dark:bg-amber-900/60 border border-amber-300 dark:border-amber-700/50 shadow-float rounded-xl p-5 -rotate-3 hover:rotate-0 transition-transform cursor-grab active:cursor-grabbing">
-            <p className="font-mono text-[10px] uppercase tracking-widest text-amber-950 dark:text-amber-200 mb-2 font-bold">Nguyên tắc</p>
-            <div className="space-y-1.5 text-xs text-amber-950 dark:text-amber-100 italic font-serif">
+          <div className="w-44 h-44 bg-amber-100 dark:bg-amber-900/60 border border-amber-300 dark:border-amber-700/50 shadow-float rounded-xl p-4 -rotate-3 hover:rotate-0 transition-transform cursor-grab active:cursor-grabbing">
+            <p className="font-mono text-[10px] uppercase tracking-widest text-amber-950 dark:text-amber-200 mb-1.5 font-bold">Nguyên tắc</p>
+            <div className="space-y-1 text-[11px] text-amber-950 dark:text-amber-100 italic font-serif">
               <p>✨ Thực tế &gt; tranh luận</p>
               <p>🚀 Hoàn thành quan trọng nhất</p>
               <p>💡 Hỏi &quot;tại sao&quot; hai lần</p>
@@ -136,7 +136,7 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
         <motion.div
           drag
           dragMomentum={false}
-          className="absolute right-[4%] top-[5%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
+          className="absolute right-[3%] top-[3%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -149,13 +149,13 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
               type="button"
               onClick={toggleMood}
               aria-label="Chuyển đổi giao diện sáng tối"
-              className={`w-28 h-28 rounded-2xl border shadow-float flex flex-col items-center justify-center p-3 transition-all ${
+              className={`w-24 h-24 lg:w-28 lg:h-28 rounded-2xl border shadow-float flex flex-col items-center justify-center p-2.5 transition-all ${
                 isDarkMode
                   ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
                   : 'bg-surface-1 border-border text-ink hover:text-amber-500'
               }`}
             >
-              <Lightbulb className={`w-8 h-8 mb-1.5 ${isDarkMode ? 'fill-amber-400 text-amber-400' : ''}`} />
+              <Lightbulb className={`w-7 h-7 lg:w-8 lg:h-8 mb-1 ${isDarkMode ? 'fill-amber-400 text-amber-400' : ''}`} />
               <span className="text-[10px] font-mono font-medium">{isDarkMode ? 'Chế độ Tối' : 'Chế độ Sáng'}</span>
             </button>
           </div>
@@ -165,35 +165,35 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
         <motion.div
           drag
           dragMomentum={false}
-          className="absolute right-[5%] bottom-[7%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
+          className="absolute right-[3%] bottom-[3%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <div className="w-80 rounded-2xl bg-surface-1 border border-border shadow-float overflow-hidden -rotate-1 hover:rotate-0 transition-transform">
-            <div className="flex items-center gap-1.5 bg-surface-2 px-3 py-2 border-b border-border">
+          <div className="w-72 lg:w-80 rounded-2xl bg-surface-1 border border-border shadow-float overflow-hidden -rotate-1 hover:rotate-0 transition-transform">
+            <div className="flex items-center gap-1.5 bg-surface-2 px-3 py-1.5 border-b border-border">
               <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
               <div className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
               <div className="w-2.5 h-2.5 rounded-full bg-green-400" />
               <p className="font-mono text-[10px] text-ink-subtle ml-2">quoc — zsh</p>
             </div>
-            <div className="p-3.5 space-y-1.5 font-mono text-[11px]">
+            <div className="p-3 space-y-1 font-mono text-[11px]">
               <p className="text-ink-muted"><span className="text-pink-700 dark:text-pink-400 font-bold">~ $</span> whoami</p>
               <p className="text-ink font-semibold">Lập trình viên Full Stack &amp; Front End</p>
-              <p className="text-ink-muted mt-1"><span className="text-pink-700 dark:text-pink-400 font-bold">~ $</span> chuyen_mon</p>
+              <p className="text-ink-muted mt-0.5"><span className="text-pink-700 dark:text-pink-400 font-bold">~ $</span> chuyen_mon</p>
               <p className="text-ink">ReactJS, NextJS, NestJS &amp; TypeScript</p>
-              <p className="text-ink-muted mt-1">
+              <p className="text-ink-muted mt-0.5">
                 <span className="text-pink-700 dark:text-pink-400 font-bold">~ $</span> <span className="inline-block w-1.5 h-3.5 bg-ink-muted animate-cursor align-middle" />
               </p>
             </div>
           </div>
         </motion.div>
 
-        {/* Folder Stack (Bottom-Center-Left) */}
+        {/* Folder Stack (Bottom-Center-Left: visible on wide 2xl screens) */}
         <motion.div
           drag
           dragMomentum={false}
-          className="absolute left-[38%] bottom-[6%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
+          className="absolute left-[38%] bottom-[4%] pointer-events-auto cursor-grab active:cursor-grabbing z-20 hidden 2xl:block"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
@@ -206,8 +206,8 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
             <span className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap font-mono text-[10px] text-ink-subtle bg-surface-1 border border-border rounded-full px-2.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
               công nghệ 📂
             </span>
-            <div className="flex items-center gap-2 px-4 py-2.5 bg-surface-1 border border-border rounded-xl shadow-float hover:scale-105 transition-all">
-              <Folder className={`w-5 h-5 text-pink-500 transition-transform ${isFolderOpen ? 'scale-110' : ''}`} />
+            <div className="flex items-center gap-2 px-4 py-2 bg-surface-1 border border-border rounded-xl shadow-float hover:scale-105 transition-all">
+              <Folder className={`w-4 h-4 text-pink-500 transition-transform ${isFolderOpen ? 'scale-110' : ''}`} />
               <span className="font-mono text-xs text-ink font-medium">React · Next.js · NestJS</span>
             </div>
           </div>
@@ -217,12 +217,12 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
         <motion.div
           drag
           dragMomentum={false}
-          className="absolute left-[3%] bottom-[7%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
+          className="absolute left-[3%] bottom-[3%] pointer-events-auto cursor-grab active:cursor-grabbing z-20"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
-          <div className="flex items-center gap-3 bg-surface-1 border border-border rounded-2xl px-4 py-3 shadow-float">
+          <div className="flex items-center gap-3 bg-surface-1 border border-border rounded-2xl px-3.5 py-2.5 shadow-float">
             <div>
               <p className="font-sans text-xs font-semibold text-ink flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-pink-500" />
