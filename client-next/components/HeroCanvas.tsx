@@ -332,9 +332,9 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
 
         {/* Big H1 Headline */}
         <motion.h1
-          initial={{ opacity: 0, y: 25 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.45, ease: 'easeOut' }}
           className="font-sans font-semibold text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.15] tracking-tight text-ink"
         >
           Tôi biến <span className="underline decoration-pink-400/60 decoration-wavy underline-offset-8">sự mơ hồ</span> thành{' '}
@@ -343,9 +343,9 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
         </motion.h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
+          transition={{ duration: 0.45, delay: 0.08 }}
           className="mt-6 text-sm sm:text-base md:text-lg text-ink-muted max-w-2xl mx-auto font-sans leading-relaxed"
         >
           {subIntro || (
@@ -357,9 +357,9 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
 
         {/* Action Buttons */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
+          transition={{ duration: 0.45, delay: 0.15 }}
           className="mt-8 flex flex-wrap items-center justify-center gap-4"
         >
           <a

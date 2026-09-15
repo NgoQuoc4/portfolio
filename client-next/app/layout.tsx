@@ -199,6 +199,8 @@ export default function RootLayout({
   return (
     <html lang="vi" className={`${jakarta.variable} ${jetbrains.variable} ${instrumentSerif.variable} scroll-smooth`}>
       <head>
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" href="/icon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-icon" />
