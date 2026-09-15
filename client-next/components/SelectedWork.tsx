@@ -10,9 +10,15 @@ export type { ProjectItem };
 
 interface SelectedWorkProps {
   projects?: ProjectItem[];
+  sectionSubtitle?: string;
+  sectionHeadline?: string;
 }
 
-export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects = [] }) => {
+export const SelectedWork: React.FC<SelectedWorkProps> = ({
+  projects = [],
+  sectionSubtitle = 'Dự Án Chọn Lọc',
+  sectionHeadline = 'Các sản phẩm đã phát triển',
+}) => {
   const displayProjects = projects.length > 0 ? projects : defaultProjects;
   const [selectedFilter, setSelectedFilter] = useState('Tất cả');
 
@@ -29,10 +35,10 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({ projects = [] }) => 
       <div className="shrink-0 bg-canvas flex items-end pt-6 md:pt-0 md:h-[155px] lg:h-[175px]">
         <div className="max-w-[1400px] mx-auto px-6 md:px-12 w-full pb-3 md:pb-4">
           <p className="font-mono text-[11px] text-pink-500 uppercase tracking-wider mb-1 font-semibold">
-            Dự Án Chọn Lọc
+            {sectionSubtitle}
           </p>
           <h2 className="font-sans font-semibold text-2xl sm:text-3xl lg:text-4xl text-ink tracking-tight">
-            Các sản phẩm đã phát triển
+            {sectionHeadline}
           </h2>
 
           {/* Filter Pills */}

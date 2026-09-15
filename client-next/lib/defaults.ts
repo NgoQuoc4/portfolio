@@ -13,6 +13,8 @@ export const defaultProfile: Profile = {
   location: 'Hồ Chí Minh, Việt Nam',
   email: 'ngochiquoc140@gmail.com',
   phone: '0789898100',
+  about_subtitle: 'Về Lập Trình Viên',
+  about_headline: 'Kỹ thuật chuẩn xác, tập trung vào trải nghiệm thực tế.',
   about_text_1:
     'Là một nhà phát triển Full Stack tận tâm, luôn cam kết mang lại kết quả tốt nhất, tôi sở hữu kỹ năng nâng cao trong việc triển khai các công nghệ tiên tiến như ReactJS, NextJS, NestJS, ExpressJS. Tôi chuyên xây dựng các sản phẩm chất lượng cao, hướng đến người dùng và chuyển đổi các thiết kế thành trải nghiệm kỹ thuật số liền mạch.',
   about_text_2:
@@ -22,11 +24,28 @@ export const defaultProfile: Profile = {
     'Prisma ORM', 'MongoDB', 'MySQL', 'TailwindCSS', 'Redux Toolkit',
     'TanStack React Query', 'Ant Design', 'Zod', 'RESTful APIs', 'JWT',
   ],
+
+  work_subtitle: 'Dự Án Chọn Lọc',
+  work_headline: 'Các sản phẩm đã phát triển',
+
+  experience_subtitle: 'HÀNH TRÌNH SỰ NGHIỆP',
+  experience_headline: 'Kinh Nghiệm Làm Việc & Dấu Ấn Chuyên Môn',
+  experience_description:
+    'Các vị trí và môi trường thực tế tôi đã cống hiến: từ agency thương mại điện tử, công ty công nghệ đến các dự án độc lập chất lượng cao.',
+
+  contact_subtitle: 'Liên Hệ',
+  contact_headline: 'Cùng nhau xây dựng sản phẩm chất lượng & bền vững',
+  contact_sub_text:
+    'Bạn đang có ý tưởng mới, cần tư vấn giải pháp kỹ thuật tối ưu hay tìm kiếm một lập trình viên Full Stack tận tâm? Hãy kết nối với tôi qua các kênh bên dưới.',
+  contact_status: 'Sẵn sàng hợp tác cho các vị trí, dự án mới & cơ hội kết nối.',
   calendar_link: 'https://calendar.google.com',
   resume_link: '/resume',
-  contact_headline: 'Cùng nhau xây dựng sản phẩm chất lượng & bền vững',
+
   preloader_title: 'NGO CHI QUOC',
   preloader_label: 'Hồ sơ năng lực · Ngô Chí Quốc',
+  footer_brand_text: 'NGO CHI QUOC',
+  footer_copyright: '© 2026 Ngô Chí Quốc. Bảo lưu mọi quyền.',
+  footer_status: 'Làm việc toàn cầu / Remote',
   social_links: {
     github: 'https://github.com/NgoQuoc4',
     linkedin: 'https://linkedin.com',

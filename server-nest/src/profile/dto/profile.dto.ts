@@ -44,6 +44,78 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @IsString()
+  hero_status?: string;
+
+  @IsOptional()
+  @IsString()
+  hero_sub_text?: string;
+
+  @IsOptional()
+  @IsString()
+  about_subtitle?: string;
+
+  @IsOptional()
+  @IsString()
+  about_headline?: string;
+
+  @IsOptional()
+  @IsString()
+  work_subtitle?: string;
+
+  @IsOptional()
+  @IsString()
+  work_headline?: string;
+
+  @IsOptional()
+  @IsString()
+  experience_subtitle?: string;
+
+  @IsOptional()
+  @IsString()
+  experience_headline?: string;
+
+  @IsOptional()
+  @IsString()
+  experience_description?: string;
+
+  @IsOptional()
+  @IsString()
+  contact_subtitle?: string;
+
+  @IsOptional()
+  @IsString()
+  contact_headline?: string;
+
+  @IsOptional()
+  @IsString()
+  contact_sub_text?: string;
+
+  @IsOptional()
+  @IsString()
+  contact_status?: string;
+
+  @IsOptional()
+  @IsString()
+  preloader_title?: string;
+
+  @IsOptional()
+  @IsString()
+  preloader_label?: string;
+
+  @IsOptional()
+  @IsString()
+  footer_brand_text?: string;
+
+  @IsOptional()
+  @IsString()
+  footer_copyright?: string;
+
+  @IsOptional()
+  @IsString()
+  footer_status?: string;
+
+  @IsOptional()
+  @IsString()
   calendar_link?: string;
 
   @IsOptional()

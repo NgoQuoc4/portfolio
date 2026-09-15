@@ -19,10 +19,16 @@ import type { ExperienceItem } from '@/lib/types';
 
 interface ExperienceSectionProps {
   initialExperiences?: ExperienceItem[];
+  sectionSubtitle?: string;
+  sectionHeadline?: string;
+  sectionDescription?: string;
 }
 
 export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
   initialExperiences = defaultExperiences,
+  sectionSubtitle = 'HÀNH TRÌNH SỰ NGHIỆP',
+  sectionHeadline = 'Kinh Nghiệm Làm Việc & Dấu Ấn Chuyên Môn',
+  sectionDescription = 'Các vị trí và môi trường thực tế tôi đã cống hiến: từ agency thương mại điện tử, công ty công nghệ đến các dự án độc lập chất lượng cao.',
 }) => {
   const [experiences, setExperiences] = useState<ExperienceItem[]>(initialExperiences);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -54,16 +60,22 @@ export const ExperienceSection: React.FC<ExperienceSectionProps> = ({
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-500 font-mono text-xs font-bold mb-2">
               <Briefcase className="w-3.5 h-3.5" />
-              <span>HÀNH TRÌNH SỰ NGHIỆP</span>
+              <span>{sectionSubtitle}</span>
             </div>
             <h2 className="font-sans font-bold text-2xl sm:text-3xl md:text-4xl text-ink tracking-tight">
-              Kinh Nghiệm Làm Việc &amp;{' '}
-              <span className="bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
-                Dấu Ấn Chuyên Môn
-              </span>
+              {sectionHeadline && sectionHeadline !== 'Kinh Nghiệm Làm Việc & Dấu Ấn Chuyên Môn' ? (
+                <span>{sectionHeadline}</span>
+              ) : (
+                <>
+                  Kinh Nghiệm Làm Việc &amp;{' '}
+                  <span className="bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+                    Dấu Ấn Chuyên Môn
+                  </span>
+                </>
+              )}
             </h2>
             <p className="text-xs sm:text-sm text-ink-muted mt-1 max-w-2xl">
-              Các vị trí và môi trường thực tế tôi đã cống hiến: từ agency thương mại điện tử, công ty công nghệ đến các dự án độc lập chất lượng cao.
+              {sectionDescription}
             </p>
           </div>
 

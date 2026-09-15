@@ -66,6 +66,11 @@ export default function Home() {
 
           {/* Section: About Me */}
           <AboutSection
+            name={profile?.name}
+            title={profile?.title}
+            location={profile?.location}
+            aboutSubtitle={profile?.about_subtitle}
+            aboutHeadline={profile?.about_headline}
             about1={profile?.about_text_1}
             about2={profile?.about_text_2}
             skills={profile?.skills}
@@ -74,17 +79,28 @@ export default function Home() {
           />
 
           {/* Section: Selected Work */}
-          <SelectedWork projects={projects} />
+          <SelectedWork
+            projects={projects}
+            sectionSubtitle={profile?.work_subtitle}
+            sectionHeadline={profile?.work_headline}
+          />
 
           {/* Section: Career & Work Experience */}
-          <ExperienceSection />
+          <ExperienceSection
+            sectionSubtitle={profile?.experience_subtitle}
+            sectionHeadline={profile?.experience_headline}
+            sectionDescription={profile?.experience_description}
+          />
 
           {/* Section: Contact */}
           <ContactSection
             email={profile?.email || 'ngochiquoc140@gmail.com'}
             phone={profile?.phone || '0789898100'}
             calendarLink={profile?.calendar_link}
+            sectionSubtitle={profile?.contact_subtitle}
             headline={profile?.contact_headline}
+            description={profile?.contact_sub_text}
+            statusText={profile?.contact_status}
             githubLink={profile?.social_links?.github || 'https://github.com/NgoQuoc4'}
             linkedinLink={profile?.social_links?.linkedin}
             twitterLink={profile?.social_links?.twitter}
@@ -97,6 +113,9 @@ export default function Home() {
             email={profile?.email || 'ngochiquoc140@gmail.com'}
             phone={profile?.phone || '0789898100'}
             location={profile?.location || 'Hồ Chí Minh, Việt Nam'}
+            footerBrandText={profile?.footer_brand_text}
+            copyrightText={profile?.footer_copyright}
+            footerStatus={profile?.footer_status}
             githubLink={profile?.social_links?.github || 'https://github.com/NgoQuoc4'}
             linkedinLink={profile?.social_links?.linkedin}
             twitterLink={profile?.social_links?.twitter}

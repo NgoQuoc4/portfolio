@@ -36,6 +36,60 @@ export class Profile {
   headline: string;
 
   @Prop({ required: false })
+  hero_status: string;
+
+  @Prop({ required: false })
+  hero_sub_text: string;
+
+  @Prop({ required: false })
+  about_subtitle: string;
+
+  @Prop({ required: false })
+  about_headline: string;
+
+  @Prop({ required: false })
+  work_subtitle: string;
+
+  @Prop({ required: false })
+  work_headline: string;
+
+  @Prop({ required: false })
+  experience_subtitle: string;
+
+  @Prop({ required: false })
+  experience_headline: string;
+
+  @Prop({ required: false })
+  experience_description: string;
+
+  @Prop({ required: false })
+  contact_subtitle: string;
+
+  @Prop({ required: false })
+  contact_headline: string;
+
+  @Prop({ required: false })
+  contact_sub_text: string;
+
+  @Prop({ required: false })
+  contact_status: string;
+
+  @Prop({ required: false })
+  preloader_title: string;
+
+  @Prop({ required: false })
+  preloader_label: string;
+
+  @Prop({ required: false })
+  footer_brand_text: string;
+
+  @Prop({ required: false })
+  footer_copyright: string;
+
+  @Prop({ required: false })
+  footer_status: string;
+
+  @Prop({ required: false })
   calendar_link: string;
 
   @Prop({ required: false })

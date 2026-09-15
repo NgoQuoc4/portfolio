@@ -23,14 +23,32 @@ export interface Profile {
   location?: string;
   email?: string;
   phone?: string;
+  about_subtitle?: string;
+  about_headline?: string;
   about_text_1?: string;
   about_text_2?: string;
   skills?: string[];
+
+  work_subtitle?: string;
+  work_headline?: string;
+
+  experience_subtitle?: string;
+  experience_headline?: string;
+  experience_description?: string;
+
+  contact_subtitle?: string;
+  contact_headline?: string;
+  contact_sub_text?: string;
+  contact_status?: string;
   calendar_link?: string;
   resume_link?: string;
-  contact_headline?: string;
+
   preloader_title?: string;
   preloader_label?: string;
+  footer_brand_text?: string;
+  footer_copyright?: string;
+  footer_status?: string;
+
   social_links?: SocialLinks;
   brand_logos?: BrandItem[];
 }

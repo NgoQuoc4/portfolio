@@ -18,7 +18,7 @@ interface HeroCanvasProps {
 export const HeroCanvas: React.FC<HeroCanvasProps> = ({
   profileName = 'Ngô Chí Quốc',
   avatarUrl = 'https://res.cloudinary.com/dguad3xyf/image/upload/v1776242078/MeUJ0ogEM8MjZvYWfSb9_665822b791856_cvtpl_yljpfv.jpg',
-  headline: _headline,
+  headline = 'Tôi biến sự mơ hồ thành định hướng sản phẩm rõ ràng & tạo ra giá trị với AI.',
   subIntro,
   statusText = 'Sẵn sàng hợp tác cho các dự án & cơ hội mới',
   titleRole = 'Lập trình viên Full Stack & Front End',
@@ -337,9 +337,15 @@ export const HeroCanvas: React.FC<HeroCanvasProps> = ({
           transition={{ duration: 0.45, ease: 'easeOut' }}
           className="font-sans font-semibold text-3xl sm:text-5xl md:text-6xl lg:text-7xl leading-[1.15] tracking-tight text-ink"
         >
-          Tôi biến <span className="underline decoration-pink-400/60 decoration-wavy underline-offset-8">sự mơ hồ</span> thành{' '}
-          <span className="text-pink-500 font-bold">định hướng</span> sản phẩm &amp; <br className="hidden md:block" />
-          <span className="italic font-serif">tạo giá trị</span> cùng <span className="gradient-text-flow font-extrabold">AI</span>.
+          {headline && headline !== 'Tôi biến sự mơ hồ thành định hướng sản phẩm rõ ràng & tạo ra giá trị với AI.' ? (
+            <span>{headline}</span>
+          ) : (
+            <>
+              Tôi biến <span className="underline decoration-pink-400/60 decoration-wavy underline-offset-8">sự mơ hồ</span> thành{' '}
+              <span className="text-pink-500 font-bold">định hướng</span> sản phẩm &amp; <br className="hidden md:block" />
+              <span className="italic font-serif">tạo giá trị</span> cùng <span className="gradient-text-flow font-extrabold">AI</span>.
+            </>
+          )}
         </motion.h1>
 
         <motion.p

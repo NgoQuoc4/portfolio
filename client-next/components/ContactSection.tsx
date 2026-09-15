@@ -8,7 +8,9 @@ import api from '../lib/api';
 interface ContactSectionProps {
   email?: string;
   calendarLink?: string;
+  sectionSubtitle?: string;
   headline?: string;
+  description?: string;
   statusText?: string;
   githubLink?: string;
   linkedinLink?: string;
@@ -19,7 +21,9 @@ interface ContactSectionProps {
 export const ContactSection: React.FC<ContactSectionProps> = ({
   email = 'ngochiquoc140@gmail.com',
   calendarLink = 'https://calendar.google.com',
-  headline,
+  sectionSubtitle = 'Liên Hệ',
+  headline = 'Cùng nhau xây dựng sản phẩm chất lượng & bền vững',
+  description = 'Bạn đang có ý tưởng mới, cần tư vấn giải pháp kỹ thuật tối ưu hay tìm kiếm một lập trình viên Full Stack tận tâm? Hãy kết nối với tôi qua các kênh bên dưới.',
   statusText = 'Sẵn sàng hợp tác cho các vị trí, dự án mới & cơ hội kết nối.',
   githubLink = 'https://github.com/NgoQuoc4',
   linkedinLink = 'https://linkedin.com',
@@ -93,7 +97,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               {/* Category & Status */}
               <div className="flex flex-wrap items-center gap-2.5 mb-4">
                 <span className="font-mono text-xs text-pink-500 uppercase tracking-widest font-semibold">
-                  Liên Hệ
+                  {sectionSubtitle}
                 </span>
                 <span className="text-border">/</span>
                 <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-surface-1 border border-border shadow-xs text-xs text-ink-muted">
@@ -107,14 +111,20 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
               {/* Natural 2-Line Headline (no awkward orphans) */}
               <h2 className="font-sans text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-ink mb-3 leading-snug">
-                Cùng nhau xây dựng <br />
-                <span className="font-serif italic font-medium gradient-text-flow">
-                  sản phẩm chất lượng &amp; bền vững
-                </span>
+                {headline && headline !== 'Cùng nhau xây dựng sản phẩm chất lượng & bền vững' ? (
+                  <span>{headline}</span>
+                ) : (
+                  <>
+                    Cùng nhau xây dựng <br />
+                    <span className="font-serif italic font-medium gradient-text-flow">
+                      sản phẩm chất lượng &amp; bền vững
+                    </span>
+                  </>
+                )}
               </h2>
 
               <p className="text-sm text-ink-muted leading-relaxed max-w-md mb-8">
-                Bạn đang có ý tưởng mới, cần tư vấn giải pháp kỹ thuật tối ưu hay tìm kiếm một lập trình viên Full Stack tận tâm? Hãy kết nối với tôi qua các kênh bên dưới.
+                {description}
               </p>
             </div>
 

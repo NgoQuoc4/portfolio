@@ -11,6 +11,9 @@ interface FooterProps {
   email?: string;
   phone?: string;
   location?: string;
+  footerBrandText?: string;
+  copyrightText?: string;
+  footerStatus?: string;
   githubLink?: string;
   linkedinLink?: string;
   twitterLink?: string;
@@ -23,6 +26,9 @@ export const Footer: React.FC<FooterProps> = ({
   email = 'ngochiquoc140@gmail.com',
   phone = '0789898100',
   location = 'Hồ Chí Minh, Việt Nam',
+  footerBrandText = 'NGO CHI QUOC',
+  copyrightText = '© 2026 Ngô Chí Quốc. Bảo lưu mọi quyền.',
+  footerStatus = 'Làm việc toàn cầu / Remote',
   githubLink = 'https://github.com/NgoQuoc4',
   linkedinLink = 'https://linkedin.com',
   twitterLink = 'https://x.com',
@@ -69,7 +75,7 @@ export const Footer: React.FC<FooterProps> = ({
   };
 
   // Wide geometric display text for the giant brand mark
-  const bigDisplayText = 'NGO CHI QUOC';
+  const bigDisplayText = (footerBrandText || name || 'NGO CHI QUOC').toUpperCase();
 
   return (
     <footer
@@ -263,7 +269,7 @@ export const Footer: React.FC<FooterProps> = ({
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-fit">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
                 <span className="font-mono text-[11px] text-emerald-800 dark:text-emerald-300 font-semibold whitespace-nowrap">
-                  Làm việc toàn cầu / Remote
+                  {footerStatus}
                 </span>
               </div>
             </div>
@@ -274,8 +280,7 @@ export const Footer: React.FC<FooterProps> = ({
         <div className="border-t border-border pt-3 md:pt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0">
           {/* Left: Copyright */}
           <div className="flex items-center gap-2 text-xs text-ink-muted font-sans">
-            <span>© 2026 {name}.</span>
-            <span>Bảo lưu mọi quyền.</span>
+            <span>{copyrightText}</span>
           </div>
 
           {/* Right: Direct Inquiries */}

@@ -54,7 +54,7 @@ function AdminDashboard() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'hero' | 'projects' | 'about' | 'contact' | 'media' | 'messages' | 'freelance' | 'experience'>('hero');
+  const [activeTab, setActiveTab] = useState<'hero' | 'projects' | 'about' | 'contact' | 'media' | 'messages' | 'freelance' | 'experience' | 'footer'>('hero');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -802,7 +802,7 @@ function AdminDashboard() {
   }
 
   interface NavItem {
-    id: 'hero' | 'projects' | 'freelance' | 'experience' | 'media' | 'about' | 'contact' | 'messages';
+    id: 'hero' | 'projects' | 'freelance' | 'experience' | 'media' | 'about' | 'contact' | 'footer' | 'messages';
     label: string;
     icon: React.ElementType;
     desc: string;
@@ -812,13 +812,14 @@ function AdminDashboard() {
 
   const navItems: NavItem[] = [
     { id: 'hero', label: '1. Nhận diện & Hero', icon: Sparkles, desc: 'Tùy chỉnh thông tin giới thiệu đầu trang' },
-    { id: 'projects', label: '2. Quản lý Dự án', icon: Briefcase, count: projects.length, desc: 'Danh sách và thông tin các dự án tiêu biểu' },
+    { id: 'projects', label: '2. Quản lý Dự án', icon: Briefcase, count: projects.length, desc: 'Danh sách và tiêu đề các dự án tiêu biểu' },
     { id: 'freelance', label: '3. Jobs Freelance', icon: Award, count: freelanceJobs.length, desc: 'Dự án khách hàng, deliverables và đánh giá 5⭐' },
-    { id: 'experience', label: '4. Kinh nghiệm làm việc', icon: Building2, count: experiences.length, desc: 'Công ty cũ, vị trí, mốc thời gian và thành tựu' },
+    { id: 'experience', label: '4. Kinh nghiệm làm việc', icon: Building2, count: experiences.length, desc: 'Tiêu đề và các mốc công ty, vị trí, thành tựu' },
     { id: 'media', label: '5. Thư viện Cloudinary', icon: ImageIcon, count: mediaList.length, badge: 'ngoquoc_portfolio', desc: 'Quản lý & đồng bộ hình ảnh đám mây' },
-    { id: 'about', label: '6. Giới thiệu & Kỹ năng', icon: User, desc: 'Cốt lõi tiểu sử và danh sách kỹ năng công nghệ' },
-    { id: 'contact', label: '7. Liên hệ & MXH', icon: Share2, desc: 'Thông tin email, điện thoại và mạng xã hội' },
-    { id: 'messages', label: '8. Hộp thư Tin nhắn', icon: MessageSquare, count: messages.length, desc: 'Tin nhắn phản hồi từ khách truy cập' },
+    { id: 'about', label: '6. Giới thiệu & Kỹ năng', icon: User, desc: 'Tiêu đề, tiểu sử và danh sách kỹ năng công nghệ' },
+    { id: 'contact', label: '7. Liên hệ & MXH', icon: Share2, desc: 'Tiêu đề, email, điện thoại và mạng xã hội' },
+    { id: 'footer', label: '8. Chân trang & Brand', icon: Globe, desc: 'Chữ thương hiệu lớn, bản quyền và trạng thái' },
+    { id: 'messages', label: '9. Hộp thư Tin nhắn', icon: MessageSquare, count: messages.length, desc: 'Tin nhắn phản hồi từ khách truy cập' },
   ];
 
   const currentTabMeta = navItems.find((n) => n.id === activeTab) || navItems[0];
@@ -1216,6 +1217,49 @@ function AdminDashboard() {
       {/* TAB 2: PROJECTS & SELECTED WORK */}
       {activeTab === 'projects' && (
         <div className="space-y-8">
+          {/* Section Header Settings */}
+          <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float">
+            <h2 className="text-base font-bold text-ink mb-1 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-pink-500" />
+              <span>Tiêu Đề &amp; Nhãn Section Dự Án (Selected Work Header)</span>
+            </h2>
+            <p className="text-xs text-ink-muted mb-4">Tùy chỉnh dòng nhãn phụ và tiêu đề H2 xuất hiện phía trên các thẻ dự án.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Nhãn phụ Section (Subtitle Badge)</label>
+                <input
+                  type="text"
+                  value={profile.work_subtitle || ''}
+                  onChange={(e) => setProfile({ ...profile, work_subtitle: e.target.value })}
+                  placeholder="Dự Án Chọn Lọc"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Tiêu đề lớn Section (H2 Headline)</label>
+                <input
+                  type="text"
+                  value={profile.work_headline || ''}
+                  onChange={(e) => setProfile({ ...profile, work_headline: e.target.value })}
+                  placeholder="Các sản phẩm đã phát triển"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="pt-4 mt-4 border-t border-border flex justify-end">
+              <button
+                type="button"
+                onClick={handleSaveProfile}
+                className="px-6 py-2.5 rounded-full bg-ink text-surface-1 font-bold text-xs hover:opacity-90 transition-all shadow-sm cursor-pointer"
+              >
+                Lưu Tiêu Đề Section Dự Án
+              </button>
+            </div>
+          </div>
+
           {/* Form Create / Edit Project */}
           <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float">
             <div className="flex items-center justify-between mb-4">
@@ -1903,6 +1947,60 @@ function AdminDashboard() {
             </button>
           </div>
 
+          {/* Section Header Settings */}
+          <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float">
+            <h3 className="text-base font-bold text-ink mb-1 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-pink-500" />
+              <span>Tiêu Đề &amp; Nhãn Section Kinh Nghiệm (Experience Header)</span>
+            </h3>
+            <p className="text-xs text-ink-muted mb-4">Tùy chỉnh huy hiệu, tiêu đề H2 và đoạn mô tả tổng quan sự nghiệp trên trang chủ.</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Huy hiệu Section (Badge / Subtitle)</label>
+                <input
+                  type="text"
+                  value={profile.experience_subtitle || ''}
+                  onChange={(e) => setProfile({ ...profile, experience_subtitle: e.target.value })}
+                  placeholder="HÀNH TRÌNH SỰ NGHIỆP"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Tiêu đề lớn Section (H2 Headline)</label>
+                <input
+                  type="text"
+                  value={profile.experience_headline || ''}
+                  onChange={(e) => setProfile({ ...profile, experience_headline: e.target.value })}
+                  placeholder="Kinh Nghiệm Làm Việc & Dấu Ấn Chuyên Môn"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-mono text-slate-500 mb-1">Mô tả tổng quan Section (Description)</label>
+                <textarea
+                  rows={2}
+                  value={profile.experience_description || ''}
+                  onChange={(e) => setProfile({ ...profile, experience_description: e.target.value })}
+                  placeholder="Các vị trí và môi trường thực tế tôi đã cống hiến..."
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="pt-4 mt-4 border-t border-border flex justify-end">
+              <button
+                type="button"
+                onClick={handleSaveProfile}
+                className="px-6 py-2.5 rounded-full bg-ink text-surface-1 font-bold text-xs hover:opacity-90 transition-all shadow-sm cursor-pointer"
+              >
+                Lưu Tiêu Đề Section Kinh Nghiệm
+              </button>
+            </div>
+          </div>
+
           {/* Form Create / Edit Experience */}
           <form onSubmit={handleSaveExperience} className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float space-y-5">
             <div className="flex items-center justify-between border-b border-border pb-4">
@@ -2203,6 +2301,30 @@ function AdminDashboard() {
             <p className="text-xs text-ink-muted mb-6">Nội dung này hiển thị tại mục About Me và lưới logo thương hiệu.</p>
 
             <div className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Nhãn phụ Section (Badge / Subtitle)</label>
+                  <input
+                    type="text"
+                    value={profile.about_subtitle || ''}
+                    onChange={(e) => setProfile({ ...profile, about_subtitle: e.target.value })}
+                    placeholder="Về Lập Trình Viên"
+                    className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Tiêu đề lớn About (H2 Headline)</label>
+                  <input
+                    type="text"
+                    value={profile.about_headline || ''}
+                    onChange={(e) => setProfile({ ...profile, about_headline: e.target.value })}
+                    placeholder="Kỹ thuật chuẩn xác, tập trung vào trải nghiệm thực tế."
+                    className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-mono text-slate-500 mb-1">Đoạn giới thiệu 1 (Bio Paragraph 1)</label>
                 <textarea
@@ -2263,6 +2385,50 @@ function AdminDashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Nhãn phụ Section (Badge / Subtitle)</label>
+                <input
+                  type="text"
+                  value={profile.contact_subtitle || ''}
+                  onChange={(e) => setProfile({ ...profile, contact_subtitle: e.target.value })}
+                  placeholder="Liên Hệ"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Thanh trạng thái (Status Pill)</label>
+                <input
+                  type="text"
+                  value={profile.contact_status || ''}
+                  onChange={(e) => setProfile({ ...profile, contact_status: e.target.value })}
+                  placeholder="Sẵn sàng hợp tác cho các vị trí, dự án mới & cơ hội kết nối."
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-mono text-slate-500 mb-1">Tiêu đề lớn phần Contact (H2 Headline)</label>
+                <input
+                  type="text"
+                  value={profile.contact_headline || ''}
+                  onChange={(e) => setProfile({ ...profile, contact_headline: e.target.value })}
+                  placeholder="Cùng nhau xây dựng sản phẩm chất lượng & bền vững"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-xs font-mono text-slate-500 mb-1">Đoạn văn mô tả chi tiết (Description)</label>
+                <textarea
+                  rows={2}
+                  value={profile.contact_sub_text || ''}
+                  onChange={(e) => setProfile({ ...profile, contact_sub_text: e.target.value })}
+                  placeholder="Bạn đang có ý tưởng mới, cần tư vấn giải pháp kỹ thuật tối ưu hay tìm kiếm một lập trình viên Full Stack tận tâm? Hãy kết nối với tôi qua các kênh bên dưới."
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none resize-none"
+                />
+              </div>
+
+              <div>
                 <label className="block text-xs font-mono text-slate-500 mb-1">Email nhận tin nhắn</label>
                 <input
                   type="email"
@@ -2281,17 +2447,6 @@ function AdminDashboard() {
                   value={profile.phone || ''}
                   onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                   placeholder="0789898100"
-                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-xs font-mono text-slate-500 mb-1">Tiêu đề lớn phần Contact</label>
-                <input
-                  type="text"
-                  value={profile.contact_headline || ''}
-                  onChange={(e) => setProfile({ ...profile, contact_headline: e.target.value })}
-                  placeholder="Let's build something thoughtful together"
                   className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
                 />
               </div>
@@ -2362,6 +2517,71 @@ function AdminDashboard() {
                 className="px-8 py-3 rounded-full bg-ink text-surface-1 font-bold text-sm hover:opacity-90 transition-all shadow-sm cursor-pointer"
               >
                 Lưu toàn bộ thay đổi Liên hệ
+              </button>
+            </div>
+          </div>
+        </form>
+      )}
+
+      {/* TAB: FOOTER & BRANDING */}
+      {activeTab === 'footer' && (
+        <form onSubmit={handleSaveProfile} className="space-y-6">
+          <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float">
+            <h2 className="text-lg font-bold text-ink mb-1 flex items-center gap-2">
+              <Globe className="w-4 h-4 text-pink-500" />
+              <span>Cấu hình Chân Trang &amp; Dấu Ấn Thương Hiệu (Footer)</span>
+            </h2>
+            <p className="text-xs text-ink-muted mb-6">
+              Tùy chỉnh chữ đồ họa thương hiệu khổng lồ, thông điệp bản quyền và trạng thái làm việc ở phần cuối website.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="md:col-span-2">
+                <label className="block text-xs font-mono text-slate-500 mb-1">
+                  Chữ Thương Hiệu Khổng Lồ Đáy Trang (Giant Display Brand Text)
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={profile.footer_brand_text || ''}
+                  onChange={(e) => setProfile({ ...profile, footer_brand_text: e.target.value })}
+                  placeholder="NGO CHI QUOC"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none uppercase font-bold tracking-wider"
+                />
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Dòng chữ này được tự động co giãn theo chiều ngang toàn màn hình ở chân trang với hiệu ứng ambient glow ấn tượng.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Dòng Bản Quyền (Copyright Text)</label>
+                <input
+                  type="text"
+                  value={profile.footer_copyright || ''}
+                  onChange={(e) => setProfile({ ...profile, footer_copyright: e.target.value })}
+                  placeholder="© 2026 Ngô Chí Quốc. Bảo lưu mọi quyền."
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Trạng thái làm việc (Work Status Pill)</label>
+                <input
+                  type="text"
+                  value={profile.footer_status || ''}
+                  onChange={(e) => setProfile({ ...profile, footer_status: e.target.value })}
+                  placeholder="Làm việc toàn cầu / Remote"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="pt-6 mt-6 border-t border-border flex justify-end">
+              <button
+                type="submit"
+                className="px-8 py-3 rounded-full bg-ink text-surface-1 font-bold text-sm hover:opacity-90 transition-all shadow-sm cursor-pointer"
+              >
+                Lưu toàn bộ thay đổi Chân trang
               </button>
             </div>
           </div>

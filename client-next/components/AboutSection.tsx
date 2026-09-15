@@ -8,6 +8,11 @@ import { defaultProfile } from '@/lib/defaults';
 
 
 interface AboutSectionProps {
+  name?: string;
+  title?: string;
+  location?: string;
+  aboutSubtitle?: string;
+  aboutHeadline?: string;
   about1?: string;
   about2?: string;
   skills?: string[];
@@ -18,6 +23,11 @@ interface AboutSectionProps {
 const defaultBrands: BrandItem[] = defaultProfile.brand_logos ?? [];
 
 export const AboutSection: React.FC<AboutSectionProps> = ({
+  name = 'Ngô Chí Quốc',
+  title = 'Lập trình viên Full Stack & Front End',
+  location = 'Hồ Chí Minh, Việt Nam',
+  aboutSubtitle = 'Về Lập Trình Viên',
+  aboutHeadline = 'Kỹ thuật chuẩn xác, tập trung vào trải nghiệm thực tế.',
   about1 = 'Là một nhà phát triển Full Stack tận tâm, luôn cam kết mang lại kết quả tốt nhất, tôi sở hữu kỹ năng nâng cao trong việc triển khai các công nghệ tiên tiến như ReactJS, NextJS, NestJS, ExpressJS. Tôi chuyên xây dựng các sản phẩm chất lượng cao, hướng đến người dùng và chuyển đổi các thiết kế thành trải nghiệm kỹ thuật số liền mạch.',
   about2 = 'Ngoài Full Stack, tôi còn có chuyên môn vững chắc về Vanilla JavaScript, Liquid (Shopify) và Handlebars (BigCommerce), cho phép tôi phát triển và tùy chỉnh các nền tảng thương mại điện tử một cách hiệu quả, tối ưu hóa hiệu suất và tạo ra các giải pháp front-end linh hoạt, có khả năng mở rộng.',
   skills = [
@@ -56,30 +66,36 @@ export const AboutSection: React.FC<AboutSectionProps> = ({
             <div className="flex items-center gap-3.5">
               <Image
                 src={avatarUrl}
-                alt="Ngô Chí Quốc"
+                alt={`Ảnh đại diện ${name}`}
                 width={52}
                 height={52}
                 className="rounded-full object-cover border-2 border-pink-500 shadow-sm ring-2 ring-pink-500/15 shrink-0"
               />
               <div>
                 <p className="font-mono text-[11px] text-pink-500 uppercase tracking-wider font-semibold">
-                  Về Lập Trình Viên
+                  {aboutSubtitle}
                 </p>
                 <p className="font-sans font-bold text-base sm:text-lg text-ink leading-tight">
-                  Ngô Chí Quốc
+                  {name}
                 </p>
                 <p className="font-mono text-[11px] text-ink-muted">
-                  Lập trình viên Full Stack &amp; Front End · Hồ Chí Minh
+                  {title} · {location}
                 </p>
               </div>
             </div>
 
             <h2 className="font-sans font-bold text-2xl sm:text-3xl lg:text-4xl text-ink tracking-tight leading-snug">
-              Kỹ thuật chuẩn xác,<br />
-              tập trung vào{' '}
-              <span className="text-pink-500 font-bold">
-                trải nghiệm thực tế
-              </span>.
+              {aboutHeadline && aboutHeadline !== 'Kỹ thuật chuẩn xác, tập trung vào trải nghiệm thực tế.' ? (
+                <span>{aboutHeadline}</span>
+              ) : (
+                <>
+                  Kỹ thuật chuẩn xác,<br />
+                  tập trung vào{' '}
+                  <span className="text-pink-500 font-bold">
+                    trải nghiệm thực tế
+                  </span>.
+                </>
+              )}
             </h2>
 
             <div className="space-y-2 text-xs sm:text-sm text-ink/90 leading-relaxed font-sans">
