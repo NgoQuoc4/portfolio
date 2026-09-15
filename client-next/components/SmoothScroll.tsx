@@ -20,25 +20,26 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
 
     const afterWorkSections = ['experience', 'contact', 'footer'];
 
-    // Steps: 0 (home), 1 (about), 2..1+cardCount (work cards), 2+cardCount (experience), 3+cardCount (contact), 4+cardCount (footer)
-    const maxSteps = () => 1 + getWorkCardCount() + afterWorkSections.length;
+    // Total steps: 0 (home), 1 (about), 2..1+cardCount (work cards), then experience, contact, footer
+    const getMaxSteps = () => 1 + getWorkCardCount() + afterWorkSections.length;
 
-    // Check if viewport is aligned with #work
+    // Check if viewport is currently aligned with #work section
     const isWorkActive = () => {
       const workEl = getEl('work');
-      return !!workEl && Math.abs(pageScroll.scrollTop - workEl.offsetTop) < 150;
+      return !!workEl && Math.abs((pageScroll?.scrollTop || 0) - workEl.offsetTop) < 120;
     };
 
     let isAnimating = false;
-    let lastWheelTime = -Infinity;
-    let lastDir = 0;
+    let cooldownUntil = 0;
+    let lastWheelTime = 0;
     let lastDelta = 0;
+    let lastDir = 0;
 
-    // Smooth scroll function using native browser smooth scrolling for natural, 60fps/120fps glide
+    // Smooth scroll using native browser smooth scrolling
     function smoothScrollTo(element: HTMLElement, targetTop: number, onDone: () => void) {
       const start = element.scrollTop;
-      const dist = targetTop - start;
-      if (Math.abs(dist) < 2) {
+      const dist = Math.abs(targetTop - start);
+      if (dist < 3) {
         onDone();
         return;
       }
@@ -48,19 +49,57 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
         behavior: prefersReducedMotion ? 'auto' : 'smooth',
       });
 
-      // Duration of native smooth scroll across sections is ~750ms
-      setTimeout(onDone, 750);
+      // Shorter, responsive animation lock (380ms matches the native glide curve)
+      setTimeout(onDone, 380);
+    }
+
+    // Determine current logical step based on actual scroll position
+    function getCurrentStep(): number {
+      const cardCount = getWorkCardCount();
+      const workScroll = getWorkScroll();
+      const currentScroll = pageScroll?.scrollTop || 0;
+
+      if (isWorkActive() && workScroll && cardCount > 0) {
+        const cardHeight = getWorkCardHeight();
+        const cardIdx = Math.round(workScroll.scrollTop / cardHeight);
+        return 2 + Math.max(0, Math.min(cardCount - 1, cardIdx));
+      }
+
+      const allSections = [
+        { id: 'home', step: 0 },
+        { id: 'about', step: 1 },
+        { id: 'experience', step: 2 + cardCount },
+        { id: 'contact', step: 3 + cardCount },
+        { id: 'footer', step: 4 + cardCount },
+      ];
+
+      let closestStep = 0;
+      let minDiff = Infinity;
+      for (const s of allSections) {
+        const el = getEl(s.id);
+        if (!el) continue;
+        const diff = Math.abs(el.offsetTop - currentScroll);
+        if (diff < minDiff) {
+          minDiff = diff;
+          closestStep = s.step;
+        }
+      }
+      return closestStep;
     }
 
     // Go to specific step
-    function goToStep(step: number) {
-      step = Math.max(0, Math.min(maxSteps(), step));
+    function goToStep(step: number, dir = 0) {
+      const max = getMaxSteps();
+      step = Math.max(0, Math.min(max, step));
+
       const workEl = getEl('work');
       const workScroll = getWorkScroll();
       const cardCount = getWorkCardCount();
       const isCardStep = step >= 2 && step <= 1 + cardCount;
 
       isAnimating = true;
+      cooldownUntil = performance.now() + 400;
+
       const onDone = () => {
         isAnimating = false;
       };
@@ -75,21 +114,18 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
         }
       } else if (step === 0) {
         const targetEl = getEl('home');
-        if (targetEl) {
-          smoothScrollTo(pageScroll!, targetEl.offsetTop, onDone);
-        } else {
-          onDone();
-        }
+        if (targetEl) smoothScrollTo(pageScroll!, targetEl.offsetTop, onDone);
+        else onDone();
       } else if (step === 1) {
         const targetEl = getEl('about');
-        if (targetEl) {
-          smoothScrollTo(pageScroll!, targetEl.offsetTop, onDone);
-        } else {
-          onDone();
-        }
+        if (targetEl) smoothScrollTo(pageScroll!, targetEl.offsetTop, onDone);
+        else onDone();
       } else {
-        const targetId = afterWorkSections[step - 2 - cardCount];
-        const targetEl = getEl(targetId || 'footer');
+        const afterIndex = step - 2 - cardCount;
+        const targetId = afterWorkSections[afterIndex] || 'footer';
+        const targetEl = getEl(targetId);
+
+        // Special handling for footer: if entering footer from above, scroll to footer
         if (targetEl) {
           smoothScrollTo(pageScroll!, targetEl.offsetTop, onDone);
         } else {
@@ -101,39 +137,48 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
     // Advance or retreat step
     function changeStep(dir: number) {
       const cardCount = getWorkCardCount();
-      const currentStep = (() => {
-        const workScroll = getWorkScroll();
-        if (isWorkActive() && workScroll) {
-          const cardHeight = getWorkCardHeight();
-          const cardIdx = Math.round(workScroll.scrollTop / cardHeight);
-          return 2 + Math.max(0, Math.min(cardCount - 1, cardIdx));
-        }
+      const max = getMaxSteps();
+      const currentStep = getCurrentStep();
 
-        const allSections = [
-          { id: 'home', step: 0 },
-          { id: 'about', step: 1 },
-          { id: 'experience', step: 2 + cardCount },
-          { id: 'contact', step: 3 + cardCount },
-          { id: 'footer', step: 4 + cardCount },
-        ];
+      // Check footer boundary overflow if screen is short
+      const footerEl = getEl('footer');
+      if (footerEl && pageScroll) {
+        const maxScroll = pageScroll.scrollHeight - pageScroll.clientHeight;
+        const isAtFooter = currentStep >= 4 + cardCount;
 
-        let closestStep = 0;
-        let minDiff = Infinity;
-        for (const s of allSections) {
-          const el = getEl(s.id);
-          if (!el) continue;
-          const diff = Math.abs(el.offsetTop - (pageScroll?.scrollTop || 0));
-          if (diff < minDiff) {
-            minDiff = diff;
-            closestStep = s.step;
+        // If at footer and scrolling down, and footer still has unseen bottom content
+        if (isAtFooter && dir > 0) {
+          if (pageScroll.scrollTop < maxScroll - 8) {
+            isAnimating = true;
+            cooldownUntil = performance.now() + 380;
+            smoothScrollTo(pageScroll, maxScroll, () => {
+              isAnimating = false;
+            });
+            return;
           }
+          // Already at absolute bottom: do nothing, don't jitter
+          return;
         }
-        return closestStep;
-      })();
 
-      const nextStep = Math.max(0, Math.min(maxSteps(), currentStep + dir));
+        // If at footer and scrolling up, and we were scrolled past footer.offsetTop
+        if (isAtFooter && dir < 0 && pageScroll.scrollTop > footerEl.offsetTop + 16) {
+          isAnimating = true;
+          cooldownUntil = performance.now() + 380;
+          smoothScrollTo(pageScroll, footerEl.offsetTop, () => {
+            isAnimating = false;
+          });
+          return;
+        }
+      }
+
+      // If at home and scrolling up, do nothing
+      if (currentStep === 0 && dir < 0) {
+        return;
+      }
+
+      const nextStep = Math.max(0, Math.min(max, currentStep + dir));
       if (nextStep !== currentStep) {
-        goToStep(nextStep);
+        goToStep(nextStep, dir);
       }
     }
 
@@ -144,21 +189,36 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
       const target = e.target as HTMLElement;
       if (target?.closest('input, textarea, select, [data-no-snap="true"]')) return;
 
-      e.preventDefault();
       const delta = Math.abs(e.deltaY);
       if (delta < 2) return;
 
+      e.preventDefault();
+
       const now = performance.now();
       const dir = e.deltaY > 0 ? 1 : -1;
-      const isNewGesture = now - lastWheelTime > 160;
-      const isDirChange = lastDir !== 0 && dir !== lastDir && delta > 10;
-      const isAcceleration = delta > 1.8 * lastDelta && delta > 12;
+      const timeSinceLastWheel = now - lastWheelTime;
+
+      // Filter out decaying trackpad momentum
+      const isDecayingInertia = timeSinceLastWheel < 60 && delta < lastDelta && dir === lastDir;
 
       lastWheelTime = now;
-      lastDir = dir;
       lastDelta = delta;
+      lastDir = dir;
 
-      if (!isAnimating && (isNewGesture || isDirChange || isAcceleration)) {
+      // If in cooldown or animation, ignore event
+      if (isAnimating || now < cooldownUntil) {
+        return;
+      }
+
+      // Trigger condition:
+      // 1. Not decaying trackpad momentum
+      // 2. Either deliberate mouse notch / pause (> 90ms), direction change, or acceleration
+      const isDeliberate =
+        !isDecayingInertia &&
+        delta >= 10 &&
+        (timeSinceLastWheel > 90 || dir !== lastDir || delta > 1.3 * lastDelta || delta >= 80);
+
+      if (isDeliberate) {
         changeStep(dir);
       }
     }
@@ -176,7 +236,7 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
       }
       if (e.key === 'End') {
         e.preventDefault();
-        if (!isAnimating) goToStep(maxSteps());
+        if (!isAnimating) goToStep(getMaxSteps());
         return;
       }
 
@@ -189,7 +249,10 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
 
       if (dir !== 0) {
         e.preventDefault();
-        if (!isAnimating) changeStep(dir);
+        const now = performance.now();
+        if (!isAnimating && now >= cooldownUntil) {
+          changeStep(dir);
+        }
       }
     }
 
@@ -217,3 +280,4 @@ export const SmoothScroll: React.FC<SmoothScrollProps> = ({ children }) => {
 
   return <>{children}</>;
 };
+
