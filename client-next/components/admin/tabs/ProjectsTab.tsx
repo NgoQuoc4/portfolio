@@ -14,6 +14,9 @@ import {
   Image as ImageIcon,
   Edit2,
   Trash2,
+  Tag,
+  Plus,
+  Check,
 } from 'lucide-react';
 import api from '@/lib/api';
 import { defaultProjects } from '@/lib/defaults';
@@ -63,12 +66,21 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
     hidden: false,
   });
 
+  const categoriesList =
+    profile.project_categories && profile.project_categories.length > 0
+      ? profile.project_categories
+      : ['0 → 1', 'Tăng trưởng', 'Nghiên cứu'];
+
+  const [newCategoryInput, setNewCategoryInput] = useState('');
+  const [editingCatIndex, setEditingCatIndex] = useState<number | null>(null);
+  const [editingCatValue, setEditingCatValue] = useState('');
+
   const resetForm = () => {
     setEditingProjectId(null);
     setProjectForm({
       title: '',
       description: '',
-      category: '0 → 1',
+      category: categoriesList[0] || '0 → 1',
       year: '2026',
       tech_stack: '',
       image_url: '',
@@ -84,7 +96,7 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
     setProjectForm({
       title: p.title || '',
       description: p.description || '',
-      category: p.category || '0 → 1',
+      category: p.category || categoriesList[0] || '0 → 1',
       year: p.year || '2026',
       tech_stack: Array.isArray(p.tech_stack) ? p.tech_stack.join(', ') : '',
       image_url: p.image_url || '',
@@ -192,6 +204,114 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
     showToast('Đã khôi phục 4 dự án mặc định!', 'info');
   };
 
+  const handleAddCategory = async () => {
+    const trimmed = newCategoryInput.trim();
+    if (!trimmed) {
+      showToast('Vui lòng nhập tên danh mục!', 'error');
+      return;
+    }
+    if (categoriesList.some((c) => c.toLowerCase() === trimmed.toLowerCase())) {
+      showToast('Danh mục này đã tồn tại!', 'error');
+      return;
+    }
+    const updated = [...categoriesList, trimmed];
+    const updatedProfile = { ...profile, project_categories: updated };
+    setProfile(updatedProfile);
+    setNewCategoryInput('');
+    try {
+      await api.put('/profile', updatedProfile);
+      showToast(`Đã thêm danh mục "${trimmed}" thành công!`, 'success');
+    } catch {
+      showToast('Lỗi lưu danh mục vào hệ thống!', 'error');
+    }
+  };
+
+  const handleSaveEditCategory = async (index: number) => {
+    const trimmed = editingCatValue.trim();
+    if (!trimmed) {
+      showToast('Tên danh mục không được để trống!', 'error');
+      return;
+    }
+    const oldName = categoriesList[index];
+    if (oldName === trimmed) {
+      setEditingCatIndex(null);
+      return;
+    }
+    if (categoriesList.some((c, i) => i !== index && c.toLowerCase() === trimmed.toLowerCase())) {
+      showToast('Tên danh mục này đã trùng với danh mục khác!', 'error');
+      return;
+    }
+    const updated = [...categoriesList];
+    updated[index] = trimmed;
+    const updatedProfile = { ...profile, project_categories: updated };
+    setProfile(updatedProfile);
+    setEditingCatIndex(null);
+    setEditingCatValue('');
+
+    if (projectForm.category === oldName) {
+      setProjectForm((prev) => ({ ...prev, category: trimmed }));
+    }
+
+    const updatedProjects = projects.map((p) => (p.category === oldName ? { ...p, category: trimmed } : p));
+    setProjects(updatedProjects);
+    localStorage.setItem('portfolio_projects', JSON.stringify(updatedProjects));
+
+    for (const p of projects) {
+      if (p._id && p.category === oldName) {
+        try {
+          await api.put(`/projects/${p._id}`, { ...p, category: trimmed }).catch(() => null);
+        } catch {}
+      }
+    }
+
+    try {
+      await api.put('/profile', updatedProfile);
+      showToast(`Đã đổi tên danh mục "${oldName}" thành "${trimmed}"!`, 'success');
+    } catch {
+      showToast('Lỗi khi lưu danh mục!', 'error');
+    }
+  };
+
+  const handleDeleteCategory = async (index: number) => {
+    const catToDelete = categoriesList[index];
+    if (categoriesList.length <= 1) {
+      showToast('Cần giữ lại ít nhất 1 danh mục!', 'warning');
+      return;
+    }
+    const countInUse = projects.filter((p) => p.category === catToDelete).length;
+    const confirmMsg =
+      countInUse > 0
+        ? `Danh mục "${catToDelete}" đang có ${countInUse} dự án sử dụng. Bạn có chắc chắn muốn xóa?`
+        : `Bạn có chắc chắn muốn xóa danh mục "${catToDelete}"?`;
+    if (!confirm(confirmMsg)) return;
+
+    const updated = categoriesList.filter((_, i) => i !== index);
+    const updatedProfile = { ...profile, project_categories: updated };
+    setProfile(updatedProfile);
+
+    if (projectForm.category === catToDelete) {
+      setProjectForm((prev) => ({ ...prev, category: updated[0] || '0 → 1' }));
+    }
+
+    try {
+      await api.put('/profile', updatedProfile);
+      showToast(`Đã xóa danh mục "${catToDelete}"!`, 'info');
+    } catch {
+      showToast('Lỗi khi cập nhật danh mục!', 'error');
+    }
+  };
+
+  const handleResetDefaultCategories = async () => {
+    const defaults = ['0 → 1', 'Tăng trưởng', 'Nghiên cứu'];
+    if (!confirm('Khôi phục danh mục phân loại về mặc định (0 → 1, Tăng trưởng, Nghiên cứu)?')) return;
+    const updatedProfile = { ...profile, project_categories: defaults };
+    setProfile(updatedProfile);
+    try {
+      await api.put('/profile', updatedProfile);
+      showToast('Đã khôi phục danh mục mặc định!', 'success');
+    } catch {}
+  };
+
   return (
     <div className="space-y-8">
       {/* Section Header Settings */}
@@ -238,6 +358,129 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
         </div>
       </form>
 
+      {/* Category Manager Card */}
+      <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+          <div>
+            <h3 className="text-base font-bold text-ink flex items-center gap-2">
+              <Tag className="w-4 h-4 text-pink-500" />
+              <span>Quản lý Phân loại (Category Manager)</span>
+            </h3>
+            <p className="text-xs text-ink-muted mt-1">
+              Thêm, sửa, xóa các danh mục dự án. Danh mục này sẽ hiển thị ở bộ lọc trang chủ và tùy chọn khi tạo dự án.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleResetDefaultCategories}
+            className="text-xs text-slate-500 hover:text-pink-500 flex items-center gap-1 shrink-0 self-start sm:self-center transition-colors cursor-pointer"
+            title="Khôi phục danh mục gốc"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Mặc định</span>
+          </button>
+        </div>
+
+        {/* Existing Categories Badges */}
+        <div className="flex flex-wrap gap-2.5 mb-5 p-4 rounded-2xl bg-surface-2/60 border border-border/80">
+          {categoriesList.map((cat, idx) => (
+            <div
+              key={idx}
+              className="group relative flex items-center gap-2 px-3 py-1.5 rounded-xl bg-surface-1 border border-border shadow-xs hover:border-pink-500/50 transition-all"
+            >
+              {editingCatIndex === idx ? (
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="text"
+                    value={editingCatValue}
+                    onChange={(e) => setEditingCatValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleSaveEditCategory(idx);
+                      } else if (e.key === 'Escape') {
+                        setEditingCatIndex(null);
+                      }
+                    }}
+                    autoFocus
+                    className="px-2 py-0.5 text-xs rounded-md bg-surface-2 border border-pink-500 text-ink focus:outline-none w-28"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleSaveEditCategory(idx)}
+                    className="text-emerald-500 hover:text-emerald-400 p-1 cursor-pointer"
+                    title="Lưu"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingCatIndex(null)}
+                    className="text-slate-400 hover:text-rose-400 p-1 cursor-pointer"
+                    title="Hủy"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <span className="text-xs font-semibold text-ink">{cat}</span>
+                  <span className="text-[10px] font-mono text-slate-400 bg-surface-2 px-1.5 py-0.5 rounded-md">
+                    {projects.filter((p) => p.category === cat).length}
+                  </span>
+                  <div className="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingCatIndex(idx);
+                        setEditingCatValue(cat);
+                      }}
+                      className="text-slate-400 hover:text-sky-400 p-0.5 transition-colors cursor-pointer"
+                      title="Sửa tên danh mục"
+                    >
+                      <Edit2 className="w-3 h-3" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteCategory(idx)}
+                      className="text-slate-400 hover:text-rose-500 p-0.5 transition-colors cursor-pointer"
+                      title="Xóa danh mục"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Add new Category Input */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-md">
+          <input
+            type="text"
+            value={newCategoryInput}
+            onChange={(e) => setNewCategoryInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAddCategory();
+              }
+            }}
+            placeholder="Ví dụ: AI & Data, Web3, App Mobile..."
+            className="flex-1 px-3.5 py-2 text-xs rounded-xl bg-surface-2 border border-border text-ink focus:border-pink-500 focus:outline-none"
+          />
+          <button
+            type="button"
+            onClick={handleAddCategory}
+            className="px-4 py-2 rounded-xl bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 font-semibold text-xs border border-pink-500/30 hover:border-pink-500/60 transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Thêm danh mục</span>
+          </button>
+        </div>
+      </div>
+
       {/* Project Form (Create / Edit) */}
       <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float">
         <div className="flex items-center justify-between mb-4">
@@ -278,9 +521,14 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
                 onChange={(e) => setProjectForm({ ...projectForm, category: e.target.value })}
                 className="w-full px-3 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
               >
-                <option value="0 → 1">0 → 1</option>
-                <option value="Growth">Growth</option>
-                <option value="Research">Research</option>
+                {categoriesList.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+                {!categoriesList.includes(projectForm.category) && projectForm.category && (
+                  <option value={projectForm.category}>{projectForm.category} (Hiện tại)</option>
+                )}
               </select>
             </div>
             <div>
@@ -534,7 +782,7 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-500 font-semibold">
-                      {p.category || '0 → 1'}
+                      {p.category || categoriesList[0] || 'Chưa phân loại'}
                     </span>
                     <span className="font-mono text-[10px] text-slate-400">{p.year || '2026'}</span>
                     <span

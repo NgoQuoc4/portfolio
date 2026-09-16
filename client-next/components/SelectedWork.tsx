@@ -10,12 +10,14 @@ export type { ProjectItem };
 
 interface SelectedWorkProps {
   projects?: ProjectItem[];
+  projectCategories?: string[];
   sectionSubtitle?: string;
   sectionHeadline?: string;
 }
 
 export const SelectedWork: React.FC<SelectedWorkProps> = ({
   projects = [],
+  projectCategories,
   sectionSubtitle = 'Dự Án Chọn Lọc',
   sectionHeadline = 'Các sản phẩm đã phát triển',
 }) => {
@@ -23,7 +25,19 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({
   const displayProjects = rawProjects.filter((p) => p.hidden !== true);
   const [selectedFilter, setSelectedFilter] = useState('Tất cả');
 
-  const categories = ['Tất cả', '0 → 1', 'Tăng trưởng', 'Nghiên cứu'];
+  // Dynamically derive category filter tabs
+  const categorySet = new Set<string>();
+  if (projectCategories && projectCategories.length > 0) {
+    projectCategories.forEach((c) => c && categorySet.add(c));
+  } else {
+    ['0 → 1', 'Tăng trưởng', 'Nghiên cứu'].forEach((c) => categorySet.add(c));
+  }
+  // Include existing project categories if any
+  displayProjects.forEach((p) => {
+    if (p.category) categorySet.add(p.category);
+  });
+
+  const categories = ['Tất cả', ...Array.from(categorySet)];
 
   const filtered =
     selectedFilter === 'Tất cả'

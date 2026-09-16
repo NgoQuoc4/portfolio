@@ -28,6 +28,7 @@ export const defaultProfile: Profile = {
   work_headline: 'Các sản phẩm đã phát triển',
   show_projects: true,
   show_freelance_jobs: true,
+  project_categories: ['0 → 1', 'Tăng trưởng', 'Nghiên cứu'],
 
   experience_subtitle: 'HÀNH TRÌNH SỰ NGHIỆP',
   experience_headline: 'Kinh Nghiệm Làm Việc & Dấu Ấn Chuyên Môn',

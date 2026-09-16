@@ -75,6 +75,11 @@ export class UpdateProfileDto {
   show_freelance_jobs?: boolean;
 
   @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  project_categories?: string[];
+
+  @IsOptional()
   @IsString()
   experience_subtitle?: string;
 

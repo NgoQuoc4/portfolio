@@ -33,6 +33,7 @@ export interface Profile {
   work_headline?: string;
   show_projects?: boolean;
   show_freelance_jobs?: boolean;
+  project_categories?: string[];
 
   experience_subtitle?: string;
   experience_headline?: string;

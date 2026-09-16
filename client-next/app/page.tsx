@@ -82,6 +82,7 @@ export default function Home() {
           {profile?.show_projects !== false && (
             <SelectedWork
               projects={projects}
+              projectCategories={profile?.project_categories}
               sectionSubtitle={profile?.work_subtitle}
               sectionHeadline={profile?.work_headline}
             />

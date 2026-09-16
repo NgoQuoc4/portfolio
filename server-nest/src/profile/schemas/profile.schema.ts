@@ -59,6 +59,9 @@ export class Profile {
   @Prop({ default: true })
   show_freelance_jobs: boolean;
 
+  @Prop({ type: [String], default: ['0 → 1', 'Tăng trưởng', 'Nghiên cứu'] })
+  project_categories: string[];
+
   @Prop({ required: false })
   experience_subtitle: string;
 
