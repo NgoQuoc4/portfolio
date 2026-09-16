@@ -129,4 +129,8 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsArray()
   brand_logos?: { name: string; logo_url: string }[];
+
+  @IsOptional()
+  @IsObject()
+  resume_data?: Record<string, any>;
 }

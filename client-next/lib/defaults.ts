@@ -1,5 +1,4 @@
-// Single source of truth for all default/fallback data
-import type { Profile, ProjectItem, FreelanceJob, ExperienceItem } from './types';
+import type { Profile, ProjectItem, FreelanceJob, ExperienceItem, ResumeData } from './types';
 
 export const defaultProfile: Profile = {
   name: 'Ngô Chí Quốc',
@@ -260,3 +259,126 @@ export const defaultExperiences: ExperienceItem[] = [
     tech_stack: ['ReactJS', 'JavaScript', 'HTML5/CSS3', 'Git', 'Bootstrap', 'Node.js'],
   },
 ];
+
+export const defaultResume: ResumeData = {
+  name: 'Ngô Chí Quốc',
+  title: 'Lập trình viên Full Stack & Front End',
+  avatar_url: 'https://res.cloudinary.com/dguad3xyf/image/upload/v1776242078/MeUJ0ogEM8MjZvYWfSb9_665822b791856_cvtpl_yljpfv.jpg',
+  location: 'TP. Hồ Chí Minh, Việt Nam',
+  email: 'ngochiquoc140@gmail.com',
+  phone: '0789898100',
+  github_url: 'https://github.com/NgoQuoc4',
+  website_url: 'https://ngoquoc.vercel.app',
+  pdf_url: '',
+  summary_title: 'Tóm tắt chuyên môn',
+  summary_p1:
+    'Là một nhà phát triển Full Stack tận tâm, luôn cam kết mang lại kết quả tốt nhất, tôi sở hữu kỹ năng nâng cao trong việc triển khai các công nghệ tiên tiến như ReactJS, NextJS, NestJS, ExpressJS. Tôi chuyên xây dựng các sản phẩm chất lượng cao, hướng đến người dùng và chuyển đổi các thiết kế thành trải nghiệm kỹ thuật số liền mạch.',
+  summary_p2:
+    'Ngoài Full Stack, tôi còn có chuyên môn vững chắc về Vanilla JavaScript, Liquid (Shopify) và Handlebars (BigCommerce), cho phép tôi phát triển và tùy chỉnh các nền tảng thương mại điện tử một cách hiệu quả, tối ưu hóa hiệu suất và tạo ra các giải pháp front-end linh hoạt, có khả năng mở rộng.',
+  experiences_title: 'Kinh nghiệm làm việc (Work Experience)',
+  experiences: [
+    {
+      role: 'Lập trình viên Full Stack & Front End',
+      company: 'Freelance & Dự án Độc lập',
+      period: '2023 — Hiện tại',
+      bullets: [
+        'Thiết kế kiến trúc và trực tiếp phát triển các ứng dụng web phức tạp với ReactJS, Next.js (App Router), TypeScript, NestJS và TailwindCSS.',
+        'Thiết kế và chuẩn hóa RESTful APIs, hệ thống xác thực phân quyền JWT, quản lý cơ sở dữ liệu MySQL, PostgreSQL, MongoDB thông qua Prisma ORM.',
+        'Tích hợp giải pháp AI vào sản phẩm thực tế (Recipe-Cookbook AI), tối ưu hóa trải nghiệm nấu ăn tương tác và gợi ý thông minh.',
+        'Tối ưu hóa hiệu năng render, cơ chế cache thông minh (TanStack Query, Next.js Cache) đạt điểm số cao trên Lighthouse và Core Web Vitals.',
+      ],
+    },
+    {
+      role: 'Lập trình viên Front End & E-Commerce',
+      company: 'Dự án Thương mại điện tử & Khách hàng',
+      period: '2022 — 2023',
+      bullets: [
+        'Tùy biến và phát triển giao diện thương mại điện tử chuyên sâu sử dụng Liquid (Shopify) và Handlebars (BigCommerce).',
+        'Xây dựng luồng giỏ hàng động, tối ưu quy trình thanh toán (checkout) và tương tác người dùng, cải thiện tỷ lệ hoàn tất đơn hàng.',
+        'Đảm bảo giao diện chuẩn responsive 100% trên điện thoại, máy tính bảng và desktop; tuân thủ các nguyên tắc UI/UX hiện đại.',
+      ],
+    },
+  ],
+  skills_title: 'Kỹ năng kỹ thuật (Technical Skills)',
+  skill_categories: [
+    {
+      title: 'Frontend Engineering',
+      skills:
+        'ReactJS, NextJS (App Router), TypeScript, JavaScript (ES6+), TailwindCSS, Redux Toolkit, TanStack React Query, Ant Design, Styled-Components, Zod, Responsive UI/UX.',
+    },
+    {
+      title: 'Backend & Cloud',
+      skills:
+        'NestJS, Node.js, Express.js, RESTful APIs, JWT Authentication, Prisma ORM, MySQL, PostgreSQL, MongoDB, Cloudinary CDN.',
+    },
+    {
+      title: 'E-commerce & CMS',
+      skills:
+        'Liquid (Shopify Theme Customization), Handlebars (BigCommerce), Headless Commerce integration, Custom Admin Dashboards.',
+    },
+    {
+      title: 'Architecture & Tools',
+      skills:
+        'Git, GitHub, Vite, Postman, Figma, Agile/Scrum, Web Performance Optimization, Modular Architecture.',
+    },
+  ],
+  projects_title: 'Dự án tiêu biểu (Featured Projects)',
+  projects: [
+    {
+      title: 'Trang Sakia Online',
+      category: 'Full-stack',
+      live_demo: 'http://trangsakiaonline.com/',
+      github_link: '',
+      description:
+        'Nền tảng đăng ký khóa học trực tuyến, quản lý lịch sử đơn hàng và xem nội dung bài giảng, tích hợp bảng quản trị (Admin Dashboard) tùy chỉnh để quản lý học viên, khóa học và doanh thu.',
+      tech_stack: ['NextJS', 'NestJS', 'TypeScript', 'Prisma ORM', 'MySQL', 'Ant Design', 'Tailwind', 'JWT', 'RESTful APIs'],
+    },
+    {
+      title: 'Recipe-Cookbook (Sổ tay ẩm thực AI)',
+      category: 'AI & Web',
+      live_demo: 'https://recipe-cookbook-phi.vercel.app/',
+      github_link: 'https://github.com/NgoQuoc4/Recipe-Cookbook',
+      description:
+        'Nền tảng sổ tay công thức nấu ăn toàn diện cho phép người dùng tạo, quản lý, tìm kiếm công thức, đánh giá món ăn và được thiết kế tối ưu với chế độ nấu ăn (Cooking Mode), tích hợp AI để gợi ý công thức thông minh.',
+      tech_stack: ['ReactJS', 'TypeScript', 'Vite', 'Node.js', 'Express.js', 'PostgreSQL', 'Prisma ORM', 'TanStack Query', 'TailwindCSS', 'Zod'],
+    },
+    {
+      title: 'CDF Course',
+      category: 'EdTech',
+      live_demo: 'https://course-main-seven.vercel.app/',
+      github_link: 'https://github.com/NgoQuoc4/course_main',
+      description:
+        'Nền tảng đăng ký khóa học, quản lý lịch sử đơn hàng và tương tác với nội dung blog giáo dục, tích hợp bảng quản trị (Admin Dashboard) tùy chỉnh để quản lý hệ thống.',
+      tech_stack: ['ReactJS', 'TypeScript', 'Vite', 'Redux Toolkit', 'Node.js', 'Express.js', 'MongoDB', 'JWT', 'Cloudinary'],
+    },
+    {
+      title: 'CFD Shop',
+      category: 'Ecommerce',
+      live_demo: 'https://cfdshop-eosin.vercel.app/',
+      github_link: 'https://github.com/NgoQuoc4/cfdshop',
+      description:
+        'Hệ thống bán hàng thương mại điện tử trực tuyến hiện đại với giỏ hàng tối ưu, cơ chế fetch & cache thông minh bằng TanStack React Query.',
+      tech_stack: ['ReactJS', 'Vite', 'TanStack React Query', 'Axios', 'TailwindCSS'],
+    },
+  ],
+  education_title: 'Học vấn & Đào tạo (Education & Training)',
+  education: [
+    {
+      badge: 'Đại Học',
+      title: 'Công Nghệ Thông Tin',
+      subtitle: 'Chuyên ngành Kỹ thuật Phần mềm',
+      description:
+        'Nền tảng vững chắc về cấu trúc dữ liệu, giải thuật, cơ sở dữ liệu quan hệ, mạng máy tính và quy trình phát triển phần mềm chuẩn mực.',
+    },
+    {
+      badge: 'Đào Tạo Chuyên Sâu',
+      title: 'Front End & Full Stack Web Development',
+      subtitle: 'Chứng chỉ Chuyên sâu ReactJS & Next.js Ecosystem',
+      description:
+        'Chương trình thực chiến chuyên sâu về ReactJS, Next.js, Node.js/NestJS, TypeScript, Clean Code, và State Management trong các dự án thực tế.',
+    },
+  ],
+  footer_name: 'Ngô Chí Quốc · Resume',
+  footer_updated: 'Cập nhật mới nhất: 2026',
+};
+

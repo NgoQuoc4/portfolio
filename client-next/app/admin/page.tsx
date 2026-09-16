@@ -3,8 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import api from '@/lib/api';
-import { defaultProfile, defaultProjects, defaultFreelanceJobs, defaultExperiences } from '@/lib/defaults';
-import type { Profile, ProjectItem, Message, FreelanceJob, ExperienceItem } from '@/lib/types';
+import { defaultProfile, defaultProjects, defaultFreelanceJobs, defaultExperiences, defaultResume } from '@/lib/defaults';
+import type {
+  Profile,
+  ProjectItem,
+  Message,
+  FreelanceJob,
+  ExperienceItem,
+  ResumeData,
+  ResumeExperienceItem,
+  ResumeSkillCategory,
+  ResumeProjectItem,
+  ResumeEducationItem,
+} from '@/lib/types';
 import {
   Lock,
   Plus,
@@ -37,6 +48,10 @@ import {
   Award,
   Star,
   Building2,
+  FileText,
+  Download,
+  Code2,
+  GraduationCap,
 } from 'lucide-react';
 import { ToastProvider, useToast } from '@/components/admin/Toast';
 
@@ -54,9 +69,10 @@ function AdminDashboard() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'hero' | 'projects' | 'about' | 'contact' | 'media' | 'messages' | 'freelance' | 'experience' | 'footer'>('hero');
+  const [activeTab, setActiveTab] = useState<'hero' | 'projects' | 'freelance' | 'experience' | 'resume' | 'about' | 'contact' | 'footer' | 'media' | 'messages'>('hero');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [selectedPageFilter, setSelectedPageFilter] = useState<'all' | 'home' | 'freelance' | 'resume' | 'system'>('all');
 
   // Work Experiences state
   const [experiences, setExperiences] = useState<ExperienceItem[]>(defaultExperiences);
@@ -114,6 +130,65 @@ function AdminDashboard() {
   const [projects, setProjects] = useState<ProjectItem[]>(defaultProjects);
   const [messages, setMessages] = useState<Message[]>([]);
 
+  // Resume Settings state
+  const [resumeData, setResumeData] = useState<ResumeData>(defaultResume);
+
+  // Resume Experience Item form
+  const [editingResumeExpIdx, setEditingResumeExpIdx] = useState<number | null>(null);
+  const [resumeExpForm, setResumeExpForm] = useState<{
+    role: string;
+    company: string;
+    period: string;
+    bullets: string;
+  }>({
+    role: '',
+    company: '',
+    period: '',
+    bullets: '',
+  });
+
+  // Resume Project Item form
+  const [editingResumeProjIdx, setEditingResumeProjIdx] = useState<number | null>(null);
+  const [resumeProjForm, setResumeProjForm] = useState<{
+    title: string;
+    category: string;
+    live_demo: string;
+    github_link: string;
+    description: string;
+    tech_stack: string;
+  }>({
+    title: '',
+    category: 'Full-stack',
+    live_demo: '',
+    github_link: '',
+    description: '',
+    tech_stack: '',
+  });
+
+  // Resume Education Item form
+  const [editingResumeEduIdx, setEditingResumeEduIdx] = useState<number | null>(null);
+  const [resumeEduForm, setResumeEduForm] = useState<{
+    badge: string;
+    title: string;
+    subtitle: string;
+    description: string;
+  }>({
+    badge: 'Đại Học',
+    title: '',
+    subtitle: '',
+    description: '',
+  });
+
+  // Resume Skill Category form
+  const [editingResumeSkillIdx, setEditingResumeSkillIdx] = useState<number | null>(null);
+  const [resumeSkillForm, setResumeSkillForm] = useState<{
+    title: string;
+    skills: string;
+  }>({
+    title: '',
+    skills: '',
+  });
+
   const [uploading, setUploading] = useState<string | null>(null);
 
   // Editing Project state
@@ -169,6 +244,11 @@ function AdminDashboard() {
           setExperiences(parsed);
         }
       }
+
+      const localResume = localStorage.getItem('portfolio_resume');
+      if (localResume) {
+        setResumeData(JSON.parse(localResume));
+      }
     } catch (e) {}
 
     // Đồng bộ theme Dark/Light với trang chính
@@ -215,6 +295,9 @@ function AdminDashboard() {
         setProfile((prev: any) => {
           const merged = { ...prev, ...profRes.data };
           setSkillsString(Array.isArray(merged.skills) ? merged.skills.join(', ') : '');
+          if (merged.resume_data) {
+            setResumeData((r) => ({ ...r, ...merged.resume_data }));
+          }
           return merged;
         });
       }
@@ -646,6 +729,12 @@ function AdminDashboard() {
     showToast('Đã điền link ảnh vào logo Công ty!', 'info');
   };
 
+  const handleUseInResumeFromMedia = (url: string) => {
+    setResumeData((prev) => ({ ...prev, avatar_url: url }));
+    setActiveTab('resume');
+    showToast('Đã đặt làm ảnh đại diện cho trang CV / Resume!', 'info');
+  };
+
   // --- WORK EXPERIENCES CRUD ---
   const handleSaveExperience = (e: React.FormEvent) => {
     e.preventDefault();
@@ -742,6 +831,317 @@ function AdminDashboard() {
     showToast('Đã khôi phục các mốc kinh nghiệm mẫu!', 'info');
   };
 
+  // --- RESUME SETTINGS ACTIONS ---
+  const handleSaveResume = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    localStorage.setItem('portfolio_resume', JSON.stringify(resumeData));
+
+    // Also sync to profile in backend if running
+    try {
+      const updatedProf = { ...profile, resume_data: resumeData };
+      setProfile(updatedProf);
+      localStorage.setItem('portfolio_profile', JSON.stringify(updatedProf));
+      await api.put('/profile', updatedProf).catch(() => null);
+    } catch (err) {
+      console.warn('Backend sync deferred:', err);
+    }
+
+    showToast('Đã lưu và cập nhật cấu hình trang Resume (/resume) thành công!', 'success');
+  };
+
+  const handleResetDefaultResume = () => {
+    if (!confirm('Bạn có chắc chắn muốn khôi phục toàn bộ nội dung CV về trạng thái mặc định ban đầu?')) return;
+    setResumeData(defaultResume);
+    localStorage.setItem('portfolio_resume', JSON.stringify(defaultResume));
+    showToast('Đã khôi phục trang Resume về dữ liệu mẫu ban đầu!', 'info');
+  };
+
+  const handleSyncResumeFromExperiences = () => {
+    if (!confirm('Đồng bộ các mốc từ tab Kinh nghiệm làm việc sang trang Resume?')) return;
+    const converted: ResumeExperienceItem[] = experiences.map((exp) => ({
+      role: exp.role,
+      company: exp.company,
+      period: exp.period,
+      bullets: Array.isArray(exp.achievements) && exp.achievements.length > 0
+        ? exp.achievements
+        : exp.description ? [exp.description] : [],
+    }));
+    setResumeData((prev) => ({ ...prev, experiences: converted }));
+    showToast('Đã đồng bộ kinh nghiệm sang CV! Hãy nhấn "Lưu Cấu Hình Resume" để hoàn tất.', 'info');
+  };
+
+  const handleSyncResumeFromProjects = () => {
+    if (!confirm('Đồng bộ các dự án tiêu biểu sang trang Resume?')) return;
+    const converted: ResumeProjectItem[] = projects.map((p) => ({
+      title: p.title,
+      category: p.category || 'Full-stack',
+      live_demo: p.live_demo || '',
+      github_link: p.github_link || '',
+      description: p.description || '',
+      tech_stack: Array.isArray(p.tech_stack) ? p.tech_stack : [],
+    }));
+    setResumeData((prev) => ({ ...prev, projects: converted }));
+    showToast('Đã đồng bộ dự án sang CV! Hãy nhấn "Lưu Cấu Hình Resume" để hoàn tất.', 'info');
+  };
+
+  const handleSyncResumeFromHero = () => {
+    setResumeData((prev) => ({
+      ...prev,
+      name: profile.name || prev.name,
+      title: profile.title || prev.title,
+      avatar_url: profile.avatar_url || prev.avatar_url,
+      location: profile.location || prev.location,
+      email: profile.email || prev.email,
+      phone: profile.phone || prev.phone,
+      github_url: profile.social_links?.github || prev.github_url,
+    }));
+    showToast('Đã sao chép thông tin cá nhân & liên hệ từ Tab 1 sang CV!', 'info');
+  };
+
+  // Resume Experience CRUD
+  const handleSaveResumeExp = (e: React.FormEvent) => {
+    e.preventDefault();
+    const bulletsArray = resumeExpForm.bullets
+      .split('\n')
+      .map((b) => b.trim())
+      .filter(Boolean);
+
+    const currentList = resumeData.experiences || [];
+    if (editingResumeExpIdx !== null) {
+      const updated = currentList.map((item, idx) => {
+        if (idx === editingResumeExpIdx) {
+          return {
+            role: resumeExpForm.role,
+            company: resumeExpForm.company,
+            period: resumeExpForm.period,
+            bullets: bulletsArray,
+          };
+        }
+        return item;
+      });
+      setResumeData((prev) => ({ ...prev, experiences: updated }));
+      setEditingResumeExpIdx(null);
+      showToast(`Đã cập nhật mốc kinh nghiệm "${resumeExpForm.role}"!`, 'success');
+    } else {
+      const newItem: ResumeExperienceItem = {
+        role: resumeExpForm.role,
+        company: resumeExpForm.company,
+        period: resumeExpForm.period,
+        bullets: bulletsArray,
+      };
+      setResumeData((prev) => ({ ...prev, experiences: [newItem, ...currentList] }));
+      showToast(`Đã thêm mốc kinh nghiệm "${resumeExpForm.role}" vào CV!`, 'success');
+    }
+
+    setResumeExpForm({ role: '', company: '', period: '', bullets: '' });
+  };
+
+  const handleEditResumeExp = (idx: number) => {
+    const item = (resumeData.experiences || [])[idx];
+    if (!item) return;
+    setEditingResumeExpIdx(idx);
+    setResumeExpForm({
+      role: item.role || '',
+      company: item.company || '',
+      period: item.period || '',
+      bullets: Array.isArray(item.bullets) ? item.bullets.join('\n') : '',
+    });
+  };
+
+  const handleDeleteResumeExp = (idx: number) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa mốc kinh nghiệm này khỏi CV?')) return;
+    const updated = (resumeData.experiences || []).filter((_, i) => i !== idx);
+    setResumeData((prev) => ({ ...prev, experiences: updated }));
+    if (editingResumeExpIdx === idx) {
+      setEditingResumeExpIdx(null);
+      setResumeExpForm({ role: '', company: '', period: '', bullets: '' });
+    }
+    showToast('Đã xóa mốc kinh nghiệm khỏi CV!', 'info');
+  };
+
+  // Resume Skills CRUD
+  const handleSaveResumeSkill = (e: React.FormEvent) => {
+    e.preventDefault();
+    const currentList = resumeData.skill_categories || [];
+    if (editingResumeSkillIdx !== null) {
+      const updated = currentList.map((item, idx) => {
+        if (idx === editingResumeSkillIdx) {
+          return {
+            title: resumeSkillForm.title,
+            skills: resumeSkillForm.skills,
+          };
+        }
+        return item;
+      });
+      setResumeData((prev) => ({ ...prev, skill_categories: updated }));
+      setEditingResumeSkillIdx(null);
+      showToast(`Đã cập nhật nhóm kỹ năng "${resumeSkillForm.title}"!`, 'success');
+    } else {
+      const newItem: ResumeSkillCategory = {
+        title: resumeSkillForm.title,
+        skills: resumeSkillForm.skills,
+      };
+      setResumeData((prev) => ({ ...prev, skill_categories: [...currentList, newItem] }));
+      showToast(`Đã thêm nhóm kỹ năng "${resumeSkillForm.title}"!`, 'success');
+    }
+
+    setResumeSkillForm({ title: '', skills: '' });
+  };
+
+  const handleDeleteResumeSkill = (idx: number) => {
+    if (!confirm('Xóa nhóm kỹ năng này khỏi CV?')) return;
+    const updated = (resumeData.skill_categories || []).filter((_, i) => i !== idx);
+    setResumeData((prev) => ({ ...prev, skill_categories: updated }));
+    showToast('Đã xóa nhóm kỹ năng!', 'info');
+  };
+
+  // Resume Projects CRUD
+  const handleSaveResumeProj = (e: React.FormEvent) => {
+    e.preventDefault();
+    const stackArray = resumeProjForm.tech_stack
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    const currentList = resumeData.projects || [];
+    if (editingResumeProjIdx !== null) {
+      const updated = currentList.map((item, idx) => {
+        if (idx === editingResumeProjIdx) {
+          return {
+            title: resumeProjForm.title,
+            category: resumeProjForm.category,
+            live_demo: resumeProjForm.live_demo,
+            github_link: resumeProjForm.github_link,
+            description: resumeProjForm.description,
+            tech_stack: stackArray,
+          };
+        }
+        return item;
+      });
+      setResumeData((prev) => ({ ...prev, projects: updated }));
+      setEditingResumeProjIdx(null);
+      showToast(`Đã cập nhật dự án CV "${resumeProjForm.title}"!`, 'success');
+    } else {
+      const newItem: ResumeProjectItem = {
+        title: resumeProjForm.title,
+        category: resumeProjForm.category,
+        live_demo: resumeProjForm.live_demo,
+        github_link: resumeProjForm.github_link,
+        description: resumeProjForm.description,
+        tech_stack: stackArray,
+      };
+      setResumeData((prev) => ({ ...prev, projects: [...currentList, newItem] }));
+      showToast(`Đã thêm dự án "${resumeProjForm.title}" vào CV!`, 'success');
+    }
+
+    setResumeProjForm({
+      title: '',
+      category: 'Full-stack',
+      live_demo: '',
+      github_link: '',
+      description: '',
+      tech_stack: '',
+    });
+  };
+
+  const handleEditResumeProj = (idx: number) => {
+    const item = (resumeData.projects || [])[idx];
+    if (!item) return;
+    setEditingResumeProjIdx(idx);
+    setResumeProjForm({
+      title: item.title || '',
+      category: item.category || 'Full-stack',
+      live_demo: item.live_demo || '',
+      github_link: item.github_link || '',
+      description: item.description || '',
+      tech_stack: Array.isArray(item.tech_stack) ? item.tech_stack.join(', ') : '',
+    });
+  };
+
+  const handleDeleteResumeProj = (idx: number) => {
+    if (!confirm('Xóa dự án này khỏi trang CV?')) return;
+    const updated = (resumeData.projects || []).filter((_, i) => i !== idx);
+    setResumeData((prev) => ({ ...prev, projects: updated }));
+    if (editingResumeProjIdx === idx) {
+      setEditingResumeProjIdx(null);
+      setResumeProjForm({
+        title: '',
+        category: 'Full-stack',
+        live_demo: '',
+        github_link: '',
+        description: '',
+        tech_stack: '',
+      });
+    }
+    showToast('Đã xóa dự án khỏi CV!', 'info');
+  };
+
+  // Resume Education CRUD
+  const handleSaveResumeEdu = (e: React.FormEvent) => {
+    e.preventDefault();
+    const currentList = resumeData.education || [];
+    if (editingResumeEduIdx !== null) {
+      const updated = currentList.map((item, idx) => {
+        if (idx === editingResumeEduIdx) {
+          return {
+            badge: resumeEduForm.badge,
+            title: resumeEduForm.title,
+            subtitle: resumeEduForm.subtitle,
+            description: resumeEduForm.description,
+          };
+        }
+        return item;
+      });
+      setResumeData((prev) => ({ ...prev, education: updated }));
+      setEditingResumeEduIdx(null);
+      showToast(`Đã cập nhật mục học vấn "${resumeEduForm.title}"!`, 'success');
+    } else {
+      const newItem: ResumeEducationItem = {
+        badge: resumeEduForm.badge,
+        title: resumeEduForm.title,
+        subtitle: resumeEduForm.subtitle,
+        description: resumeEduForm.description,
+      };
+      setResumeData((prev) => ({ ...prev, education: [...currentList, newItem] }));
+      showToast(`Đã thêm mục học vấn "${resumeEduForm.title}" vào CV!`, 'success');
+    }
+
+    setResumeEduForm({
+      badge: 'Đại Học',
+      title: '',
+      subtitle: '',
+      description: '',
+    });
+  };
+
+  const handleEditResumeEdu = (idx: number) => {
+    const item = (resumeData.education || [])[idx];
+    if (!item) return;
+    setEditingResumeEduIdx(idx);
+    setResumeEduForm({
+      badge: item.badge || 'Đại Học',
+      title: item.title || '',
+      subtitle: item.subtitle || '',
+      description: item.description || '',
+    });
+  };
+
+  const handleDeleteResumeEdu = (idx: number) => {
+    if (!confirm('Xóa mục học vấn này khỏi CV?')) return;
+    const updated = (resumeData.education || []).filter((_, i) => i !== idx);
+    setResumeData((prev) => ({ ...prev, education: updated }));
+    if (editingResumeEduIdx === idx) {
+      setEditingResumeEduIdx(null);
+      setResumeEduForm({
+        badge: 'Đại Học',
+        title: '',
+        subtitle: '',
+        description: '',
+      });
+    }
+    showToast('Đã xóa mục học vấn khỏi CV!', 'info');
+  };
+
   const filteredMedia = mediaList.filter((m) =>
     (m.public_id || '').toLowerCase().includes(mediaSearch.toLowerCase()) ||
     (m.format || '').toLowerCase().includes(mediaSearch.toLowerCase())
@@ -801,29 +1201,85 @@ function AdminDashboard() {
     );
   }
 
+  type PageFilterId = 'all' | 'home' | 'freelance' | 'resume' | 'system';
+
   interface NavItem {
-    id: 'hero' | 'projects' | 'freelance' | 'experience' | 'media' | 'about' | 'contact' | 'footer' | 'messages';
+    id: 'hero' | 'about' | 'projects' | 'experience' | 'contact' | 'footer' | 'freelance' | 'resume' | 'media' | 'messages';
     label: string;
     icon: React.ElementType;
     desc: string;
+    pageId: 'home' | 'freelance' | 'resume' | 'system';
+    pageName: string;
+    pagePath: string;
     count?: number;
     badge?: string;
   }
 
-  const navItems: NavItem[] = [
-    { id: 'hero', label: '1. Nhận diện & Hero', icon: Sparkles, desc: 'Tùy chỉnh thông tin giới thiệu đầu trang' },
-    { id: 'projects', label: '2. Quản lý Dự án', icon: Briefcase, count: projects.length, desc: 'Danh sách và tiêu đề các dự án tiêu biểu' },
-    { id: 'freelance', label: '3. Jobs Freelance', icon: Award, count: freelanceJobs.length, desc: 'Dự án khách hàng, deliverables và đánh giá 5⭐' },
-    { id: 'experience', label: '4. Kinh nghiệm làm việc', icon: Building2, count: experiences.length, desc: 'Tiêu đề và các mốc công ty, vị trí, thành tựu' },
-    { id: 'media', label: '5. Thư viện Cloudinary', icon: ImageIcon, count: mediaList.length, badge: 'ngoquoc_portfolio', desc: 'Quản lý & đồng bộ hình ảnh đám mây' },
-    { id: 'about', label: '6. Giới thiệu & Kỹ năng', icon: User, desc: 'Tiêu đề, tiểu sử và danh sách kỹ năng công nghệ' },
-    { id: 'contact', label: '7. Liên hệ & MXH', icon: Share2, desc: 'Tiêu đề, email, điện thoại và mạng xã hội' },
-    { id: 'footer', label: '8. Chân trang & Brand', icon: Globe, desc: 'Chữ thương hiệu lớn, bản quyền và trạng thái' },
-    { id: 'messages', label: '9. Hộp thư Tin nhắn', icon: MessageSquare, count: messages.length, desc: 'Tin nhắn phản hồi từ khách truy cập' },
+  interface PageSectionGroup {
+    id: 'home' | 'freelance' | 'resume' | 'system';
+    title: string;
+    path: string;
+    badge: string;
+    description: string;
+    items: NavItem[];
+  }
+
+  const pageGroups: PageSectionGroup[] = [
+    {
+      id: 'home',
+      title: 'Trang Chủ',
+      path: '/',
+      badge: '/',
+      description: 'Cấu hình toàn bộ các section trên trang chủ portfolio',
+      items: [
+        { id: 'hero', label: '1. Nhận diện & Hero', icon: Sparkles, pageId: 'home', pageName: 'Trang Chủ', pagePath: '/', desc: 'Preloader, digital desk, headline & avatar' },
+        { id: 'about', label: '2. Giới thiệu & Kỹ năng', icon: User, pageId: 'home', pageName: 'Trang Chủ', pagePath: '/', desc: 'Tiểu sử, kỹ năng chính & logo công nghệ' },
+        { id: 'projects', label: '3. Dự án chọn lọc', icon: Briefcase, count: projects.length, pageId: 'home', pageName: 'Trang Chủ', pagePath: '/', desc: 'Danh sách và tiêu đề các dự án tiêu biểu' },
+        { id: 'experience', label: '4. Kinh nghiệm sự nghiệp', icon: Building2, count: experiences.length, pageId: 'home', pageName: 'Trang Chủ', pagePath: '/', desc: 'Các mốc công ty, vai trò, thành tựu thực chiến' },
+        { id: 'contact', label: '5. Liên hệ & MXH', icon: Share2, pageId: 'home', pageName: 'Trang Chủ', pagePath: '/', desc: 'Tiêu đề, email, điện thoại, lịch & mạng xã hội' },
+        { id: 'footer', label: '6. Chân trang & Brand', icon: Globe, pageId: 'home', pageName: 'Trang Chủ', pagePath: '/', desc: 'Chữ thương hiệu lớn, bản quyền và trạng thái' },
+      ],
+    },
+    {
+      id: 'freelance',
+      title: 'Trang Freelance',
+      path: '/freelance',
+      badge: '/freelance',
+      description: 'Cấu hình case studies, dự án khách hàng và đánh giá 5⭐',
+      items: [
+        { id: 'freelance', label: 'Jobs Freelance & Đánh giá', icon: Award, count: freelanceJobs.length, badge: '5⭐', pageId: 'freelance', pageName: 'Trang Freelance', pagePath: '/freelance', desc: 'Dự án khách hàng, deliverables, metrics và đánh giá 5⭐' },
+      ],
+    },
+    {
+      id: 'resume',
+      title: 'Trang Resume (CV)',
+      path: '/resume',
+      badge: '/resume',
+      description: 'Cấu hình hồ sơ năng lực, học vấn, kỹ năng nhóm & PDF',
+      items: [
+        { id: 'resume', label: 'Hồ Sơ Năng Lực (CV)', icon: FileText, badge: 'CV / PDF', pageId: 'resume', pageName: 'Trang Resume', pagePath: '/resume', desc: 'Thông tin cá nhân, tóm tắt, kinh nghiệm CV, kỹ năng, học vấn, tải/in PDF' },
+      ],
+    },
+    {
+      id: 'system',
+      title: 'Hệ Thống & Tiện Ích',
+      path: '/',
+      badge: 'Tiện ích',
+      description: 'Kho lưu trữ đám mây và tin nhắn phản hồi từ khách',
+      items: [
+        { id: 'media', label: 'Thư viện Cloudinary', icon: ImageIcon, count: mediaList.length, badge: 'Cloud', pageId: 'system', pageName: 'Hệ Thống', pagePath: '/', desc: 'Quản lý & đồng bộ hình ảnh đám mây' },
+        { id: 'messages', label: 'Hộp thư Tin nhắn', icon: MessageSquare, count: messages.length, pageId: 'system', pageName: 'Hệ Thống', pagePath: '/', desc: 'Tin nhắn phản hồi từ khách truy cập' },
+      ],
+    },
   ];
 
-  const currentTabMeta = navItems.find((n) => n.id === activeTab) || navItems[0];
+  const allNavItems: NavItem[] = pageGroups.flatMap((g) => g.items);
+  const currentTabMeta = allNavItems.find((n) => n.id === activeTab) || allNavItems[0];
   const CurrentIcon = currentTabMeta.icon;
+
+  const visiblePageGroups = selectedPageFilter === 'all'
+    ? pageGroups
+    : pageGroups.filter((g) => g.id === selectedPageFilter);
 
   // DASHBOARD MAIN
   return (
@@ -912,50 +1368,119 @@ function AdminDashboard() {
           </div>
         </div>
 
-        {/* Navigation Menu */}
-        <div className="p-3.5 flex-1 overflow-y-auto space-y-1">
-          <p className="px-3 py-1.5 text-[10px] font-mono uppercase tracking-wider text-ink-subtle">
-            Quản lý nội dung
-          </p>
+        {/* Navigation Menu Grouped By Page */}
+        <div className="p-3 flex-1 overflow-y-auto space-y-3">
+          {/* Page Filter Tabs */}
+          <div>
+            <div className="flex items-center justify-between px-1 mb-1.5">
+              <span className="text-[10px] font-mono uppercase tracking-wider text-ink-subtle">
+                Phân loại theo trang
+              </span>
+              <span className="text-[10px] font-mono text-pink-500 font-semibold">
+                {visiblePageGroups.length} nhóm
+              </span>
+            </div>
 
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setActiveTab(item.id as any);
-                  setSidebarOpen(false);
-                  if (item.id === 'media' && mediaList.length === 0) {
-                    fetchMediaList();
-                  }
-                }}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer group text-left ${
-                  isActive
-                    ? 'bg-ink text-surface-1 shadow-sm'
-                    : 'text-ink-muted hover:text-ink hover:bg-surface-2'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-pink-400' : 'text-ink-subtle group-hover:text-ink'}`} />
-                  <span className="truncate">{item.label}</span>
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-surface-2 border border-border overflow-x-auto [&::-webkit-scrollbar]:hidden" style={{ scrollbarWidth: 'none' }}>
+              {[
+                { id: 'all', label: 'Tất cả' },
+                { id: 'home', label: 'Trang Chủ' },
+                { id: 'freelance', label: 'Freelance' },
+                { id: 'resume', label: 'Resume' },
+                { id: 'system', label: 'Hệ thống' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setSelectedPageFilter(tab.id as any)}
+                  className={`px-2 py-1 rounded-lg text-[11px] font-mono whitespace-nowrap transition-all cursor-pointer ${
+                    selectedPageFilter === tab.id
+                      ? 'bg-ink text-surface-1 font-bold shadow-xs'
+                      : 'text-ink-muted hover:text-ink hover:bg-surface-1'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Grouped Page Items */}
+          <div className="space-y-4">
+            {visiblePageGroups.map((group) => (
+              <div key={group.id} className="space-y-1">
+                <div className="flex items-center justify-between px-2.5 py-1 rounded-lg bg-surface-2/60 border border-border/60 text-[10px] font-mono">
+                  <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-pink-500">
+                    <span className="w-1.5 h-1.5 rounded-full bg-pink-500" />
+                    <span>{group.title}</span>
+                  </div>
+                  {group.path && (
+                    <Link
+                      href={group.path}
+                      target="_blank"
+                      className="text-ink-subtle hover:text-pink-500 flex items-center gap-1 transition-colors"
+                      title={`Xem trực tiếp ${group.title} (${group.path})`}
+                    >
+                      <span>{group.badge}</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </Link>
+                  )}
                 </div>
 
-                {item.count !== undefined && (
-                  <span
-                    className={`px-2 py-0.5 rounded-full font-mono text-[10px] ${
-                      isActive
-                        ? 'bg-surface-1/20 text-surface-1'
-                        : 'bg-surface-2 text-ink-muted group-hover:text-ink border border-border'
-                    }`}
-                  >
-                    {item.count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+                <div className="space-y-0.5 pt-0.5">
+                  {group.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = activeTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => {
+                          setActiveTab(item.id as any);
+                          setSidebarOpen(false);
+                          if (item.id === 'media' && mediaList.length === 0) {
+                            fetchMediaList();
+                          }
+                        }}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer group text-left ${
+                          isActive
+                            ? 'bg-ink text-surface-1 shadow-sm'
+                            : 'text-ink-muted hover:text-ink hover:bg-surface-2'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-pink-400' : 'text-ink-subtle group-hover:text-ink'}`} />
+                          <span className="truncate">{item.label}</span>
+                        </div>
+
+                        {item.count !== undefined && (
+                          <span
+                            className={`px-1.5 py-0.5 rounded-full font-mono text-[10px] shrink-0 ${
+                              isActive
+                                ? 'bg-surface-1/20 text-surface-1'
+                                : 'bg-surface-2 text-ink-muted group-hover:text-ink border border-border'
+                            }`}
+                          >
+                            {item.count}
+                          </span>
+                        )}
+                        {item.badge && item.count === undefined && (
+                          <span
+                            className={`px-1.5 py-0.5 rounded-md font-mono text-[9px] shrink-0 ${
+                              isActive
+                                ? 'bg-surface-1/20 text-surface-1'
+                                : 'text-pink-500/80 bg-pink-500/10'
+                            }`}
+                          >
+                            {item.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Sidebar Footer */}
@@ -1010,8 +1535,12 @@ function AdminDashboard() {
       <div className="flex-1 flex flex-col min-w-0 bg-canvas overflow-x-hidden">
         {/* Desktop Top Header Bar */}
         <header className="sticky top-0 z-30 bg-surface-1/80 backdrop-blur-md border-b border-border px-6 py-3.5 hidden lg:flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5 text-xs font-mono">
+          <div className="flex items-center gap-2 text-xs font-mono">
             <span className="text-ink-subtle">Admin</span>
+            <ChevronRight className="w-3.5 h-3.5 text-ink-subtle" />
+            <span className="px-2.5 py-0.5 rounded-full bg-pink-500/10 text-pink-500 border border-pink-500/20 font-bold">
+              {currentTabMeta.pageName} ({currentTabMeta.pagePath})
+            </span>
             <ChevronRight className="w-3.5 h-3.5 text-ink-subtle" />
             <span className="font-bold text-ink flex items-center gap-2">
               <CurrentIcon className="w-4 h-4 text-pink-500" />
@@ -1034,15 +1563,18 @@ function AdminDashboard() {
               {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
             </button>
 
-            <Link
-              href="/"
-              target="_blank"
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-surface-2 border border-border text-xs font-semibold text-ink hover:border-pink-500 transition-all shadow-xs"
-            >
-              <Eye className="w-3.5 h-3.5 text-pink-500" />
-              <span>Xem trang chính</span>
-              <ExternalLink className="w-3 h-3 text-ink-subtle" />
-            </Link>
+            {currentTabMeta.pagePath && (
+              <Link
+                href={currentTabMeta.pagePath}
+                target="_blank"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-surface-2 border border-border text-xs font-semibold text-ink hover:border-pink-500 transition-all shadow-xs"
+                title={`Mở xem trực tiếp ${currentTabMeta.pageName}`}
+              >
+                <Eye className="w-3.5 h-3.5 text-pink-500" />
+                <span>Xem {currentTabMeta.pageName}</span>
+                <ExternalLink className="w-3 h-3 text-ink-subtle" />
+              </Link>
+            )}
 
             <button
               onClick={handleLogout}
@@ -1056,6 +1588,39 @@ function AdminDashboard() {
 
         {/* Tab Content Container */}
         <main className="flex-1 px-4 sm:px-8 lg:px-10 py-8 max-w-6xl w-full mx-auto">
+          {/* Page Scope Context Bar */}
+          <div className="mb-6 p-4 rounded-2xl bg-surface-1 border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-pink-500/10 text-pink-500 border border-pink-500/20 flex items-center justify-center shrink-0">
+                <CurrentIcon className="w-4.5 h-4.5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-mono uppercase tracking-wider text-pink-500 font-bold">
+                    Khu vực cài đặt: {currentTabMeta.pageName}
+                  </span>
+                  <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-surface-2 border border-border text-ink-muted">
+                    Đường dẫn: {currentTabMeta.pagePath}
+                  </span>
+                </div>
+                <p className="text-xs text-ink-muted mt-0.5">
+                  {currentTabMeta.desc}
+                </p>
+              </div>
+            </div>
+
+            {currentTabMeta.pagePath && (
+              <Link
+                href={currentTabMeta.pagePath}
+                target="_blank"
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-surface-2 hover:bg-surface-3 border border-border text-xs font-mono font-semibold text-ink hover:text-pink-500 transition-colors shrink-0 cursor-pointer"
+              >
+                <Eye className="w-3.5 h-3.5 text-pink-500" />
+                <span>Mở xem trang {currentTabMeta.pageName}</span>
+                <ExternalLink className="w-3 h-3 text-ink-subtle" />
+              </Link>
+            )}
+          </div>
 
       {/* TAB 1: HERO & IDENTITY */}
       {activeTab === 'hero' && (
@@ -2290,6 +2855,921 @@ function AdminDashboard() {
         </div>
       )}
 
+      {/* TAB: RESUME SETTINGS */}
+      {activeTab === 'resume' && (
+        <div className="space-y-8">
+          {/* Header & Quick Action Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold text-ink flex items-center gap-2">
+                <FileText className="w-5 h-5 text-pink-500" />
+                <span>Cấu Hình Trang Resume / CV (/resume)</span>
+              </h2>
+              <p className="text-xs text-ink-muted mt-1">
+                Tùy chỉnh toàn bộ thông tin cá nhân, liên hệ, tóm tắt, kinh nghiệm, kỹ năng, dự án và học vấn xuất hiện trên trang CV.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <button
+                type="button"
+                onClick={handleSyncResumeFromHero}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-2 hover:bg-surface-3 border border-border text-xs font-mono font-semibold text-ink-muted hover:text-ink transition-colors cursor-pointer"
+                title="Sao chép tên, title, avatar, email, phone từ Tab Hero"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-pink-500" />
+                <span>Đồng bộ từ Hero</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResetDefaultResume}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-surface-2 hover:bg-surface-3 border border-border text-xs font-mono font-semibold text-ink-muted hover:text-ink transition-colors cursor-pointer"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Khôi phục mẫu CV</span>
+              </button>
+
+              <Link
+                href="/resume"
+                target="_blank"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-pink-500/10 text-pink-500 border border-pink-500/20 text-xs font-semibold hover:bg-pink-500/20 transition-all shadow-xs"
+              >
+                <Eye className="w-3.5 h-3.5" />
+                <span>Xem trang CV</span>
+                <ExternalLink className="w-3 h-3" />
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => handleSaveResume()}
+                className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-ink text-surface-1 text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer shadow-sm"
+              >
+                <Check className="w-3.5 h-3.5" />
+                <span>Lưu Cấu Hình Resume</span>
+              </button>
+            </div>
+          </div>
+
+          {/* CARD 1: PERSONAL & CONTACT INFO */}
+          <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float space-y-6">
+            <h3 className="text-base font-bold text-ink mb-1 flex items-center gap-2">
+              <User className="w-4 h-4 text-pink-500" />
+              <span>1. Thông Tin Định Danh &amp; Liên Hệ CV</span>
+            </h3>
+            <p className="text-xs text-ink-muted mb-4">
+              Hiển thị ở phần đầu (Header) của trang Resume. Có thể tùy chỉnh link tải file PDF trực tiếp.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Họ và tên hiển thị</label>
+                <input
+                  type="text"
+                  value={resumeData.name || ''}
+                  onChange={(e) => setResumeData({ ...resumeData, name: e.target.value })}
+                  placeholder="Ngô Chí Quốc"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Chức danh / Vị trí trên CV</label>
+                <input
+                  type="text"
+                  value={resumeData.title || ''}
+                  onChange={(e) => setResumeData({ ...resumeData, title: e.target.value })}
+                  placeholder="Lập trình viên Full Stack & Front End"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Địa chỉ / Tỉnh thành</label>
+                <input
+                  type="text"
+                  value={resumeData.location || ''}
+                  onChange={(e) => setResumeData({ ...resumeData, location: e.target.value })}
+                  placeholder="TP. Hồ Chí Minh, Việt Nam"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Email liên hệ CV</label>
+                <input
+                  type="email"
+                  value={resumeData.email || ''}
+                  onChange={(e) => setResumeData({ ...resumeData, email: e.target.value })}
+                  placeholder="ngochiquoc140@gmail.com"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Số điện thoại CV</label>
+                <input
+                  type="text"
+                  value={resumeData.phone || ''}
+                  onChange={(e) => setResumeData({ ...resumeData, phone: e.target.value })}
+                  placeholder="0789898100"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Link GitHub</label>
+                <input
+                  type="text"
+                  value={resumeData.github_url || ''}
+                  onChange={(e) => setResumeData({ ...resumeData, github_url: e.target.value })}
+                  placeholder="https://github.com/NgoQuoc4"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Link Website Cá Nhân</label>
+                <input
+                  type="text"
+                  value={resumeData.website_url || ''}
+                  onChange={(e) => setResumeData({ ...resumeData, website_url: e.target.value })}
+                  placeholder="https://ngoquoc.vercel.app"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">
+                  Link Tải File PDF Trực Tiếp (Tùy chọn)
+                </label>
+                <input
+                  type="text"
+                  value={resumeData.pdf_url || ''}
+                  onChange={(e) => setResumeData({ ...resumeData, pdf_url: e.target.value })}
+                  placeholder="https://res.cloudinary.com/.../cv.pdf (hoặc để trống)"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+                <p className="text-[11px] text-ink-subtle mt-1 font-mono">
+                  * Nếu để trống, trang CV dùng nút In / Lưu PDF mặc định của trình duyệt.
+                </p>
+              </div>
+
+              {/* Avatar Upload for Resume */}
+              <div className="md:col-span-2 pt-2 border-t border-border">
+                <label className="block text-xs font-mono text-slate-500 mb-2">Ảnh đại diện trên CV</label>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                  {resumeData.avatar_url && (
+                    <img
+                      src={resumeData.avatar_url}
+                      alt="CV Avatar"
+                      className="w-20 h-20 rounded-2xl object-cover border-2 border-pink-500 shadow-sm"
+                    />
+                  )}
+                  <div className="flex-1 space-y-2 w-full">
+                    <input
+                      type="text"
+                      value={resumeData.avatar_url || ''}
+                      onChange={(e) => setResumeData({ ...resumeData, avatar_url: e.target.value })}
+                      placeholder="URL ảnh đại diện CV..."
+                      className="w-full px-4 py-2 rounded-xl bg-surface-2 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                    />
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (profile.avatar_url) {
+                            setResumeData({ ...resumeData, avatar_url: profile.avatar_url });
+                            showToast('Đã sao chép ảnh đại diện từ Hero!', 'info');
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-surface-2 hover:bg-surface-3 border border-border text-xs font-mono text-ink-muted hover:text-ink cursor-pointer"
+                      >
+                        Lấy từ Tab Hero
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CARD 2: EXECUTIVE SUMMARY */}
+          <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float space-y-4">
+            <h3 className="text-base font-bold text-ink mb-1 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-pink-500" />
+              <span>2. Tóm Tắt Chuyên Môn (Executive Summary)</span>
+            </h3>
+            <p className="text-xs text-ink-muted mb-3">
+              Mô tả ngắn gọn về kinh nghiệm, định hướng và thế mạnh nổi bật của bạn.
+            </p>
+
+            <div>
+              <label className="block text-xs font-mono text-slate-500 mb-1">Tiêu đề mục</label>
+              <input
+                type="text"
+                value={resumeData.summary_title || ''}
+                onChange={(e) => setResumeData({ ...resumeData, summary_title: e.target.value })}
+                placeholder="Tóm tắt chuyên môn"
+                className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-slate-500 mb-1">Đoạn giới thiệu 1</label>
+              <textarea
+                rows={3}
+                value={resumeData.summary_p1 || ''}
+                onChange={(e) => setResumeData({ ...resumeData, summary_p1: e.target.value })}
+                placeholder="Là một nhà phát triển Full Stack tận tâm..."
+                className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none resize-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-slate-500 mb-1">Đoạn giới thiệu 2 (Tùy chọn)</label>
+              <textarea
+                rows={3}
+                value={resumeData.summary_p2 || ''}
+                onChange={(e) => setResumeData({ ...resumeData, summary_p2: e.target.value })}
+                placeholder="Ngoài Full Stack, tôi còn có chuyên môn vững chắc về..."
+                className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none resize-none"
+              />
+            </div>
+          </div>
+
+          {/* CARD 3: WORK EXPERIENCES */}
+          <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
+              <div>
+                <h3 className="text-base font-bold text-ink mb-1 flex items-center gap-2">
+                  <Briefcase className="w-4 h-4 text-pink-500" />
+                  <span>3. Kinh Nghiệm Làm Việc (Work Experience)</span>
+                </h3>
+                <p className="text-xs text-ink-muted">
+                  Các vị trí, công ty và thành tựu gạch đầu dòng xuất hiện trên Resume.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSyncResumeFromExperiences}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-surface-2 hover:bg-surface-3 border border-border text-xs font-mono font-semibold text-ink hover:text-pink-500 transition-colors cursor-pointer self-start"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Đồng bộ từ Tab Kinh nghiệm</span>
+              </button>
+            </div>
+
+            {/* Experience Section Title */}
+            <div>
+              <label className="block text-xs font-mono text-slate-500 mb-1">Tiêu đề mục</label>
+              <input
+                type="text"
+                value={resumeData.experiences_title || ''}
+                onChange={(e) => setResumeData({ ...resumeData, experiences_title: e.target.value })}
+                placeholder="Kinh nghiệm làm việc (Work Experience)"
+                className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Form Add/Edit Experience */}
+            <form onSubmit={handleSaveResumeExp} className="p-5 rounded-2xl bg-surface-2 border border-border space-y-4">
+              <h4 className="text-xs font-mono font-bold text-pink-500 uppercase tracking-wider flex items-center gap-1.5">
+                {editingResumeExpIdx !== null ? <Edit2 className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                <span>{editingResumeExpIdx !== null ? 'Chỉnh Sửa Mốc Kinh Nghiệm CV' : 'Thêm Mốc Kinh Nghiệm Mới'}</span>
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Vị trí / Chức danh</label>
+                  <input
+                    type="text"
+                    required
+                    value={resumeExpForm.role}
+                    onChange={(e) => setResumeExpForm({ ...resumeExpForm, role: e.target.value })}
+                    placeholder="Lập trình viên Full Stack & Front End"
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Công ty / Đơn vị</label>
+                  <input
+                    type="text"
+                    required
+                    value={resumeExpForm.company}
+                    onChange={(e) => setResumeExpForm({ ...resumeExpForm, company: e.target.value })}
+                    placeholder="Freelance & Dự án Độc lập"
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Thời gian</label>
+                  <input
+                    type="text"
+                    required
+                    value={resumeExpForm.period}
+                    onChange={(e) => setResumeExpForm({ ...resumeExpForm, period: e.target.value })}
+                    placeholder="2023 — Hiện tại"
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label className="block text-xs font-mono text-slate-500 mb-1">
+                    Các gạch đầu dòng mô tả (Mỗi dòng một gạch đầu dòng)
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={resumeExpForm.bullets}
+                    onChange={(e) => setResumeExpForm({ ...resumeExpForm, bullets: e.target.value })}
+                    placeholder="Thiết kế kiến trúc và trực tiếp phát triển các ứng dụng web phức tạp...&#10;Chuẩn hóa RESTful APIs và hệ thống xác thực JWT...&#10;Tối ưu hóa hiệu năng render..."
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none resize-none font-sans leading-relaxed"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                {editingResumeExpIdx !== null && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingResumeExpIdx(null);
+                      setResumeExpForm({ role: '', company: '', period: '', bullets: '' });
+                    }}
+                    className="px-4 py-2 rounded-xl text-xs font-mono text-ink-muted hover:text-ink cursor-pointer"
+                  >
+                    Hủy bỏ
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-ink text-surface-1 text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer shadow-sm"
+                >
+                  {editingResumeExpIdx !== null ? 'Cập Nhật Kinh Nghiệm' : 'Thêm Vào CV'}
+                </button>
+              </div>
+            </form>
+
+            {/* List of Experiences */}
+            <div className="space-y-4">
+              {(resumeData.experiences || []).map((exp, idx) => (
+                <div
+                  key={idx}
+                  className="p-5 rounded-2xl bg-surface-2 border border-border flex flex-col sm:flex-row sm:items-start justify-between gap-4"
+                >
+                  <div className="space-y-1.5 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-sm text-ink">{exp.role}</span>
+                      <span className="text-pink-500 text-xs font-mono font-semibold">@ {exp.company}</span>
+                      <span className="px-2 py-0.5 rounded-full bg-surface-1 border border-border font-mono text-[10px] text-ink-muted">
+                        {exp.period}
+                      </span>
+                    </div>
+
+                    {Array.isArray(exp.bullets) && exp.bullets.length > 0 && (
+                      <ul className="list-disc list-inside text-xs text-ink-muted space-y-1 mt-2">
+                        {exp.bullets.map((b, bIdx) => (
+                          <li key={bIdx}>{b}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0 self-start">
+                    <button
+                      type="button"
+                      onClick={() => handleEditResumeExp(idx)}
+                      className="p-1.5 rounded-lg text-ink-muted hover:text-pink-500 hover:bg-surface-1 transition-colors cursor-pointer"
+                      title="Chỉnh sửa"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteResumeExp(idx)}
+                      className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                      title="Xóa"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CARD 4: TECHNICAL SKILLS CATEGORIES */}
+          <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float space-y-6">
+            <h3 className="text-base font-bold text-ink mb-1 flex items-center gap-2">
+              <Code2 className="w-4 h-4 text-pink-500" />
+              <span>4. Kỹ Năng Kỹ Thuật Theo Nhóm (Technical Skills)</span>
+            </h3>
+            <p className="text-xs text-ink-muted mb-4">
+              Phân loại kỹ năng theo các mảng chuyên môn (Frontend, Backend, E-Commerce, Architecture...).
+            </p>
+
+            <div>
+              <label className="block text-xs font-mono text-slate-500 mb-1">Tiêu đề mục</label>
+              <input
+                type="text"
+                value={resumeData.skills_title || ''}
+                onChange={(e) => setResumeData({ ...resumeData, skills_title: e.target.value })}
+                placeholder="Kỹ năng kỹ thuật (Technical Skills)"
+                className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Form Add/Edit Skill Category */}
+            <form onSubmit={handleSaveResumeSkill} className="p-5 rounded-2xl bg-surface-2 border border-border space-y-4">
+              <h4 className="text-xs font-mono font-bold text-pink-500 uppercase tracking-wider flex items-center gap-1.5">
+                {editingResumeSkillIdx !== null ? <Edit2 className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                <span>{editingResumeSkillIdx !== null ? 'Chỉnh Sửa Nhóm Kỹ Năng' : 'Thêm Nhóm Kỹ Năng Mới'}</span>
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Tên nhóm kỹ năng</label>
+                  <input
+                    type="text"
+                    required
+                    value={resumeSkillForm.title}
+                    onChange={(e) => setResumeSkillForm({ ...resumeSkillForm, title: e.target.value })}
+                    placeholder="Frontend Engineering"
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Danh sách công nghệ / kỹ năng</label>
+                  <input
+                    type="text"
+                    required
+                    value={resumeSkillForm.skills}
+                    onChange={(e) => setResumeSkillForm({ ...resumeSkillForm, skills: e.target.value })}
+                    placeholder="ReactJS, NextJS, TypeScript, TailwindCSS, Redux Toolkit..."
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                {editingResumeSkillIdx !== null && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingResumeSkillIdx(null);
+                      setResumeSkillForm({ title: '', skills: '' });
+                    }}
+                    className="px-4 py-2 rounded-xl text-xs font-mono text-ink-muted hover:text-ink cursor-pointer"
+                  >
+                    Hủy bỏ
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-ink text-surface-1 text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer shadow-sm"
+                >
+                  {editingResumeSkillIdx !== null ? 'Cập Nhật Nhóm Kỹ Năng' : 'Thêm Nhóm Kỹ Năng'}
+                </button>
+              </div>
+            </form>
+
+            {/* List of Skills */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {(resumeData.skill_categories || []).map((cat, idx) => (
+                <div key={idx} className="p-4 rounded-xl bg-surface-2 border border-border flex items-start justify-between gap-3">
+                  <div>
+                    <span className="font-bold text-ink text-sm block mb-1">{cat.title}</span>
+                    <p className="text-xs font-mono text-ink-muted leading-relaxed">{cat.skills}</p>
+                  </div>
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingResumeSkillIdx(idx);
+                        setResumeSkillForm({ title: cat.title, skills: cat.skills });
+                      }}
+                      className="p-1.5 rounded-lg text-ink-muted hover:text-pink-500 transition-colors cursor-pointer"
+                      title="Sửa"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteResumeSkill(idx)}
+                      className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                      title="Xóa"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CARD 5: FEATURED PROJECTS */}
+          <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4">
+              <div>
+                <h3 className="text-base font-bold text-ink mb-1 flex items-center gap-2">
+                  <Briefcase className="w-4 h-4 text-pink-500" />
+                  <span>5. Dự Án Tiêu Biểu Trên CV (Featured Projects)</span>
+                </h3>
+                <p className="text-xs text-ink-muted">
+                  Các dự án nổi bật, link demo và công nghệ sử dụng hiển thị trong CV.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSyncResumeFromProjects}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-surface-2 hover:bg-surface-3 border border-border text-xs font-mono font-semibold text-ink hover:text-pink-500 transition-colors cursor-pointer self-start"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Đồng bộ từ Tab Dự án</span>
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-slate-500 mb-1">Tiêu đề mục</label>
+              <input
+                type="text"
+                value={resumeData.projects_title || ''}
+                onChange={(e) => setResumeData({ ...resumeData, projects_title: e.target.value })}
+                placeholder="Dự án tiêu biểu (Featured Projects)"
+                className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Form Add/Edit Project */}
+            <form onSubmit={handleSaveResumeProj} className="p-5 rounded-2xl bg-surface-2 border border-border space-y-4">
+              <h4 className="text-xs font-mono font-bold text-pink-500 uppercase tracking-wider flex items-center gap-1.5">
+                {editingResumeProjIdx !== null ? <Edit2 className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                <span>{editingResumeProjIdx !== null ? 'Chỉnh Sửa Dự Án CV' : 'Thêm Dự Án Mới Vào CV'}</span>
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Tên dự án</label>
+                  <input
+                    type="text"
+                    required
+                    value={resumeProjForm.title}
+                    onChange={(e) => setResumeProjForm({ ...resumeProjForm, title: e.target.value })}
+                    placeholder="Trang Sakia Online"
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Huy hiệu phân loại</label>
+                  <input
+                    type="text"
+                    value={resumeProjForm.category}
+                    onChange={(e) => setResumeProjForm({ ...resumeProjForm, category: e.target.value })}
+                    placeholder="Full-stack / AI & Web / EdTech / Ecommerce"
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Link Live Demo</label>
+                  <input
+                    type="text"
+                    value={resumeProjForm.live_demo}
+                    onChange={(e) => setResumeProjForm({ ...resumeProjForm, live_demo: e.target.value })}
+                    placeholder="http://trangsakiaonline.com/"
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Link GitHub</label>
+                  <input
+                    type="text"
+                    value={resumeProjForm.github_link}
+                    onChange={(e) => setResumeProjForm({ ...resumeProjForm, github_link: e.target.value })}
+                    placeholder="https://github.com/NgoQuoc4/..."
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Mô tả dự án</label>
+                  <textarea
+                    rows={2}
+                    value={resumeProjForm.description}
+                    onChange={(e) => setResumeProjForm({ ...resumeProjForm, description: e.target.value })}
+                    placeholder="Nền tảng đăng ký khóa học trực tuyến, quản lý lịch sử đơn hàng..."
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none resize-none"
+                  />
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-xs font-mono text-slate-500 mb-1">
+                    Công nghệ sử dụng (Phân cách bởi dấu phẩy)
+                  </label>
+                  <input
+                    type="text"
+                    value={resumeProjForm.tech_stack}
+                    onChange={(e) => setResumeProjForm({ ...resumeProjForm, tech_stack: e.target.value })}
+                    placeholder="NextJS, NestJS, TypeScript, Prisma ORM, MySQL, Tailwind"
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                {editingResumeProjIdx !== null && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingResumeProjIdx(null);
+                      setResumeProjForm({
+                        title: '',
+                        category: 'Full-stack',
+                        live_demo: '',
+                        github_link: '',
+                        description: '',
+                        tech_stack: '',
+                      });
+                    }}
+                    className="px-4 py-2 rounded-xl text-xs font-mono text-ink-muted hover:text-ink cursor-pointer"
+                  >
+                    Hủy bỏ
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-ink text-surface-1 text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer shadow-sm"
+                >
+                  {editingResumeProjIdx !== null ? 'Cập Nhật Dự Án' : 'Thêm Vào CV'}
+                </button>
+              </div>
+            </form>
+
+            {/* List of Projects */}
+            <div className="space-y-4">
+              {(resumeData.projects || []).map((proj, idx) => (
+                <div key={idx} className="p-5 rounded-2xl bg-surface-2 border border-border flex items-start justify-between gap-4">
+                  <div className="space-y-1 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-sm text-ink">{proj.title}</span>
+                      {proj.category && (
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-500 border border-pink-500/20">
+                          {proj.category}
+                        </span>
+                      )}
+                    </div>
+                    {proj.description && (
+                      <p className="text-xs text-ink-muted leading-relaxed">{proj.description}</p>
+                    )}
+                    {Array.isArray(proj.tech_stack) && proj.tech_stack.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5 font-mono text-[10px] pt-1">
+                        {proj.tech_stack.map((t, tIdx) => (
+                          <span key={tIdx} className="px-2 py-0.5 bg-surface-1 border border-border rounded-md text-ink-subtle">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleEditResumeProj(idx)}
+                      className="p-1.5 rounded-lg text-ink-muted hover:text-pink-500 hover:bg-surface-1 transition-colors cursor-pointer"
+                      title="Sửa"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteResumeProj(idx)}
+                      className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                      title="Xóa"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CARD 6: EDUCATION & TRAINING */}
+          <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float space-y-6">
+            <h3 className="text-base font-bold text-ink mb-1 flex items-center gap-2">
+              <GraduationCap className="w-4 h-4 text-pink-500" />
+              <span>6. Học Vấn &amp; Đào Tạo (Education &amp; Training)</span>
+            </h3>
+            <p className="text-xs text-ink-muted mb-4">
+              Bằng cấp đại học, chứng chỉ chuyên sâu hoặc khóa học nghề nghiệp.
+            </p>
+
+            <div>
+              <label className="block text-xs font-mono text-slate-500 mb-1">Tiêu đề mục</label>
+              <input
+                type="text"
+                value={resumeData.education_title || ''}
+                onChange={(e) => setResumeData({ ...resumeData, education_title: e.target.value })}
+                placeholder="Học vấn & Đào tạo (Education & Training)"
+                className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Form Add/Edit Education */}
+            <form onSubmit={handleSaveResumeEdu} className="p-5 rounded-2xl bg-surface-2 border border-border space-y-4">
+              <h4 className="text-xs font-mono font-bold text-pink-500 uppercase tracking-wider flex items-center gap-1.5">
+                {editingResumeEduIdx !== null ? <Edit2 className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                <span>{editingResumeEduIdx !== null ? 'Chỉnh Sửa Mục Học Vấn' : 'Thêm Mục Học Vấn Mới'}</span>
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Nhãn huy hiệu</label>
+                  <input
+                    type="text"
+                    value={resumeEduForm.badge}
+                    onChange={(e) => setResumeEduForm({ ...resumeEduForm, badge: e.target.value })}
+                    placeholder="Đại Học / Đào Tạo Chuyên Sâu"
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Tiêu đề bằng cấp / Ngành</label>
+                  <input
+                    type="text"
+                    required
+                    value={resumeEduForm.title}
+                    onChange={(e) => setResumeEduForm({ ...resumeEduForm, title: e.target.value })}
+                    placeholder="Công Nghệ Thông Tin"
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Đơn vị / Phụ đề</label>
+                  <input
+                    type="text"
+                    value={resumeEduForm.subtitle}
+                    onChange={(e) => setResumeEduForm({ ...resumeEduForm, subtitle: e.target.value })}
+                    placeholder="Chuyên ngành Kỹ thuật Phần mềm"
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none"
+                  />
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label className="block text-xs font-mono text-slate-500 mb-1">Mô tả chi tiết</label>
+                  <textarea
+                    rows={2}
+                    value={resumeEduForm.description}
+                    onChange={(e) => setResumeEduForm({ ...resumeEduForm, description: e.target.value })}
+                    placeholder="Nền tảng vững chắc về cấu trúc dữ liệu, giải thuật, cơ sở dữ liệu..."
+                    className="w-full px-3.5 py-2 rounded-xl bg-surface-1 border border-border text-xs text-ink focus:border-pink-500 focus:outline-none resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                {editingResumeEduIdx !== null && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingResumeEduIdx(null);
+                      setResumeEduForm({
+                        badge: 'Đại Học',
+                        title: '',
+                        subtitle: '',
+                        description: '',
+                      });
+                    }}
+                    className="px-4 py-2 rounded-xl text-xs font-mono text-ink-muted hover:text-ink cursor-pointer"
+                  >
+                    Hủy bỏ
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-ink text-surface-1 text-xs font-bold hover:opacity-90 transition-opacity cursor-pointer shadow-sm"
+                >
+                  {editingResumeEduIdx !== null ? 'Cập Nhật Học Vấn' : 'Thêm Vào CV'}
+                </button>
+              </div>
+            </form>
+
+            {/* List of Education */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {(resumeData.education || []).map((edu, idx) => (
+                <div key={idx} className="p-5 rounded-2xl bg-surface-2 border border-border flex items-start justify-between gap-3">
+                  <div className="space-y-1 flex-1">
+                    {edu.badge && (
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-pink-500 bg-pink-500/10 px-2.5 py-0.5 rounded-full font-semibold">
+                        {edu.badge}
+                      </span>
+                    )}
+                    <h4 className="font-sans font-bold text-sm text-ink mt-2">{edu.title}</h4>
+                    {edu.subtitle && (
+                      <p className="font-mono text-xs text-ink-muted">{edu.subtitle}</p>
+                    )}
+                    {edu.description && (
+                      <p className="text-xs text-ink-muted mt-1 leading-relaxed">{edu.description}</p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleEditResumeEdu(idx)}
+                      className="p-1.5 rounded-lg text-ink-muted hover:text-pink-500 transition-colors cursor-pointer"
+                      title="Sửa"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteResumeEdu(idx)}
+                      className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                      title="Xóa"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* CARD 7: FOOTER & METADATA */}
+          <div className="bg-surface-1 border border-border rounded-3xl p-6 sm:p-8 shadow-float space-y-4">
+            <h3 className="text-base font-bold text-ink mb-1 flex items-center gap-2">
+              <Globe className="w-4 h-4 text-pink-500" />
+              <span>7. Chân Trang CV &amp; Ngày Cập Nhật</span>
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Tên thương hiệu chân trang</label>
+                <input
+                  type="text"
+                  value={resumeData.footer_name || ''}
+                  onChange={(e) => setResumeData({ ...resumeData, footer_name: e.target.value })}
+                  placeholder="Ngô Chí Quốc · Resume"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-slate-500 mb-1">Ghi chú cập nhật</label>
+                <input
+                  type="text"
+                  value={resumeData.footer_updated || ''}
+                  onChange={(e) => setResumeData({ ...resumeData, footer_updated: e.target.value })}
+                  placeholder="Cập nhật mới nhất: 2026"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface-2 border border-border text-sm text-ink focus:border-pink-500 focus:outline-none"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* STICKY BOTTOM SAVE ACTION BAR */}
+          <div className="sticky bottom-6 z-20 p-4 rounded-2xl bg-surface-1/95 border border-border backdrop-blur-md shadow-float flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-xs text-ink-muted">
+              <span className="w-2 h-2 rounded-full bg-pink-500 animate-pulse" />
+              <span>Các thay đổi sẽ được lưu tức thời vào hệ thống &amp; trang CV.</span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Link
+                href="/resume"
+                target="_blank"
+                className="px-4 py-2 rounded-xl bg-surface-2 hover:bg-surface-3 border border-border text-xs font-semibold text-ink transition-colors flex items-center gap-1.5"
+              >
+                <Eye className="w-3.5 h-3.5 text-pink-500" />
+                <span>Xem Trước CV</span>
+                <ExternalLink className="w-3 h-3" />
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => handleSaveResume()}
+                className="px-6 py-2.5 rounded-xl bg-ink text-surface-1 font-bold text-xs hover:opacity-90 transition-all shadow-sm cursor-pointer flex items-center gap-2"
+              >
+                <Check className="w-4 h-4" />
+                <span>Lưu Cấu Hình Resume</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* TAB 4: ABOUT & SKILLS */}
       {activeTab === 'about' && (
         <form onSubmit={handleSaveProfile} className="space-y-6">
@@ -2751,7 +4231,7 @@ function AdminDashboard() {
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-4 gap-1">
+                      <div className="grid grid-cols-5 gap-1">
                         <button
                           type="button"
                           onClick={() => handleSetAvatarFromMedia(item.url)}
@@ -2759,6 +4239,14 @@ function AdminDashboard() {
                           title="Đặt làm ảnh Avatar trang chính"
                         >
                           Avatar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleUseInResumeFromMedia(item.url)}
+                          className="py-1 px-1 rounded-lg bg-surface-2 hover:bg-rose-500/15 hover:text-rose-600 text-[10px] font-mono font-medium text-ink transition-colors cursor-pointer text-center truncate"
+                          title="Đặt làm Avatar trang Resume (CV)"
+                        >
+                          CV
                         </button>
                         <button
                           type="button"

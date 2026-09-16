@@ -108,6 +108,9 @@ export class Profile {
     name: string;
     logo_url: string;
   }[];
+
+  @Prop({ type: Object, default: {} })
+  resume_data: Record<string, any>;
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);

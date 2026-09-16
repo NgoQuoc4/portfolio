@@ -51,6 +51,7 @@ export interface Profile {
 
   social_links?: SocialLinks;
   brand_logos?: BrandItem[];
+  resume_data?: ResumeData;
 }
 
 export interface ProjectItem {
@@ -110,4 +111,58 @@ export interface ExperienceItem {
   description: string;
   achievements: string[];
   tech_stack: string[];
+}
+
+// Resume Page Types
+export interface ResumeSkillCategory {
+  title: string;
+  skills: string;
+}
+
+export interface ResumeProjectItem {
+  title: string;
+  category: string;
+  live_demo?: string;
+  github_link?: string;
+  description: string;
+  tech_stack: string[];
+}
+
+export interface ResumeEducationItem {
+  badge: string;
+  title: string;
+  subtitle: string;
+  description: string;
+}
+
+export interface ResumeExperienceItem {
+  role: string;
+  company: string;
+  period: string;
+  bullets: string[];
+}
+
+export interface ResumeData {
+  name?: string;
+  title?: string;
+  avatar_url?: string;
+  location?: string;
+  email?: string;
+  phone?: string;
+  github_url?: string;
+  website_url?: string;
+  pdf_url?: string;
+  summary_title?: string;
+  summary_p1?: string;
+  summary_p2?: string;
+  experiences_title?: string;
+  experiences?: ResumeExperienceItem[];
+  skills_title?: string;
+  skill_categories?: ResumeSkillCategory[];
+  projects_title?: string;
+  projects?: ResumeProjectItem[];
+  education_title?: string;
+  education?: ResumeEducationItem[];
+  footer_name?: string;
+  footer_updated?: string;
 }
