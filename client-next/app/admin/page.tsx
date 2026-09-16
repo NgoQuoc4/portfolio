@@ -473,6 +473,9 @@ function AdminDashboardContent() {
               uploading={uploading}
               handleCloudinaryUpload={handleCloudinaryUpload}
               showToast={showToast}
+              mediaList={mediaList}
+              fetchMediaList={fetchMediaList}
+              loadingMedia={loadingMedia}
             />
           )}
 

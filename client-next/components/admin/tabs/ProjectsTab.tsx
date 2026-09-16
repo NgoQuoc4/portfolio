@@ -11,12 +11,15 @@ import {
   EyeOff,
   RefreshCw,
   ExternalLink,
+  Image as ImageIcon,
   Edit2,
   Trash2,
 } from 'lucide-react';
 import api from '@/lib/api';
 import { defaultProjects } from '@/lib/defaults';
 import type { Profile, ProjectItem } from '@/lib/types';
+import { MediaPickerModal } from '../MediaPickerModal';
+import type { MediaResource } from '../types';
 
 interface ProjectsTabProps {
   profile: Profile;
@@ -27,6 +30,9 @@ interface ProjectsTabProps {
   uploading: string | null;
   handleCloudinaryUpload: (e: React.ChangeEvent<HTMLInputElement>, field: string) => void | Promise<void>;
   showToast: (message: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
+  mediaList?: MediaResource[];
+  loadingMedia?: boolean;
+  fetchMediaList?: () => void | Promise<void>;
 }
 
 export const ProjectsTab: React.FC<ProjectsTabProps> = ({
@@ -38,7 +44,11 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
   uploading,
   handleCloudinaryUpload,
   showToast,
+  mediaList = [],
+  loadingMedia = false,
+  fetchMediaList,
 }) => {
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [projectForm, setProjectForm] = useState({
     title: '',
@@ -285,30 +295,47 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
             </div>
           </div>
 
-          {/* Project Image with Cloudinary Upload */}
+          {/* Project Image with Cloudinary Upload & Library Picker */}
           <div className="md:col-span-2">
-            <div className="flex items-center justify-between mb-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1.5">
               <label className="block text-xs font-mono text-slate-500">Ảnh bìa dự án (Cover Image)</label>
-              <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs font-semibold text-pink-500 hover:text-pink-600">
-                {uploading === 'project_image' ? (
-                  <span className="flex items-center gap-1">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span>Đang tải lên Cloudinary...</span>
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1">
-                    <UploadCloud className="w-3.5 h-3.5" />
-                    <span>Tải ảnh lên Cloudinary (thư mục: ngoquoc_portfolio)</span>
-                  </span>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  disabled={uploading === 'project_image'}
-                  onChange={(e) => handleCloudinaryUpload(e, 'project_image')}
-                />
-              </label>
+              
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMediaPickerOpen(true);
+                    if (fetchMediaList && (!mediaList || mediaList.length === 0)) {
+                      fetchMediaList();
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-pink-500/10 hover:bg-pink-500/20 text-pink-500 border border-pink-500/20 text-xs font-semibold transition-all cursor-pointer shadow-2xs"
+                >
+                  <ImageIcon className="w-3.5 h-3.5" />
+                  <span>Chọn từ Thư viện Cloudinary</span>
+                </button>
+
+                <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-surface-2 hover:bg-surface-3 text-xs font-semibold text-ink border border-border transition-all">
+                  {uploading === 'project_image' ? (
+                    <span className="flex items-center gap-1">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Đang tải lên...</span>
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1">
+                      <UploadCloud className="w-3.5 h-3.5 text-pink-500" />
+                      <span>Tải ảnh mới từ máy</span>
+                    </span>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={uploading === 'project_image'}
+                    onChange={(e) => handleCloudinaryUpload(e, 'project_image')}
+                  />
+                </label>
+              </div>
             </div>
             <div className="flex gap-3 items-center">
               <input
@@ -590,6 +617,20 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
           ))}
         </div>
       </div>
+
+      {/* Media Picker Modal */}
+      <MediaPickerModal
+        isOpen={isMediaPickerOpen}
+        onClose={() => setIsMediaPickerOpen(false)}
+        onSelect={(url) => {
+          setProjectForm((prev) => ({ ...prev, image_url: url }));
+          setIsMediaPickerOpen(false);
+          showToast('Đã chọn ảnh bìa từ Thư viện Cloudinary!', 'success');
+        }}
+        mediaList={mediaList}
+        loadingMedia={loadingMedia}
+        fetchMediaList={fetchMediaList}
+      />
     </div>
   );
 };
