@@ -17,10 +17,16 @@ const navItems: NavItem[] = [
   { id: 'contact', label: 'Liên hệ', icon: <Mail className="w-4 h-4" /> },
 ];
 
-export const FloatingDock = () => {
+interface FloatingDockProps {
+  showProjects?: boolean;
+}
+
+export const FloatingDock: React.FC<FloatingDockProps> = ({ showProjects = true }) => {
   const [activeSection, setActiveSection] = useState('home');
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+
+  const activeNavItems = showProjects ? navItems : navItems.filter((item) => item.id !== 'work');
 
   useEffect(() => {
     // Check admin auth once on mount
@@ -31,7 +37,7 @@ export const FloatingDock = () => {
     const pageScroll = document.getElementById('page-scroll');
     if (!pageScroll) return;
 
-    const sections = navItems.map((item) => item.id);
+    const sections = activeNavItems.map((item) => item.id);
     let positions: { id: string; top: number }[] = [];
 
     const updatePositions = () => {
@@ -85,7 +91,7 @@ export const FloatingDock = () => {
           boxShadow: '0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.03)',
         }}
       >
-        {navItems.map((item) => {
+        {activeNavItems.map((item) => {
           const isActive = activeSection === item.id;
           return (
             <div key={item.id} className="relative flex items-center">
@@ -187,7 +193,7 @@ export const FloatingDock = () => {
           boxShadow: '0 8px 30px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.04)',
         }}
       >
-        {navItems.map((item) => {
+        {activeNavItems.map((item) => {
           const isActive = activeSection === item.id;
           return (
             <button

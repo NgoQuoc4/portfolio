@@ -40,6 +40,7 @@ import type { FreelanceJob } from '@/lib/types';
 
 export default function FreelancePage() {
   const [jobs, setJobs] = useState<FreelanceJob[]>(defaultFreelanceJobs);
+  const [showFreelanceJobs, setShowFreelanceJobs] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [previewJob, setPreviewJob] = useState<FreelanceJob | null>(null);
@@ -60,6 +61,14 @@ export default function FreelancePage() {
 
     // Load jobs from localStorage or fallback to defaults
     try {
+      const cachedProfile = localStorage.getItem('portfolio_profile');
+      if (cachedProfile) {
+        const parsedProf = JSON.parse(cachedProfile);
+        if (parsedProf && typeof parsedProf.show_freelance_jobs === 'boolean') {
+          setShowFreelanceJobs(parsedProf.show_freelance_jobs);
+        }
+      }
+
       const local = localStorage.getItem('portfolio_freelance_jobs');
       if (local) {
         const parsed = JSON.parse(local);
@@ -261,27 +270,29 @@ export default function FreelancePage() {
         </div>
       </section>
 
-      {/* 3. CATEGORY FILTER TABS */}
-      <section className="px-4 sm:px-6 max-w-6xl mx-auto mb-8">
-        <div className="flex items-center justify-center gap-2 flex-wrap pb-2">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                activeCategory === cat.id
-                  ? 'bg-ink text-surface-1 shadow-sm'
-                  : 'bg-surface-1 border border-border text-ink-muted hover:text-ink hover:border-pink-500/40'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
-      </section>
+      {/* 3. CATEGORY FILTER TABS & 4. FREELANCE JOBS LIST */}
+      {showFreelanceJobs && (
+        <>
+          <section className="px-4 sm:px-6 max-w-6xl mx-auto mb-8">
+            <div className="flex items-center justify-center gap-2 flex-wrap pb-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`px-4 py-2 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+                    activeCategory === cat.id
+                      ? 'bg-ink text-surface-1 shadow-sm'
+                      : 'bg-surface-1 border border-border text-ink-muted hover:text-ink hover:border-pink-500/40'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </section>
 
-      {/* 4. FREELANCE JOBS LIST */}
-      <main className="px-4 sm:px-6 max-w-6xl mx-auto pb-20 space-y-10">
+          {/* 4. FREELANCE JOBS LIST */}
+          <main className="px-4 sm:px-6 max-w-6xl mx-auto pb-20 space-y-10">
         {filteredJobs.length === 0 ? (
           <div className="p-16 text-center bg-surface-1 border border-border rounded-3xl text-ink-muted">
             <Briefcase className="w-12 h-12 text-ink-subtle mx-auto mb-3 opacity-50" />
@@ -480,6 +491,8 @@ export default function FreelancePage() {
           ))
         )}
       </main>
+      </>
+      )}
 
       {/* 5. QUICK BOOKING SECTION */}
       <section id="booking" className="scroll-mt-24 py-16 px-4 sm:px-6 bg-surface-1/50 border-t border-border">

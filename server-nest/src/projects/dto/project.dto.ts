@@ -1,4 +1,4 @@
-import { IsString, IsArray, IsOptional, IsNumber } from 'class-validator';
+import { IsString, IsArray, IsOptional, IsNumber, IsBoolean } from 'class-validator';
 
 export class CreateProjectDto {
   @IsString()
@@ -43,6 +43,10 @@ export class CreateProjectDto {
   @IsOptional()
   @IsString()
   brand_logo?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  hidden?: boolean;
 }
 
 export class UpdateProjectDto {
@@ -91,4 +95,8 @@ export class UpdateProjectDto {
   @IsOptional()
   @IsString()
   brand_logo?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  hidden?: boolean;
 }

@@ -31,6 +31,8 @@ export interface Profile {
 
   work_subtitle?: string;
   work_headline?: string;
+  show_projects?: boolean;
+  show_freelance_jobs?: boolean;
 
   experience_subtitle?: string;
   experience_headline?: string;
@@ -66,6 +68,7 @@ export interface ProjectItem {
   metrics?: string[];
   year?: string;
   brand_logo?: string;
+  hidden?: boolean;
 }
 
 export interface Message {
@@ -126,6 +129,7 @@ export interface ResumeProjectItem {
   github_link?: string;
   description: string;
   tech_stack: string[];
+  hidden?: boolean;
 }
 
 export interface ResumeEducationItem {
@@ -140,6 +144,7 @@ export interface ResumeExperienceItem {
   company: string;
   period: string;
   bullets: string[];
+  hidden?: boolean;
 }
 
 export interface ResumeData {
@@ -157,10 +162,12 @@ export interface ResumeData {
   summary_p2?: string;
   experiences_title?: string;
   experiences?: ResumeExperienceItem[];
+  show_experiences?: boolean;
   skills_title?: string;
   skill_categories?: ResumeSkillCategory[];
   projects_title?: string;
   projects?: ResumeProjectItem[];
+  show_projects?: boolean;
   education_title?: string;
   education?: ResumeEducationItem[];
   footer_name?: string;

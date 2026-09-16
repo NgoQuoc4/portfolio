@@ -46,7 +46,7 @@ export default function Home() {
         <CustomCursor />
 
         {/* 2. Floating Navigation Dock */}
-        <FloatingDock />
+        <FloatingDock showProjects={profile?.show_projects !== false} />
 
         {/* 3. Page Scroll Container */}
         <div
@@ -79,11 +79,13 @@ export default function Home() {
           />
 
           {/* Section: Selected Work */}
-          <SelectedWork
-            projects={projects}
-            sectionSubtitle={profile?.work_subtitle}
-            sectionHeadline={profile?.work_headline}
-          />
+          {profile?.show_projects !== false && (
+            <SelectedWork
+              projects={projects}
+              sectionSubtitle={profile?.work_subtitle}
+              sectionHeadline={profile?.work_headline}
+            />
+          )}
 
           {/* Section: Career & Work Experience */}
           <ExperienceSection

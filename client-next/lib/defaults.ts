@@ -26,6 +26,8 @@ export const defaultProfile: Profile = {
 
   work_subtitle: 'Dự Án Chọn Lọc',
   work_headline: 'Các sản phẩm đã phát triển',
+  show_projects: true,
+  show_freelance_jobs: true,
 
   experience_subtitle: 'HÀNH TRÌNH SỰ NGHIỆP',
   experience_headline: 'Kinh Nghiệm Làm Việc & Dấu Ấn Chuyên Môn',
@@ -276,6 +278,7 @@ export const defaultResume: ResumeData = {
   summary_p2:
     'Ngoài Full Stack, tôi còn có chuyên môn vững chắc về Vanilla JavaScript, Liquid (Shopify) và Handlebars (BigCommerce), cho phép tôi phát triển và tùy chỉnh các nền tảng thương mại điện tử một cách hiệu quả, tối ưu hóa hiệu suất và tạo ra các giải pháp front-end linh hoạt, có khả năng mở rộng.',
   experiences_title: 'Kinh nghiệm làm việc (Work Experience)',
+  show_experiences: true,
   experiences: [
     {
       role: 'Lập trình viên Full Stack & Front End',
@@ -323,6 +326,7 @@ export const defaultResume: ResumeData = {
     },
   ],
   projects_title: 'Dự án tiêu biểu (Featured Projects)',
+  show_projects: true,
   projects: [
     {
       title: 'Trang Sakia Online',

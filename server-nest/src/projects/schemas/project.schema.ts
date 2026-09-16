@@ -37,6 +37,9 @@ export class Project {
 
   @Prop({ required: false })
   brand_logo: string;
+
+  @Prop({ default: false })
+  hidden: boolean;
 }
 
 export const ProjectSchema = SchemaFactory.createForClass(Project);

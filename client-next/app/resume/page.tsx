@@ -56,17 +56,19 @@ export default function ResumePage() {
     window.print();
   };
 
-  const experiences = resume.experiences && resume.experiences.length > 0
+  const allExperiences = resume.experiences && resume.experiences.length > 0
     ? resume.experiences
     : defaultResume.experiences || [];
+  const experiences = allExperiences.filter((e) => e.hidden !== true);
 
   const skillCategories = resume.skill_categories && resume.skill_categories.length > 0
     ? resume.skill_categories
     : defaultResume.skill_categories || [];
 
-  const projects = resume.projects && resume.projects.length > 0
+  const allProjects = resume.projects && resume.projects.length > 0
     ? resume.projects
     : defaultResume.projects || [];
+  const projects = allProjects.filter((p) => p.hidden !== true);
 
   const education = resume.education && resume.education.length > 0
     ? resume.education
@@ -210,7 +212,7 @@ export default function ResumePage() {
         )}
 
         {/* Work Experience */}
-        {experiences.length > 0 && (
+        {resume.show_experiences !== false && experiences.length > 0 && (
           <section className="mb-10">
             <h2 className="font-mono text-xs text-pink-500 uppercase tracking-widest font-semibold mb-6 flex items-center gap-2">
               <Briefcase className="w-4 h-4 text-pink-500" />
@@ -264,7 +266,7 @@ export default function ResumePage() {
         )}
 
         {/* Featured Projects */}
-        {projects.length > 0 && (
+        {resume.show_projects !== false && projects.length > 0 && (
           <section className="mb-10">
             <h2 className="font-mono text-xs text-pink-500 uppercase tracking-widest font-semibold mb-6">
               {resume.projects_title || 'Dự án tiêu biểu (Featured Projects)'}

@@ -53,6 +53,12 @@ export class Profile {
   @Prop({ required: false })
   work_headline: string;
 
+  @Prop({ default: true })
+  show_projects: boolean;
+
+  @Prop({ default: true })
+  show_freelance_jobs: boolean;
+
   @Prop({ required: false })
   experience_subtitle: string;
 

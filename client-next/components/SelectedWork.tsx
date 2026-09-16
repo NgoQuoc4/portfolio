@@ -19,7 +19,8 @@ export const SelectedWork: React.FC<SelectedWorkProps> = ({
   sectionSubtitle = 'Dự Án Chọn Lọc',
   sectionHeadline = 'Các sản phẩm đã phát triển',
 }) => {
-  const displayProjects = projects.length > 0 ? projects : defaultProjects;
+  const rawProjects = projects.length > 0 ? projects : defaultProjects;
+  const displayProjects = rawProjects.filter((p) => p.hidden !== true);
   const [selectedFilter, setSelectedFilter] = useState('Tất cả');
 
   const categories = ['Tất cả', '0 → 1', 'Tăng trưởng', 'Nghiên cứu'];
