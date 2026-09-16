@@ -33,7 +33,7 @@ interface FreelanceSectionProps {
 export const FreelanceSection: React.FC<FreelanceSectionProps> = ({
   calendarLink = 'https://calendar.google.com',
   email = 'ngochiquoc140@gmail.com',
-  phone = '0981729304',
+  phone = '0789898100',
 }) => {
   const [jobs, setJobs] = useState<FreelanceJob[]>(defaultFreelanceJobs);
   const [selectedJobIndex, setSelectedJobIndex] = useState(0);
@@ -423,7 +423,7 @@ export const FreelanceSection: React.FC<FreelanceSectionProps> = ({
 
                 <div className="grid grid-cols-2 gap-2">
                   <a
-                    href="https://zalo.me/0981729304"
+                    href="https://zalo.me/0789898100"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-semibold transition-colors text-center"

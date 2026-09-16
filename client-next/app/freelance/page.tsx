@@ -552,7 +552,7 @@ export default function FreelancePage() {
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     <a
-                      href="https://zalo.me/0981729304"
+                      href="https://zalo.me/0789898100"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-bold transition-all text-center"
@@ -561,11 +561,11 @@ export default function FreelancePage() {
                       <span>Chat Zalo</span>
                     </a>
                     <a
-                      href="tel:0981729304"
+                      href="tel:0789898100"
                       className="flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-surface-2 hover:bg-surface-3 border border-border text-ink text-xs font-bold transition-all text-center"
                     >
                       <Phone className="w-4 h-4 text-pink-500" />
-                      <span>098.172.9304</span>
+                      <span>0789898100</span>
                     </a>
                   </div>
                 </div>
@@ -737,21 +737,21 @@ export default function FreelancePage() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <a
-              href="mailto:ngochiquoc4@gmail.com?subject=Liên hệ hợp tác dự án Freelance"
+              href="mailto:ngochiquoc140@gmail.com?subject=Liên hệ hợp tác dự án Freelance"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-ink text-surface-1 font-bold text-xs hover:opacity-90 transition-all shadow-md"
             >
               <Mail className="w-4 h-4 text-pink-400" />
-              <span>Gửi email trao đổi: ngochiquoc4@gmail.com</span>
+              <span>Gửi email trao đổi: ngochiquoc140@gmail.com</span>
             </a>
 
             <a
-              href="https://zalo.me/0981729304"
+              href="https://zalo.me/0789898100"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-surface-1 border border-border text-ink font-bold text-xs hover:border-pink-500 transition-all shadow-xs"
             >
               <MessageCircle className="w-4 h-4 text-emerald-500" />
-              <span>Chat Zalo: 098.172.9304</span>
+              <span>Chat Zalo: 0789898100</span>
             </a>
           </div>
         </div>
